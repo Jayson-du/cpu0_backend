@@ -1,4 +1,31 @@
+cmake_minimum_required(VERSION 3.22)
+
+# 设置C++标准为C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 导入LLVM的配置文件
+set(LLVM_INSTALL_PREFIX "/usr/lib/llvm-14")
+
+list(APPEND CMAKE_PREFIX_PATH ${LLVM_INSTALL_PREFIX}/lib/cmake/llvm/)
+
+find_package(LLVM REQUIRED CONFIG)
+
+# include(${CMAKE_PREFIX_PATH}/)
+
+file(GLOB CMAKE_FILES ${CMAKE_PREFIX_PATH}//*.cmake)
+
+# 遍历每个 .cmake 文件并引用
+foreach(CMAKE_FILE IN LISTS CMAKE_FILES)
+    include(${CMAKE_FILE})
+endforeach()
+
+# 包含LLVM相关模块
+include_directories(${LLVM_INCLUDE_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
+
 add_llvm_component_group(Cpu0)
+
 
 set(LLVM_TARGET_DEFINITIONS Cpu0Asm.td)
 tablegen(LLVM Cpu0GenAsmMatcher.inc -gen-asm-matcher)
