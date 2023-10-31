@@ -33,8 +33,14 @@ public:
 
   static const Cpu0FrameLowering *create(const Cpu0Subtarget &ST);
 
+  /*
+   * brief: 返回一个布尔值，确定函数是否应该有专用的帧指针寄存器
+   */
   bool hasFP(const MachineFunction &MF) const override;
 
+  /*
+   * brief: 调用该函数消除调用帧setup或者伪指令
+   */
   MachineBasicBlock::iterator
   eliminateCallFramePseudoInstr(MachineFunction &MF,
                                   MachineBasicBlock &MBB,

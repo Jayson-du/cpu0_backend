@@ -20,6 +20,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+// 定义特定目标机器的指令格式
+
 // Format specifies the encoding used by the instruction.  This is part of the
 // ad-hoc solution used to emit machine instruction encodings by our machine
 // code emitter.

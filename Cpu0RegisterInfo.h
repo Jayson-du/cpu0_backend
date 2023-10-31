@@ -37,12 +37,16 @@ public:
   /// Code Generation virtual methods...
   const TargetRegisterClass *getPointerRegClass(const MachineFunction &MF,
                                                 unsigned Kind) const override;
-
+  /*
+   * brief: 返回一组按被调用者保存堆栈帧偏移量的顺序的寄存器列表
+   */
   const MCPhysReg *getCalleeSavedRegs(const MachineFunction *MF) const override;
 
-  const uint32_t *getCallPreservedMask(const MachineFunction &MF,
+  const uint32_t *getCallPreservedMask(const MachineFunction &MF,getReservedRegs 
                                        CallingConv::ID) const override;
-
+  /*
+   * brief: 返回一个由物理寄存器号索引的bitset，指示某个特定的寄存器是否不可用。
+   */
   BitVector getReservedRegs(const MachineFunction &MF) const override;
 
   bool requiresRegisterScavenging(const MachineFunction &MF) const override;
@@ -50,6 +54,9 @@ public:
   bool trackLivenessAfterRegAlloc(const MachineFunction &MF) const override;
 
   /// Stack Frame Processing Methods
+  /*
+   * brief: 从可能使用抽象帧索引的指令中消除它们
+   */
   void eliminateFrameIndex(MachineBasicBlock::iterator II,
                            int SPAdj, unsigned FIOperandNum,
                            RegScavenger *RS = nullptr) const override;

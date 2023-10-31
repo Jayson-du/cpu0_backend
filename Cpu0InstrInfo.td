@@ -15,6 +15,8 @@
 // Cpu0 profiles and nodes
 //===----------------------------------------------------------------------===//
 
+// 定义特定目标的指令的模板、条件与指令集
+
 def SDT_Cpu0Ret          : SDTypeProfile<0, 1, [SDTCisInt<0>]>;
 // Only op DAG can be disabled by ch4_1, data DAG cannot.
 def SDT_Cpu0DivRem       : SDTypeProfile<0, 2,

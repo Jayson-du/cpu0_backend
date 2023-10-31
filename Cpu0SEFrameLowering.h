@@ -26,7 +26,14 @@ public:
 
   /// emitProlog/emitEpilog - These methods insert prolog and epilog code into
   /// the function.
+  /*
+   * brief: 在函数中插入序言代码 (猜测可能是补充上下文, 比如插入全局变量的地址)
+   */
   void emitPrologue(MachineFunction &MF, MachineBasicBlock &MBB) const override;
+  
+  /*
+   * brief: 在函数中插入尾声代码 (猜测可能是清理堆栈的功能, 比如调用对象的析构函数)
+   */
   void emitEpilogue(MachineFunction &MF, MachineBasicBlock &MBB) const override;
 
   bool spillCalleeSavedRegisters(MachineBasicBlock &MBB,
