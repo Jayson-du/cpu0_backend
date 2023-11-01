@@ -37,11 +37,12 @@ Cpu0SETargetLowering::Cpu0SETargetLowering(const Cpu0TargetMachine &TM,
     : Cpu0TargetLowering(TM, STI) {
 //@Cpu0SETargetLowering body {
   // Set up the register classes
+  // 调用该方法表示哪些本地支持哪些类型
   addRegisterClass(MVT::i32, &Cpu0::CPURegsRegClass);
 
   setOperationAction(ISD::ATOMIC_FENCE,       MVT::Other, Custom);
 
-// must, computeRegisterProperties - Once all of the register classes are 
+// must, computeRegisterProperties - Once all of the register classes are
 //  added, this allows us to compute derived properties we expose.
   computeRegisterProperties(Subtarget.getRegisterInfo());
 }

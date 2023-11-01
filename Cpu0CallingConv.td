@@ -10,6 +10,9 @@
 //===----------------------------------------------------------------------===//
 
 /// CCIfSubtarget - Match if the current subtarget has a feature F.
+
+// 描述调用约定
+
 class CCIfSubtarget<string F, CCAction A>:
   CCIf<!strconcat("State.getTarget().getSubtarget<Cpu0Subtarget>().", F), A>;
 

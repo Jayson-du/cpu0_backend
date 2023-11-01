@@ -35,11 +35,25 @@ def FrmL      : Format<2>;
 def FrmJ      : Format<3>;
 def FrmOther  : Format<4>; // Instruction w/ a custom format
 
+/*
+  class Instruction {
+  string Namespace = "";
+  dag OutOperandList;    // A dag containing the MI def operand list.
+  dag InOperandList;     // A dag containing the MI use operand list.
+  string AsmString = ""; // The .s format to print the instruction with.
+  list<dag> Pattern;     // Set to the DAG pattern for this instruction.
+  list<Register> Uses = [];
+  list<Register> Defs = [];
+  list<Predicate> Predicates = [];  // predicates turned into isel match code
+
+}
+ */
+
 // Generic Cpu0 Format
 class Cpu0Inst<dag outs, dag ins, string asmstr, list<dag> pattern,
                InstrItinClass itin, Format f>: Instruction
 {
-  // Inst and Size: for tablegen(... -gen-emitter) and 
+  // Inst and Size: for tablegen(... -gen-emitter) and
   // tablegen(... -gen-disassembler) in CMakeLists.txt
   field bits<32> Inst;
   Format Form = f;

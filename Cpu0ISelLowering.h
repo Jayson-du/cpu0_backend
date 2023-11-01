@@ -74,6 +74,11 @@ namespace llvm {
   class Cpu0Subtarget;
 
   //@class Cpu0TargetLowering
+
+  /**
+   * @brief 指令合法化类, 将本地不支持的指令转换为本地支持的指令
+   *
+   */
   class Cpu0TargetLowering : public TargetLowering  {
   public:
     explicit Cpu0TargetLowering(const Cpu0TargetMachine &TM,

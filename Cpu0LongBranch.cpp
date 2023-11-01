@@ -30,6 +30,8 @@
 #include "llvm/Support/MathExtras.h"
 #include "llvm/Target/TargetMachine.h"
 
+// 分支优化文件
+
 using namespace llvm;
 
 #define DEBUG_TYPE "cpu0-long-branch"

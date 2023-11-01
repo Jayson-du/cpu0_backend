@@ -13,11 +13,11 @@
 //===----------------------------------------------------------------------===//
 #include "Cpu0ISelLowering.h"
 
-#include "MCTargetDesc/Cpu0BaseInfo.h"
 #include "Cpu0MachineFunction.h"
+#include "Cpu0Subtarget.h"
 #include "Cpu0TargetMachine.h"
 #include "Cpu0TargetObjectFile.h"
-#include "Cpu0Subtarget.h"
+#include "MCTargetDesc/Cpu0BaseInfo.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/CodeGen/CallingConvLower.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
@@ -33,6 +33,16 @@
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/raw_ostream.h"
+
+/* 回调函数, 处理本地不支持的指令类型
+ * setOperationAction:    General operation(通用操作)
+ * setLoadExtAction:      Load with extension(加载拓展)
+ * setTruncStoreAction:   Truncationg store(删除存储)
+ * setIndexedLoadAction:  Indexed load(索引加载)
+ * setIndexedStoreAction: Indexed store(索引存储)
+ * setConvertAction:      Type conversion(类型转换)
+ * setCondCodeAction:     Support for a given condition code(对给定条件代码的支持)
+ */
 
 using namespace llvm;
 
@@ -74,18 +84,30 @@ SDValue Cpu0TargetLowering::getTargetNode(JumpTableSDNode *N, EVT Ty,
 //@3_1 1 {
 const char *Cpu0TargetLowering::getTargetNodeName(unsigned Opcode) const {
   switch (Opcode) {
-  case Cpu0ISD::JmpLink:           return "Cpu0ISD::JmpLink";
-  case Cpu0ISD::TailCall:          return "Cpu0ISD::TailCall";
-  case Cpu0ISD::Hi:                return "Cpu0ISD::Hi";
-  case Cpu0ISD::Lo:                return "Cpu0ISD::Lo";
-  case Cpu0ISD::GPRel:             return "Cpu0ISD::GPRel";
-  case Cpu0ISD::Ret:               return "Cpu0ISD::Ret";
-  case Cpu0ISD::EH_RETURN:         return "Cpu0ISD::EH_RETURN";
-  case Cpu0ISD::DivRem:            return "Cpu0ISD::DivRem";
-  case Cpu0ISD::DivRemU:           return "Cpu0ISD::DivRemU";
-  case Cpu0ISD::Wrapper:           return "Cpu0ISD::Wrapper";
-  case Cpu0ISD::Sync:              return "Cpu0ISD::Sync";
-  default:                         return NULL;
+  case Cpu0ISD::JmpLink:
+    return "Cpu0ISD::JmpLink";
+  case Cpu0ISD::TailCall:
+    return "Cpu0ISD::TailCall";
+  case Cpu0ISD::Hi:
+    return "Cpu0ISD::Hi";
+  case Cpu0ISD::Lo:
+    return "Cpu0ISD::Lo";
+  case Cpu0ISD::GPRel:
+    return "Cpu0ISD::GPRel";
+  case Cpu0ISD::Ret:
+    return "Cpu0ISD::Ret";
+  case Cpu0ISD::EH_RETURN:
+    return "Cpu0ISD::EH_RETURN";
+  case Cpu0ISD::DivRem:
+    return "Cpu0ISD::DivRem";
+  case Cpu0ISD::DivRemU:
+    return "Cpu0ISD::DivRemU";
+  case Cpu0ISD::Wrapper:
+    return "Cpu0ISD::Wrapper";
+  case Cpu0ISD::Sync:
+    return "Cpu0ISD::Sync";
+  default:
+    return NULL;
   }
 }
 //@3_1 1 }
@@ -102,9 +124,9 @@ Cpu0TargetLowering::Cpu0TargetLowering(const Cpu0TargetMachine &TM,
 
   // Load extented operations for i1 types must be promoted
   for (MVT VT : MVT::integer_valuetypes()) {
-    setLoadExtAction(ISD::EXTLOAD,  VT, MVT::i1,  Promote);
-    setLoadExtAction(ISD::ZEXTLOAD, VT, MVT::i1,  Promote);
-    setLoadExtAction(ISD::SEXTLOAD, VT, MVT::i1,  Promote);
+    setLoadExtAction(ISD::EXTLOAD, VT, MVT::i1, Promote);
+    setLoadExtAction(ISD::ZEXTLOAD, VT, MVT::i1, Promote);
+    setLoadExtAction(ISD::SEXTLOAD, VT, MVT::i1, Promote);
   }
 
   // Used by legalize types to correctly generate the setcc result.
@@ -114,21 +136,21 @@ Cpu0TargetLowering::Cpu0TargetLowering(const Cpu0TargetMachine &TM,
   AddPromotedToType(ISD::SETCC, MVT::i1, MVT::i32);
 
   // Cpu0 Custom Operations
-  setOperationAction(ISD::GlobalAddress,      MVT::i32,   Custom);
-  setOperationAction(ISD::GlobalTLSAddress,   MVT::i32,   Custom);
-  setOperationAction(ISD::BlockAddress,       MVT::i32,   Custom);
-  setOperationAction(ISD::JumpTable,          MVT::i32,   Custom);
-  setOperationAction(ISD::SELECT,             MVT::i32,   Custom);
-  setOperationAction(ISD::BRCOND,             MVT::Other, Custom);
+  setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
+  setOperationAction(ISD::GlobalTLSAddress, MVT::i32, Custom);
+  setOperationAction(ISD::BlockAddress, MVT::i32, Custom);
+  setOperationAction(ISD::JumpTable, MVT::i32, Custom);
+  setOperationAction(ISD::SELECT, MVT::i32, Custom);
+  setOperationAction(ISD::BRCOND, MVT::Other, Custom);
   setOperationAction(ISD::EH_RETURN, MVT::Other, Custom);
-  setOperationAction(ISD::VASTART,            MVT::Other, Custom);
+  setOperationAction(ISD::VASTART, MVT::Other, Custom);
 
   // Handle i64 shl
-  setOperationAction(ISD::SHL_PARTS,          MVT::i32,   Expand);
-  setOperationAction(ISD::SRA_PARTS,          MVT::i32,   Expand);
-  setOperationAction(ISD::SRL_PARTS,          MVT::i32,   Expand);
+  setOperationAction(ISD::SHL_PARTS, MVT::i32, Expand);
+  setOperationAction(ISD::SRA_PARTS, MVT::i32, Expand);
+  setOperationAction(ISD::SRL_PARTS, MVT::i32, Expand);
 
-  setOperationAction(ISD::ADD,                MVT::i32,   Custom);
+  setOperationAction(ISD::ADD, MVT::i32, Custom);
 
   setOperationAction(ISD::SDIV, MVT::i32, Expand);
   setOperationAction(ISD::SREM, MVT::i32, Expand);
@@ -136,39 +158,39 @@ Cpu0TargetLowering::Cpu0TargetLowering(const Cpu0TargetMachine &TM,
   setOperationAction(ISD::UREM, MVT::i32, Expand);
 
   // Operations not directly supported by Cpu0.
-  setOperationAction(ISD::BR_JT,             MVT::Other, Expand);
-  setOperationAction(ISD::BR_CC,             MVT::i32, Expand);
-  setOperationAction(ISD::SELECT_CC,         MVT::i32, Expand);
-  setOperationAction(ISD::SELECT_CC,         MVT::Other, Expand);
-  setOperationAction(ISD::CTPOP,             MVT::i32,   Expand);
-  setOperationAction(ISD::CTTZ,              MVT::i32,   Expand);
-  setOperationAction(ISD::CTTZ_ZERO_UNDEF,   MVT::i32,   Expand);
-  setOperationAction(ISD::CTLZ_ZERO_UNDEF,   MVT::i32,   Expand);
+  setOperationAction(ISD::BR_JT, MVT::Other, Expand);
+  setOperationAction(ISD::BR_CC, MVT::i32, Expand);
+  setOperationAction(ISD::SELECT_CC, MVT::i32, Expand);
+  setOperationAction(ISD::SELECT_CC, MVT::Other, Expand);
+  setOperationAction(ISD::CTPOP, MVT::i32, Expand);
+  setOperationAction(ISD::CTTZ, MVT::i32, Expand);
+  setOperationAction(ISD::CTTZ_ZERO_UNDEF, MVT::i32, Expand);
+  setOperationAction(ISD::CTLZ_ZERO_UNDEF, MVT::i32, Expand);
   // Cpu0 doesn't have sext_inreg, replace them with shl/sra.
-  setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::i1 , Expand);
-  setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::i8 , Expand);
-  setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::i16 , Expand);
-  setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::i32 , Expand);
-  setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::Other , Expand);
+  setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::i1, Expand);
+  setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::i8, Expand);
+  setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::i16, Expand);
+  setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::i32, Expand);
+  setOperationAction(ISD::SIGN_EXTEND_INREG, MVT::Other, Expand);
 
-  setOperationAction(ISD::DYNAMIC_STACKALLOC, MVT::i32,  Expand);
+  setOperationAction(ISD::DYNAMIC_STACKALLOC, MVT::i32, Expand);
 
   //@vararg 1 {
-  // Support va_arg(): variable numbers (not fixed numbers) of arguments 
+  // Support va_arg(): variable numbers (not fixed numbers) of arguments
   //  (parameters) for function all
-  setOperationAction(ISD::VAARG,             MVT::Other, Expand);
-  setOperationAction(ISD::VACOPY,            MVT::Other, Expand);
-  setOperationAction(ISD::VAEND,             MVT::Other, Expand);
-  
+  setOperationAction(ISD::VAARG, MVT::Other, Expand);
+  setOperationAction(ISD::VACOPY, MVT::Other, Expand);
+  setOperationAction(ISD::VAEND, MVT::Other, Expand);
+
   //@llvm.stacksave
   // Use the default for now
-  setOperationAction(ISD::STACKSAVE,         MVT::Other, Expand);
-  setOperationAction(ISD::STACKRESTORE,      MVT::Other, Expand);
+  setOperationAction(ISD::STACKSAVE, MVT::Other, Expand);
+  setOperationAction(ISD::STACKRESTORE, MVT::Other, Expand);
 
-  setOperationAction(ISD::ATOMIC_LOAD,       MVT::i32,    Expand);
-  setOperationAction(ISD::ATOMIC_LOAD,       MVT::i64,    Expand);
-  setOperationAction(ISD::ATOMIC_STORE,      MVT::i32,    Expand);
-  setOperationAction(ISD::ATOMIC_STORE,      MVT::i64,    Expand);
+  setOperationAction(ISD::ATOMIC_LOAD, MVT::i32, Expand);
+  setOperationAction(ISD::ATOMIC_LOAD, MVT::i64, Expand);
+  setOperationAction(ISD::ATOMIC_STORE, MVT::i32, Expand);
+  setOperationAction(ISD::ATOMIC_STORE, MVT::i64, Expand);
 
   setOperationAction(ISD::BSWAP, MVT::i32, Expand);
   setOperationAction(ISD::BSWAP, MVT::i64, Expand);
@@ -176,16 +198,16 @@ Cpu0TargetLowering::Cpu0TargetLowering(const Cpu0TargetMachine &TM,
   setTargetDAGCombine(ISD::SDIVREM);
   setTargetDAGCombine(ISD::UDIVREM);
 
-//- Set .align 2
-// It will emit .align 2 later
+  //- Set .align 2
+  // It will emit .align 2 later
   setMinFunctionAlignment(Align(2));
 
   setStackPointerRegisterToSaveRestore(Cpu0::SP);
-
 }
 
-const Cpu0TargetLowering *Cpu0TargetLowering::create(const Cpu0TargetMachine &TM,
-                                                     const Cpu0Subtarget &STI) {
+const Cpu0TargetLowering *
+Cpu0TargetLowering::create(const Cpu0TargetMachine &TM,
+                           const Cpu0Subtarget &STI) {
   return llvm::createCpu0SETargetLowering(TM, STI);
 }
 
@@ -196,7 +218,7 @@ EVT Cpu0TargetLowering::getSetCCResultType(const DataLayout &, LLVMContext &,
   return VT.changeVectorElementTypeToInteger();
 }
 
-static SDValue performDivRemCombine(SDNode *N, SelectionDAG& DAG,
+static SDValue performDivRemCombine(SDNode *N, SelectionDAG &DAG,
                                     TargetLowering::DAGCombinerInfo &DCI,
                                     const Cpu0Subtarget &Subtarget) {
   if (DCI.isBeforeLegalizeOps())
@@ -205,19 +227,18 @@ static SDValue performDivRemCombine(SDNode *N, SelectionDAG& DAG,
   EVT Ty = N->getValueType(0);
   unsigned LO = Cpu0::LO;
   unsigned HI = Cpu0::HI;
-  unsigned Opc = N->getOpcode() == ISD::SDIVREM ? Cpu0ISD::DivRem :
-                                                  Cpu0ISD::DivRemU;
+  unsigned Opc =
+      N->getOpcode() == ISD::SDIVREM ? Cpu0ISD::DivRem : Cpu0ISD::DivRemU;
   SDLoc DL(N);
 
-  SDValue DivRem = DAG.getNode(Opc, DL, MVT::Glue,
-                               N->getOperand(0), N->getOperand(1));
+  SDValue DivRem =
+      DAG.getNode(Opc, DL, MVT::Glue, N->getOperand(0), N->getOperand(1));
   SDValue InChain = DAG.getEntryNode();
   SDValue InGlue = DivRem;
 
   // insert MFLO
   if (N->hasAnyUseOfValue(0)) {
-    SDValue CopyFromLo = DAG.getCopyFromReg(InChain, DL, LO, Ty,
-                                            InGlue);
+    SDValue CopyFromLo = DAG.getCopyFromReg(InChain, DL, LO, Ty, InGlue);
     DAG.ReplaceAllUsesOfValueWith(SDValue(N, 0), CopyFromLo);
     InChain = CopyFromLo.getValue(1);
     InGlue = CopyFromLo.getValue(2);
@@ -225,21 +246,21 @@ static SDValue performDivRemCombine(SDNode *N, SelectionDAG& DAG,
 
   // insert MFHI
   if (N->hasAnyUseOfValue(1)) {
-    SDValue CopyFromHi = DAG.getCopyFromReg(InChain, DL,
-                                            HI, Ty, InGlue);
+    SDValue CopyFromHi = DAG.getCopyFromReg(InChain, DL, HI, Ty, InGlue);
     DAG.ReplaceAllUsesOfValueWith(SDValue(N, 1), CopyFromHi);
   }
 
   return SDValue();
 }
 
-SDValue Cpu0TargetLowering::PerformDAGCombine(SDNode *N, DAGCombinerInfo &DCI)
-  const {
+SDValue Cpu0TargetLowering::PerformDAGCombine(SDNode *N,
+                                              DAGCombinerInfo &DCI) const {
   SelectionDAG &DAG = DCI.DAG;
   unsigned Opc = N->getOpcode();
 
   switch (Opc) {
-  default: break;
+  default:
+    break;
   case ISD::SDIVREM:
   case ISD::UDIVREM:
     return performDivRemCombine(N, DAG, DCI, Subtarget);
@@ -248,23 +269,33 @@ SDValue Cpu0TargetLowering::PerformDAGCombine(SDNode *N, DAGCombinerInfo &DCI)
   return SDValue();
 }
 
-SDValue Cpu0TargetLowering::
-LowerOperation(SDValue Op, SelectionDAG &DAG) const
-{
-  switch (Op.getOpcode())
-  {
-  case ISD::BRCOND:             return lowerBRCOND(Op, DAG);
-  case ISD::GlobalAddress:      return lowerGlobalAddress(Op, DAG);
-  case ISD::GlobalTLSAddress:   return lowerGlobalTLSAddress(Op, DAG);
-  case ISD::BlockAddress:       return lowerBlockAddress(Op, DAG);
-  case ISD::JumpTable:          return lowerJumpTable(Op, DAG);
-  case ISD::SELECT:             return lowerSELECT(Op, DAG);
-  case ISD::VASTART:            return lowerVASTART(Op, DAG);
-  case ISD::FRAMEADDR:          return lowerFRAMEADDR(Op, DAG);
-  case ISD::RETURNADDR:         return lowerRETURNADDR(Op, DAG);
-  case ISD::EH_RETURN:          return lowerEH_RETURN(Op, DAG);
-  case ISD::ADD:                return lowerADD(Op, DAG);
-  case ISD::ATOMIC_FENCE:       return lowerATOMIC_FENCE(Op, DAG);
+SDValue Cpu0TargetLowering::LowerOperation(SDValue Op,
+                                           SelectionDAG &DAG) const {
+  switch (Op.getOpcode()) {
+  case ISD::BRCOND:
+    return lowerBRCOND(Op, DAG);
+  case ISD::GlobalAddress:
+    return lowerGlobalAddress(Op, DAG);
+  case ISD::GlobalTLSAddress:
+    return lowerGlobalTLSAddress(Op, DAG);
+  case ISD::BlockAddress:
+    return lowerBlockAddress(Op, DAG);
+  case ISD::JumpTable:
+    return lowerJumpTable(Op, DAG);
+  case ISD::SELECT:
+    return lowerSELECT(Op, DAG);
+  case ISD::VASTART:
+    return lowerVASTART(Op, DAG);
+  case ISD::FRAMEADDR:
+    return lowerFRAMEADDR(Op, DAG);
+  case ISD::RETURNADDR:
+    return lowerRETURNADDR(Op, DAG);
+  case ISD::EH_RETURN:
+    return lowerEH_RETURN(Op, DAG);
+  case ISD::ADD:
+    return lowerADD(Op, DAG);
+  case ISD::ATOMIC_FENCE:
+    return lowerATOMIC_FENCE(Op, DAG);
   }
   return SDValue();
 }
@@ -276,9 +307,8 @@ LowerOperation(SDValue Op, SelectionDAG &DAG) const
 // addLiveIn - This helper function adds the specified physical register to the
 // MachineFunction as a live in value.  It also creates a corresponding
 // virtual register for it.
-static unsigned
-addLiveIn(MachineFunction &MF, unsigned PReg, const TargetRegisterClass *RC)
-{
+static unsigned addLiveIn(MachineFunction &MF, unsigned PReg,
+                          const TargetRegisterClass *RC) {
   unsigned VReg = MF.getRegInfo().createVirtualRegister(RC);
   MF.getRegInfo().addLiveIn(PReg, VReg);
   return VReg;
@@ -350,9 +380,11 @@ Cpu0TargetLowering::EmitInstrWithCustomInserter(MachineInstr &MI,
 
 // This function also handles Cpu0::ATOMIC_SWAP_I32 (when BinOpcode == 0), and
 // Cpu0::ATOMIC_LOAD_NAND_I32 (when Nand == true)
-MachineBasicBlock *Cpu0TargetLowering::emitAtomicBinary(
-    MachineInstr &MI, MachineBasicBlock *BB, unsigned Size, unsigned BinOpcode,
-    bool Nand) const {
+MachineBasicBlock *Cpu0TargetLowering::emitAtomicBinary(MachineInstr &MI,
+                                                        MachineBasicBlock *BB,
+                                                        unsigned Size,
+                                                        unsigned BinOpcode,
+                                                        bool Nand) const {
   assert((Size == 4) && "Unsupported size for EmitAtomicBinary.");
 
   MachineFunction *MF = BB->getParent();
@@ -516,22 +548,27 @@ MachineBasicBlock *Cpu0TargetLowering::emitAtomicBinaryPartword(
 
   int64_t MaskImm = (Size == 1) ? 255 : 65535;
   BuildMI(BB, DL, TII->get(Cpu0::ADDiu), MaskLSB2)
-    .addReg(Cpu0::ZERO).addImm(-4);
+      .addReg(Cpu0::ZERO)
+      .addImm(-4);
   BuildMI(BB, DL, TII->get(Cpu0::AND), AlignedAddr)
-    .addReg(Ptr).addReg(MaskLSB2);
+      .addReg(Ptr)
+      .addReg(MaskLSB2);
   BuildMI(BB, DL, TII->get(Cpu0::ANDi), PtrLSB2).addReg(Ptr).addImm(3);
   if (Subtarget.isLittle()) {
     BuildMI(BB, DL, TII->get(Cpu0::SHL), ShiftAmt).addReg(PtrLSB2).addImm(3);
   } else {
     unsigned Off = RegInfo.createVirtualRegister(RC);
     BuildMI(BB, DL, TII->get(Cpu0::XORi), Off)
-      .addReg(PtrLSB2).addImm((Size == 1) ? 3 : 2);
+        .addReg(PtrLSB2)
+        .addImm((Size == 1) ? 3 : 2);
     BuildMI(BB, DL, TII->get(Cpu0::SHL), ShiftAmt).addReg(Off).addImm(3);
   }
   BuildMI(BB, DL, TII->get(Cpu0::ORi), MaskUpper)
-    .addReg(Cpu0::ZERO).addImm(MaskImm);
+      .addReg(Cpu0::ZERO)
+      .addImm(MaskImm);
   BuildMI(BB, DL, TII->get(Cpu0::SHLV), Mask)
-    .addReg(MaskUpper).addReg(ShiftAmt);
+      .addReg(MaskUpper)
+      .addReg(ShiftAmt);
   BuildMI(BB, DL, TII->get(Cpu0::XOR), Mask2).addReg(Cpu0::ZERO).addReg(Mask);
   BuildMI(BB, DL, TII->get(Cpu0::XOR), Mask3).addReg(Cpu0::ZERO).addReg(Mask2);
   BuildMI(BB, DL, TII->get(Cpu0::SHLV), Incr2).addReg(Incr).addReg(ShiftAmt);
@@ -565,9 +602,11 @@ MachineBasicBlock *Cpu0TargetLowering::emitAtomicBinaryPartword(
     //  and newval, binopres, mask
     BuildMI(BB, DL, TII->get(Cpu0::AND), AndRes).addReg(OldVal).addReg(Incr2);
     BuildMI(BB, DL, TII->get(Cpu0::XOR), BinOpRes)
-      .addReg(Cpu0::ZERO).addReg(AndRes);
+        .addReg(Cpu0::ZERO)
+        .addReg(AndRes);
     BuildMI(BB, DL, TII->get(Cpu0::XOR), BinOpRes2)
-      .addReg(Cpu0::ZERO).addReg(BinOpRes);
+        .addReg(Cpu0::ZERO)
+        .addReg(BinOpRes);
     BuildMI(BB, DL, TII->get(Cpu0::AND), NewVal).addReg(BinOpRes).addReg(Mask);
   } else if (BinOpcode) {
     //  <binop> binopres, oldval, incr2
@@ -580,14 +619,20 @@ MachineBasicBlock *Cpu0TargetLowering::emitAtomicBinaryPartword(
   }
 
   BuildMI(BB, DL, TII->get(Cpu0::AND), MaskedOldVal0)
-    .addReg(OldVal).addReg(Mask2);
+      .addReg(OldVal)
+      .addReg(Mask2);
   BuildMI(BB, DL, TII->get(Cpu0::OR), StoreVal)
-    .addReg(MaskedOldVal0).addReg(NewVal);
+      .addReg(MaskedOldVal0)
+      .addReg(NewVal);
   unsigned SC = Cpu0::SC;
   BuildMI(BB, DL, TII->get(SC), Success)
-    .addReg(StoreVal).addReg(AlignedAddr).addImm(0);
+      .addReg(StoreVal)
+      .addReg(AlignedAddr)
+      .addImm(0);
   BuildMI(BB, DL, TII->get(Cpu0::BEQ))
-    .addReg(Success).addReg(Cpu0::ZERO).addMBB(loopMBB);
+      .addReg(Success)
+      .addReg(Cpu0::ZERO)
+      .addMBB(loopMBB);
 
   //  sinkMBB:
   //    and     maskedoldval1,oldval,mask
@@ -596,9 +641,11 @@ MachineBasicBlock *Cpu0TargetLowering::emitAtomicBinaryPartword(
   BB = sinkMBB;
 
   BuildMI(BB, DL, TII->get(Cpu0::AND), MaskedOldVal1)
-    .addReg(OldVal).addReg(Mask);
+      .addReg(OldVal)
+      .addReg(Mask);
   BuildMI(BB, DL, TII->get(Cpu0::SHRV), SrlRes)
-      .addReg(MaskedOldVal1).addReg(ShiftAmt);
+      .addReg(MaskedOldVal1)
+      .addReg(ShiftAmt);
   BB = emitSignExtendToI32InReg(MI, BB, Size, Dest, SrlRes);
 
   MI.eraseFromParent(); // The instruction is gone now.
@@ -606,9 +653,9 @@ MachineBasicBlock *Cpu0TargetLowering::emitAtomicBinaryPartword(
   return exitMBB;
 }
 
-MachineBasicBlock * Cpu0TargetLowering::emitAtomicCmpSwap(MachineInstr &MI,
-                                                          MachineBasicBlock *BB,
-                                                          unsigned Size) const {
+MachineBasicBlock *Cpu0TargetLowering::emitAtomicCmpSwap(MachineInstr &MI,
+                                                         MachineBasicBlock *BB,
+                                                         unsigned Size) const {
   assert((Size == 4) && "Unsupported size for EmitAtomicCmpSwap.");
 
   MachineFunction *MF = BB->getParent();
@@ -624,10 +671,10 @@ MachineBasicBlock * Cpu0TargetLowering::emitAtomicCmpSwap(MachineInstr &MI,
   BNE = Cpu0::BNE;
   BEQ = Cpu0::BEQ;
 
-  unsigned Dest    = MI.getOperand(0).getReg();
-  unsigned Ptr     = MI.getOperand(1).getReg();
-  unsigned OldVal  = MI.getOperand(2).getReg();
-  unsigned NewVal  = MI.getOperand(3).getReg();
+  unsigned Dest = MI.getOperand(0).getReg();
+  unsigned Ptr = MI.getOperand(1).getReg();
+  unsigned OldVal = MI.getOperand(2).getReg();
+  unsigned NewVal = MI.getOperand(3).getReg();
 
   unsigned Success = RegInfo.createVirtualRegister(RC);
 
@@ -661,29 +708,24 @@ MachineBasicBlock * Cpu0TargetLowering::emitAtomicCmpSwap(MachineInstr &MI,
   //   bne dest, oldval, exitMBB
   BB = loop1MBB;
   BuildMI(BB, DL, TII->get(LL), Dest).addReg(Ptr).addImm(0);
-  BuildMI(BB, DL, TII->get(BNE))
-    .addReg(Dest).addReg(OldVal).addMBB(exitMBB);
+  BuildMI(BB, DL, TII->get(BNE)).addReg(Dest).addReg(OldVal).addMBB(exitMBB);
 
   // loop2MBB:
   //   sc success, newval, 0(ptr)
   //   beq success, $0, loop1MBB
   BB = loop2MBB;
-  BuildMI(BB, DL, TII->get(SC), Success)
-    .addReg(NewVal).addReg(Ptr).addImm(0);
-  BuildMI(BB, DL, TII->get(BEQ))
-    .addReg(Success).addReg(ZERO).addMBB(loop1MBB);
+  BuildMI(BB, DL, TII->get(SC), Success).addReg(NewVal).addReg(Ptr).addImm(0);
+  BuildMI(BB, DL, TII->get(BEQ)).addReg(Success).addReg(ZERO).addMBB(loop1MBB);
 
   MI.eraseFromParent(); // The instruction is gone now.
 
   return exitMBB;
 }
 
-MachineBasicBlock *
-Cpu0TargetLowering::emitAtomicCmpSwapPartword(MachineInstr &MI,
-                                              MachineBasicBlock *BB,
-                                              unsigned Size) const {
+MachineBasicBlock *Cpu0TargetLowering::emitAtomicCmpSwapPartword(
+    MachineInstr &MI, MachineBasicBlock *BB, unsigned Size) const {
   assert((Size == 1 || Size == 2) &&
-      "Unsupported size for EmitAtomicCmpSwapPartial.");
+         "Unsupported size for EmitAtomicCmpSwapPartial.");
 
   MachineFunction *MF = BB->getParent();
   MachineRegisterInfo &RegInfo = MF->getRegInfo();
@@ -691,10 +733,10 @@ Cpu0TargetLowering::emitAtomicCmpSwapPartword(MachineInstr &MI,
   const TargetInstrInfo *TII = Subtarget.getInstrInfo();
   DebugLoc DL = MI.getDebugLoc();
 
-  unsigned Dest    = MI.getOperand(0).getReg();
-  unsigned Ptr     = MI.getOperand(1).getReg();
-  unsigned CmpVal  = MI.getOperand(2).getReg();
-  unsigned NewVal  = MI.getOperand(3).getReg();
+  unsigned Dest = MI.getOperand(0).getReg();
+  unsigned Ptr = MI.getOperand(1).getReg();
+  unsigned CmpVal = MI.getOperand(2).getReg();
+  unsigned NewVal = MI.getOperand(3).getReg();
 
   unsigned AlignedAddr = RegInfo.createVirtualRegister(RC);
   unsigned ShiftAmt = RegInfo.createVirtualRegister(RC);
@@ -756,32 +798,41 @@ Cpu0TargetLowering::emitAtomicCmpSwapPartword(MachineInstr &MI,
   //    shl     shiftednewval,maskednewval,shiftamt
   int64_t MaskImm = (Size == 1) ? 255 : 65535;
   BuildMI(BB, DL, TII->get(Cpu0::ADDiu), MaskLSB2)
-    .addReg(Cpu0::ZERO).addImm(-4);
+      .addReg(Cpu0::ZERO)
+      .addImm(-4);
   BuildMI(BB, DL, TII->get(Cpu0::AND), AlignedAddr)
-    .addReg(Ptr).addReg(MaskLSB2);
+      .addReg(Ptr)
+      .addReg(MaskLSB2);
   BuildMI(BB, DL, TII->get(Cpu0::ANDi), PtrLSB2).addReg(Ptr).addImm(3);
   if (Subtarget.isLittle()) {
     BuildMI(BB, DL, TII->get(Cpu0::SHL), ShiftAmt).addReg(PtrLSB2).addImm(3);
   } else {
     unsigned Off = RegInfo.createVirtualRegister(RC);
     BuildMI(BB, DL, TII->get(Cpu0::XORi), Off)
-      .addReg(PtrLSB2).addImm((Size == 1) ? 3 : 2);
+        .addReg(PtrLSB2)
+        .addImm((Size == 1) ? 3 : 2);
     BuildMI(BB, DL, TII->get(Cpu0::SHL), ShiftAmt).addReg(Off).addImm(3);
   }
   BuildMI(BB, DL, TII->get(Cpu0::ORi), MaskUpper)
-    .addReg(Cpu0::ZERO).addImm(MaskImm);
+      .addReg(Cpu0::ZERO)
+      .addImm(MaskImm);
   BuildMI(BB, DL, TII->get(Cpu0::SHLV), Mask)
-    .addReg(MaskUpper).addReg(ShiftAmt);
+      .addReg(MaskUpper)
+      .addReg(ShiftAmt);
   BuildMI(BB, DL, TII->get(Cpu0::XOR), Mask2).addReg(Cpu0::ZERO).addReg(Mask);
   BuildMI(BB, DL, TII->get(Cpu0::XOR), Mask3).addReg(Cpu0::ZERO).addReg(Mask2);
   BuildMI(BB, DL, TII->get(Cpu0::ANDi), MaskedCmpVal)
-    .addReg(CmpVal).addImm(MaskImm);
+      .addReg(CmpVal)
+      .addImm(MaskImm);
   BuildMI(BB, DL, TII->get(Cpu0::SHLV), ShiftedCmpVal)
-    .addReg(MaskedCmpVal).addReg(ShiftAmt);
+      .addReg(MaskedCmpVal)
+      .addReg(ShiftAmt);
   BuildMI(BB, DL, TII->get(Cpu0::ANDi), MaskedNewVal)
-    .addReg(NewVal).addImm(MaskImm);
+      .addReg(NewVal)
+      .addImm(MaskImm);
   BuildMI(BB, DL, TII->get(Cpu0::SHLV), ShiftedNewVal)
-    .addReg(MaskedNewVal).addReg(ShiftAmt);
+      .addReg(MaskedNewVal)
+      .addReg(ShiftAmt);
 
   //  loop1MBB:
   //    ll      oldval,0(alginedaddr)
@@ -791,9 +842,12 @@ Cpu0TargetLowering::emitAtomicCmpSwapPartword(MachineInstr &MI,
   unsigned LL = Cpu0::LL;
   BuildMI(BB, DL, TII->get(LL), OldVal).addReg(AlignedAddr).addImm(0);
   BuildMI(BB, DL, TII->get(Cpu0::AND), MaskedOldVal0)
-    .addReg(OldVal).addReg(Mask);
+      .addReg(OldVal)
+      .addReg(Mask);
   BuildMI(BB, DL, TII->get(Cpu0::BNE))
-    .addReg(MaskedOldVal0).addReg(ShiftedCmpVal).addMBB(sinkMBB);
+      .addReg(MaskedOldVal0)
+      .addReg(ShiftedCmpVal)
+      .addMBB(sinkMBB);
 
   //  loop2MBB:
   //    and     maskedoldval1,oldval,mask3
@@ -802,14 +856,20 @@ Cpu0TargetLowering::emitAtomicCmpSwapPartword(MachineInstr &MI,
   //    beq     success,$0,loop1MBB
   BB = loop2MBB;
   BuildMI(BB, DL, TII->get(Cpu0::AND), MaskedOldVal1)
-    .addReg(OldVal).addReg(Mask3);
+      .addReg(OldVal)
+      .addReg(Mask3);
   BuildMI(BB, DL, TII->get(Cpu0::OR), StoreVal)
-    .addReg(MaskedOldVal1).addReg(ShiftedNewVal);
+      .addReg(MaskedOldVal1)
+      .addReg(ShiftedNewVal);
   unsigned SC = Cpu0::SC;
   BuildMI(BB, DL, TII->get(SC), Success)
-      .addReg(StoreVal).addReg(AlignedAddr).addImm(0);
+      .addReg(StoreVal)
+      .addReg(AlignedAddr)
+      .addImm(0);
   BuildMI(BB, DL, TII->get(Cpu0::BEQ))
-      .addReg(Success).addReg(Cpu0::ZERO).addMBB(loop1MBB);
+      .addReg(Success)
+      .addReg(Cpu0::ZERO)
+      .addMBB(loop1MBB);
 
   //  sinkMBB:
   //    srl     srlres,maskedoldval0,shiftamt
@@ -817,10 +877,11 @@ Cpu0TargetLowering::emitAtomicCmpSwapPartword(MachineInstr &MI,
   BB = sinkMBB;
 
   BuildMI(BB, DL, TII->get(Cpu0::SHRV), SrlRes)
-      .addReg(MaskedOldVal0).addReg(ShiftAmt);
+      .addReg(MaskedOldVal0)
+      .addReg(ShiftAmt);
   BB = emitSignExtendToI32InReg(MI, BB, Size, Dest, SrlRes);
 
-  MI.eraseFromParent();   // The instruction is gone now.
+  MI.eraseFromParent(); // The instruction is gone now.
 
   return exitMBB;
 }
@@ -828,15 +889,11 @@ Cpu0TargetLowering::emitAtomicCmpSwapPartword(MachineInstr &MI,
 //===----------------------------------------------------------------------===//
 //  Misc Lower Operation implementation
 //===----------------------------------------------------------------------===//
-SDValue Cpu0TargetLowering::
-lowerBRCOND(SDValue Op, SelectionDAG &DAG) const
-{
+SDValue Cpu0TargetLowering::lowerBRCOND(SDValue Op, SelectionDAG &DAG) const {
   return Op;
 }
 
-SDValue Cpu0TargetLowering::
-lowerSELECT(SDValue Op, SelectionDAG &DAG) const
-{
+SDValue Cpu0TargetLowering::lowerSELECT(SDValue Op, SelectionDAG &DAG) const {
   return Op;
 }
 
@@ -844,9 +901,8 @@ SDValue Cpu0TargetLowering::lowerGlobalAddress(SDValue Op,
                                                SelectionDAG &DAG) const {
   //@lowerGlobalAddress }
   SDLoc DL(Op);
-  const Cpu0TargetObjectFile *TLOF =
-        static_cast<const Cpu0TargetObjectFile *>(
-            getTargetMachine().getObjFileLowering());
+  const Cpu0TargetObjectFile *TLOF = static_cast<const Cpu0TargetObjectFile *>(
+      getTargetMachine().getObjFileLowering());
   //@lga 1 {
   EVT Ty = Op.getValueType();
   GlobalAddressSDNode *N = cast<GlobalAddressSDNode>(Op);
@@ -857,10 +913,10 @@ SDValue Cpu0TargetLowering::lowerGlobalAddress(SDValue Op,
     //@ %gp_rel relocation
     const GlobalObject *GO = GV->getBaseObject();
     if (GO && TLOF->IsGlobalInSmallSection(GO, getTargetMachine())) {
-      SDValue GA = DAG.getTargetGlobalAddress(GV, DL, MVT::i32, 0,
-                                              Cpu0II::MO_GPREL);
-      SDValue GPRelNode = DAG.getNode(Cpu0ISD::GPRel, DL,
-                                      DAG.getVTList(MVT::i32), GA);
+      SDValue GA =
+          DAG.getTargetGlobalAddress(GV, DL, MVT::i32, 0, Cpu0II::MO_GPREL);
+      SDValue GPRelNode =
+          DAG.getNode(Cpu0ISD::GPRel, DL, DAG.getVTList(MVT::i32), GA);
       SDValue GPReg = DAG.getRegister(Cpu0::GP, MVT::i32);
       return DAG.getNode(ISD::ADD, DL, MVT::i32, GPReg, GPRelNode);
     }
@@ -876,17 +932,15 @@ SDValue Cpu0TargetLowering::lowerGlobalAddress(SDValue Op,
   const GlobalObject *GO = GV->getBaseObject();
   if (GO && !TLOF->IsGlobalInSmallSection(GO, getTargetMachine()))
     return getAddrGlobalLargeGOT(
-        N, Ty, DAG, Cpu0II::MO_GOT_HI16, Cpu0II::MO_GOT_LO16, 
-        DAG.getEntryNode(), 
+        N, Ty, DAG, Cpu0II::MO_GOT_HI16, Cpu0II::MO_GOT_LO16,
+        DAG.getEntryNode(),
         MachinePointerInfo::getGOT(DAG.getMachineFunction()));
-  return getAddrGlobal(
-      N, Ty, DAG, Cpu0II::MO_GOT, DAG.getEntryNode(), 
-      MachinePointerInfo::getGOT(DAG.getMachineFunction()));
+  return getAddrGlobal(N, Ty, DAG, Cpu0II::MO_GOT, DAG.getEntryNode(),
+                       MachinePointerInfo::getGOT(DAG.getMachineFunction()));
 }
 
-SDValue Cpu0TargetLowering::
-lowerGlobalTLSAddress(SDValue Op, SelectionDAG &DAG) const
-{
+SDValue Cpu0TargetLowering::lowerGlobalTLSAddress(SDValue Op,
+                                                  SelectionDAG &DAG) const {
   // If the relocation model is PIC, use the General Dynamic TLS Model or
   // Local Dynamic TLS model, otherwise use the Initial Exec or
   // Local Exec TLS Model.
@@ -907,8 +961,8 @@ lowerGlobalTLSAddress(SDValue Op, SelectionDAG &DAG) const
                                                       : Cpu0II::MO_TLSGD;
 
     SDValue TGA = DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0, Flag);
-    SDValue Argument = DAG.getNode(Cpu0ISD::Wrapper, DL, PtrVT,
-                                   getGlobalReg(DAG, PtrVT), TGA);
+    SDValue Argument =
+        DAG.getNode(Cpu0ISD::Wrapper, DL, PtrVT, getGlobalReg(DAG, PtrVT), TGA);
     unsigned PtrSize = PtrVT.getSizeInBits();
     IntegerType *PtrTy = Type::getIntNTy(*DAG.getContext(), PtrSize);
 
@@ -921,8 +975,9 @@ lowerGlobalTLSAddress(SDValue Op, SelectionDAG &DAG) const
     Args.push_back(Entry);
 
     TargetLowering::CallLoweringInfo CLI(DAG);
-    CLI.setDebugLoc(DL).setChain(DAG.getEntryNode())
-      .setCallee(CallingConv::C, PtrTy, TlsGetAddr, std::move(Args));
+    CLI.setDebugLoc(DL)
+        .setChain(DAG.getEntryNode())
+        .setCallee(CallingConv::C, PtrTy, TlsGetAddr, std::move(Args));
     std::pair<SDValue, SDValue> CallResult = LowerCallTo(CLI);
 
     SDValue Ret = CallResult.first;
@@ -930,11 +985,11 @@ lowerGlobalTLSAddress(SDValue Op, SelectionDAG &DAG) const
     if (model != TLSModel::LocalDynamic)
       return Ret;
 
-    SDValue TGAHi = DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0,
-                                               Cpu0II::MO_DTP_HI);
+    SDValue TGAHi =
+        DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0, Cpu0II::MO_DTP_HI);
     SDValue Hi = DAG.getNode(Cpu0ISD::Hi, DL, PtrVT, TGAHi);
-    SDValue TGALo = DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0,
-                                               Cpu0II::MO_DTP_LO);
+    SDValue TGALo =
+        DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0, Cpu0II::MO_DTP_LO);
     SDValue Lo = DAG.getNode(Cpu0ISD::Lo, DL, PtrVT, TGALo);
     SDValue Add = DAG.getNode(ISD::ADD, DL, PtrVT, Hi, Ret);
     return DAG.getNode(ISD::ADD, DL, PtrVT, Add, Lo);
@@ -943,19 +998,19 @@ lowerGlobalTLSAddress(SDValue Op, SelectionDAG &DAG) const
   SDValue Offset;
   if (model == TLSModel::InitialExec) {
     // Initial Exec TLS Model
-    SDValue TGA = DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0,
-                                             Cpu0II::MO_GOTTPREL);
-    TGA = DAG.getNode(Cpu0ISD::Wrapper, DL, PtrVT, getGlobalReg(DAG, PtrVT),
-                      TGA);
+    SDValue TGA =
+        DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0, Cpu0II::MO_GOTTPREL);
+    TGA =
+        DAG.getNode(Cpu0ISD::Wrapper, DL, PtrVT, getGlobalReg(DAG, PtrVT), TGA);
     Offset =
         DAG.getLoad(PtrVT, DL, DAG.getEntryNode(), TGA, MachinePointerInfo());
   } else {
     // Local Exec TLS Model
     assert(model == TLSModel::LocalExec);
-    SDValue TGAHi = DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0,
-                                               Cpu0II::MO_TP_HI);
-    SDValue TGALo = DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0,
-                                               Cpu0II::MO_TP_LO);
+    SDValue TGAHi =
+        DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0, Cpu0II::MO_TP_HI);
+    SDValue TGALo =
+        DAG.getTargetGlobalAddress(GV, DL, PtrVT, 0, Cpu0II::MO_TP_LO);
     SDValue Hi = DAG.getNode(Cpu0ISD::Hi, DL, PtrVT, TGAHi);
     SDValue Lo = DAG.getNode(Cpu0ISD::Lo, DL, PtrVT, TGALo);
     Offset = DAG.getNode(ISD::ADD, DL, PtrVT, Hi, Lo);
@@ -974,9 +1029,8 @@ SDValue Cpu0TargetLowering::lowerBlockAddress(SDValue Op,
   return getAddrLocal(N, Ty, DAG);
 }
 
-SDValue Cpu0TargetLowering::
-lowerJumpTable(SDValue Op, SelectionDAG &DAG) const
-{
+SDValue Cpu0TargetLowering::lowerJumpTable(SDValue Op,
+                                           SelectionDAG &DAG) const {
   JumpTableSDNode *N = cast<JumpTableSDNode>(Op);
   EVT Ty = Op.getValueType();
 
@@ -1001,8 +1055,8 @@ SDValue Cpu0TargetLowering::lowerVASTART(SDValue Op, SelectionDAG &DAG) const {
                       MachinePointerInfo(SV));
 }
 
-SDValue Cpu0TargetLowering::
-lowerFRAMEADDR(SDValue Op, SelectionDAG &DAG) const {
+SDValue Cpu0TargetLowering::lowerFRAMEADDR(SDValue Op,
+                                           SelectionDAG &DAG) const {
   // check the depth
   assert((cast<ConstantSDNode>(Op.getOperand(0))->getZExtValue() == 0) &&
          "Frame address can only be determined for current frame.");
@@ -1011,8 +1065,7 @@ lowerFRAMEADDR(SDValue Op, SelectionDAG &DAG) const {
   MFI.setFrameAddressIsTaken(true);
   EVT VT = Op.getValueType();
   SDLoc DL(Op);
-  SDValue FrameAddr = DAG.getCopyFromReg(
-      DAG.getEntryNode(), DL, Cpu0::FP, VT);
+  SDValue FrameAddr = DAG.getCopyFromReg(DAG.getEntryNode(), DL, Cpu0::FP, VT);
   return FrameAddr;
 }
 
@@ -1040,15 +1093,15 @@ SDValue Cpu0TargetLowering::lowerRETURNADDR(SDValue Op,
 // generated from __builtin_eh_return (offset, handler)
 // The effect of this is to adjust the stack pointer by "offset"
 // and then branch to "handler".
-SDValue Cpu0TargetLowering::lowerEH_RETURN(SDValue Op, SelectionDAG &DAG)
-                                                                     const {
+SDValue Cpu0TargetLowering::lowerEH_RETURN(SDValue Op,
+                                           SelectionDAG &DAG) const {
   MachineFunction &MF = DAG.getMachineFunction();
   Cpu0FunctionInfo *Cpu0FI = MF.getInfo<Cpu0FunctionInfo>();
 
   Cpu0FI->setCallsEhReturn();
-  SDValue Chain     = Op.getOperand(0);
-  SDValue Offset    = Op.getOperand(1);
-  SDValue Handler   = Op.getOperand(2);
+  SDValue Chain = Op.getOperand(0);
+  SDValue Offset = Op.getOperand(1);
+  SDValue Handler = Op.getOperand(2);
   SDLoc DL(Op);
   EVT Ty = MVT::i32;
 
@@ -1065,10 +1118,10 @@ SDValue Cpu0TargetLowering::lowerEH_RETURN(SDValue Op, SelectionDAG &DAG)
 }
 
 SDValue Cpu0TargetLowering::lowerADD(SDValue Op, SelectionDAG &DAG) const {
-  if (Op->getOperand(0).getOpcode() != ISD::FRAMEADDR
-      || cast<ConstantSDNode>
-        (Op->getOperand(0).getOperand(0))->getZExtValue() != 0
-      || Op->getOperand(1).getOpcode() != ISD::FRAME_TO_ARGS_OFFSET)
+  if (Op->getOperand(0).getOpcode() != ISD::FRAMEADDR ||
+      cast<ConstantSDNode>(Op->getOperand(0).getOperand(0))->getZExtValue() !=
+          0 ||
+      Op->getOperand(1).getOpcode() != ISD::FRAME_TO_ARGS_OFFSET)
     return SDValue();
 
   MachineFunction &MF = DAG.getMachineFunction();
@@ -1114,8 +1167,7 @@ static bool CC_Cpu0S32(unsigned ValNo, MVT ValVT, MVT LocVT,
   }
 
   Align OrigAlign = ArgFlags.getNonZeroOrigAlign();
-  unsigned Offset = State.AllocateStack(ValVT.getSizeInBits() >> 3,
-                                        OrigAlign);
+  unsigned Offset = State.AllocateStack(ValVT.getSizeInBits() >> 3, OrigAlign);
   State.addLoc(CCValAssign::getMem(ValNo, ValVT, Offset, LocVT, LocInfo));
   return false;
 }
@@ -1124,7 +1176,7 @@ static bool CC_Cpu0S32(unsigned ValNo, MVT ValVT, MVT LocVT,
 static bool CC_Cpu0O32(unsigned ValNo, MVT ValVT, MVT LocVT,
                        CCValAssign::LocInfo LocInfo, ISD::ArgFlagsTy ArgFlags,
                        CCState &State) {
-  static const MCPhysReg IntRegs[] = { Cpu0::A0, Cpu0::A1 };
+  static const MCPhysReg IntRegs[] = {Cpu0::A0, Cpu0::A1};
 
   // Do not process byval args here.
   if (ArgFlags.isByVal())
@@ -1169,8 +1221,8 @@ static bool CC_Cpu0O32(unsigned ValNo, MVT ValVT, MVT LocVT,
     llvm_unreachable("Cannot handle this ValVT.");
 
   if (!Reg) {
-    unsigned Offset = State.AllocateStack(ValVT.getSizeInBits() >> 3,
-                                          Align(OrigAlign));
+    unsigned Offset =
+        State.AllocateStack(ValVT.getSizeInBits() >> 3, Align(OrigAlign));
     State.addLoc(CCValAssign::getMem(ValNo, ValVT, Offset, LocVT, LocInfo));
   } else
     State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
@@ -1184,14 +1236,12 @@ static bool CC_Cpu0O32(unsigned ValNo, MVT ValVT, MVT LocVT,
 //                  Call Calling Convention Implementation
 //===----------------------------------------------------------------------===//
 
-static const MCPhysReg O32IntRegs[] = {
-  Cpu0::A0, Cpu0::A1
-};
+static const MCPhysReg O32IntRegs[] = {Cpu0::A0, Cpu0::A1};
 
-SDValue
-Cpu0TargetLowering::passArgOnStack(SDValue StackPtr, unsigned Offset,
-                                   SDValue Chain, SDValue Arg, const SDLoc &DL,
-                                   bool IsTailCall, SelectionDAG &DAG) const {
+SDValue Cpu0TargetLowering::passArgOnStack(SDValue StackPtr, unsigned Offset,
+                                           SDValue Chain, SDValue Arg,
+                                           const SDLoc &DL, bool IsTailCall,
+                                           SelectionDAG &DAG) const {
   if (!IsTailCall) {
     SDValue PtrOff =
         DAG.getNode(ISD::ADD, DL, getPointerTy(DAG.getDataLayout()), StackPtr,
@@ -1206,11 +1256,11 @@ Cpu0TargetLowering::passArgOnStack(SDValue StackPtr, unsigned Offset,
                       /* Alignment = */ 0, MachineMemOperand::MOVolatile);
 }
 
-void Cpu0TargetLowering::
-getOpndList(SmallVectorImpl<SDValue> &Ops,
-            std::deque< std::pair<unsigned, SDValue> > &RegsToPass,
-            bool IsPICCall, bool GlobalOrExternal, bool InternalLinkage,
-            CallLoweringInfo &CLI, SDValue Callee, SDValue Chain) const {
+void Cpu0TargetLowering::getOpndList(
+    SmallVectorImpl<SDValue> &Ops,
+    std::deque<std::pair<unsigned, SDValue>> &RegsToPass, bool IsPICCall,
+    bool GlobalOrExternal, bool InternalLinkage, CallLoweringInfo &CLI,
+    SDValue Callee, SDValue Chain) const {
   // T9 should contain the address of the callee function if
   // -reloction-model=pic or it is an indirect call.
   if (IsPICCall || !GlobalOrExternal) {
@@ -1250,7 +1300,7 @@ getOpndList(SmallVectorImpl<SDValue> &Ops,
 
   // Add a register mask operand representing the call-preserved registers.
   const TargetRegisterInfo *TRI = Subtarget.getRegisterInfo();
-  const uint32_t *Mask = 
+  const uint32_t *Mask =
       TRI->getCallPreservedMask(CLI.DAG.getMachineFunction(), CLI.CallConv);
   assert(Mask && "Missing call preserved mask for calling convention");
   Ops.push_back(CLI.DAG.getRegisterMask(Mask));
@@ -1262,19 +1312,18 @@ getOpndList(SmallVectorImpl<SDValue> &Ops,
 //@LowerCall {
 /// LowerCall - functions arguments are copied from virtual regs to
 /// (physical regs)/(stack frame), CALLSEQ_START and CALLSEQ_END are emitted.
-SDValue
-Cpu0TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
-                              SmallVectorImpl<SDValue> &InVals) const {
-  SelectionDAG &DAG                     = CLI.DAG;
-  SDLoc DL                              = CLI.DL;
+SDValue Cpu0TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
+                                      SmallVectorImpl<SDValue> &InVals) const {
+  SelectionDAG &DAG = CLI.DAG;
+  SDLoc DL = CLI.DL;
   SmallVectorImpl<ISD::OutputArg> &Outs = CLI.Outs;
-  SmallVectorImpl<SDValue> &OutVals     = CLI.OutVals;
-  SmallVectorImpl<ISD::InputArg> &Ins   = CLI.Ins;
-  SDValue Chain                         = CLI.Chain;
-  SDValue Callee                        = CLI.Callee;
-  bool &IsTailCall                      = CLI.IsTailCall;
-  CallingConv::ID CallConv              = CLI.CallConv;
-  bool IsVarArg                         = CLI.IsVarArg;
+  SmallVectorImpl<SDValue> &OutVals = CLI.OutVals;
+  SmallVectorImpl<ISD::InputArg> &Ins = CLI.Ins;
+  SDValue Chain = CLI.Chain;
+  SDValue Callee = CLI.Callee;
+  bool &IsTailCall = CLI.IsTailCall;
+  CallingConv::ID CallConv = CLI.CallConv;
+  bool IsVarArg = CLI.IsVarArg;
 
   MachineFunction &MF = DAG.getMachineFunction();
   MachineFrameInfo &MFI = MF.getFrameInfo();
@@ -1285,15 +1334,13 @@ Cpu0TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
 
   // Analyze operands of the call, assigning locations to each operand.
   SmallVector<CCValAssign, 16> ArgLocs;
-  CCState CCInfo(CallConv, IsVarArg, DAG.getMachineFunction(),
-                 ArgLocs, *DAG.getContext());
+  CCState CCInfo(CallConv, IsVarArg, DAG.getMachineFunction(), ArgLocs,
+                 *DAG.getContext());
   Cpu0CC::SpecialCallingConvType SpecialCallingConv =
-    getSpecialCallingConv(Callee);
-  Cpu0CC Cpu0CCInfo(CallConv, ABI.IsO32(), 
-                    CCInfo, SpecialCallingConv);
+      getSpecialCallingConv(Callee);
+  Cpu0CC Cpu0CCInfo(CallConv, ABI.IsO32(), CCInfo, SpecialCallingConv);
 
-  Cpu0CCInfo.analyzeCallOperands(Outs, IsVarArg,
-                                 Subtarget.abiUsesSoftFloat(),
+  Cpu0CCInfo.analyzeCallOperands(Outs, IsVarArg, Subtarget.abiUsesSoftFloat(),
                                  Callee.getNode(), CLI.getArgs());
 
   // Get a count of how many bytes are to be pushed on the stack.
@@ -1313,9 +1360,8 @@ Cpu0TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   //@TailCall 1 {
   // Check if it's really possible to do a tail call.
   if (IsTailCall)
-    IsTailCall =
-      isEligibleForTailCallOptimization(Cpu0CCInfo, NextStackOffset,
-                                        *MF.getInfo<Cpu0FunctionInfo>());
+    IsTailCall = isEligibleForTailCallOptimization(
+        Cpu0CCInfo, NextStackOffset, *MF.getInfo<Cpu0FunctionInfo>());
 
   if (!IsTailCall && CLI.CB && CLI.CB->isMustTailCall())
     report_fatal_error("failed to perform tail call elimination on a call "
@@ -1337,19 +1383,18 @@ Cpu0TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
     Chain = DAG.getCALLSEQ_START(Chain, NextStackOffset, 0, DL);
   //@TailCall 2 }
 
-  SDValue StackPtr =
-      DAG.getCopyFromReg(Chain, DL, Cpu0::SP,
-                         getPointerTy(DAG.getDataLayout()));
+  SDValue StackPtr = DAG.getCopyFromReg(Chain, DL, Cpu0::SP,
+                                        getPointerTy(DAG.getDataLayout()));
 
   // With EABI is it possible to have 16 args on registers.
-  std::deque< std::pair<unsigned, SDValue> > RegsToPass;
+  std::deque<std::pair<unsigned, SDValue>> RegsToPass;
   SmallVector<SDValue, 8> MemOpChains;
   Cpu0CC::byval_iterator ByValArg = Cpu0CCInfo.byval_begin();
 
   //@1 {
   // Walk the register/memloc assignments, inserting copies/loads.
   for (unsigned i = 0, e = ArgLocs.size(); i != e; ++i) {
-  //@1 }
+    //@1 }
     SDValue Arg = OutVals[i];
     CCValAssign &VA = ArgLocs[i];
     MVT LocVT = VA.getLocVT();
@@ -1371,7 +1416,8 @@ Cpu0TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
 
     // Promote the value if needed.
     switch (VA.getLocInfo()) {
-    default: llvm_unreachable("Unknown loc info!");
+    default:
+      llvm_unreachable("Unknown loc info!");
     case CCValAssign::Full:
       break;
     case CCValAssign::SExt:
@@ -1397,8 +1443,8 @@ Cpu0TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
 
     // emit ISD::STORE whichs stores the
     // parameter value to a stack Location
-    MemOpChains.push_back(passArgOnStack(StackPtr, VA.getLocMemOffset(),
-                                         Chain, Arg, DL, IsTailCall, DAG));
+    MemOpChains.push_back(passArgOnStack(StackPtr, VA.getLocMemOffset(), Chain,
+                                         Arg, DL, IsTailCall, DAG));
   }
 
   // Transform all store nodes into one single node because all store
@@ -1410,7 +1456,7 @@ Cpu0TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   // direct call is) turn it into a TargetGlobalAddress/TargetExternalSymbol
   // node so that legalize doesn't hack it.
   bool IsPICCall = IsPIC; // true if calls are translated to
-                                         // jalr $t9
+                          // jalr $t9
   bool GlobalOrExternal = false, InternalLinkage = false;
   EVT Ty = Callee.getValueType();
 
@@ -1429,14 +1475,12 @@ Cpu0TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
                                           getPointerTy(DAG.getDataLayout()), 0,
                                           Cpu0II::MO_NO_FLAG);
     GlobalOrExternal = true;
-  }
-  else if (ExternalSymbolSDNode *S = dyn_cast<ExternalSymbolSDNode>(Callee)) {
+  } else if (ExternalSymbolSDNode *S = dyn_cast<ExternalSymbolSDNode>(Callee)) {
     const char *Sym = S->getSymbol();
 
     if (!IsPIC) // static
-      Callee = DAG.getTargetExternalSymbol(Sym,
-                                           getPointerTy(DAG.getDataLayout()),
-                                           Cpu0II::MO_NO_FLAG);
+      Callee = DAG.getTargetExternalSymbol(
+          Sym, getPointerTy(DAG.getDataLayout()), Cpu0II::MO_NO_FLAG);
     else // PIC
       Callee = getAddrGlobal(S, Ty, DAG, Cpu0II::MO_GOT_CALL, Chain,
                              FuncInfo->callPtrInfo(Sym));
@@ -1465,30 +1509,27 @@ Cpu0TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
 
   // Handle result values, copying them out of physregs into vregs that we
   // return.
-  return LowerCallResult(Chain, InFlag, CallConv, IsVarArg,
-                         Ins, DL, DAG, InVals, CLI.Callee.getNode(), CLI.RetTy);
+  return LowerCallResult(Chain, InFlag, CallConv, IsVarArg, Ins, DL, DAG,
+                         InVals, CLI.Callee.getNode(), CLI.RetTy);
 }
 //@LowerCall }
 
 /// LowerCallResult - Lower the result values of a call into the
 /// appropriate copies out of appropriate physical registers.
-SDValue
-Cpu0TargetLowering::LowerCallResult(SDValue Chain, SDValue InFlag,
-                                    CallingConv::ID CallConv, bool IsVarArg,
-                                    const SmallVectorImpl<ISD::InputArg> &Ins,
-                                    const SDLoc &DL, SelectionDAG &DAG,
-                                    SmallVectorImpl<SDValue> &InVals,
-                                    const SDNode *CallNode,
-                                    const Type *RetTy) const {
+SDValue Cpu0TargetLowering::LowerCallResult(
+    SDValue Chain, SDValue InFlag, CallingConv::ID CallConv, bool IsVarArg,
+    const SmallVectorImpl<ISD::InputArg> &Ins, const SDLoc &DL,
+    SelectionDAG &DAG, SmallVectorImpl<SDValue> &InVals, const SDNode *CallNode,
+    const Type *RetTy) const {
   // Assign locations to each value returned by this call.
   SmallVector<CCValAssign, 16> RVLocs;
-  CCState CCInfo(CallConv, IsVarArg, DAG.getMachineFunction(),
-		 RVLocs, *DAG.getContext());
-		 
+  CCState CCInfo(CallConv, IsVarArg, DAG.getMachineFunction(), RVLocs,
+                 *DAG.getContext());
+
   Cpu0CC Cpu0CCInfo(CallConv, ABI.IsO32(), CCInfo);
 
-  Cpu0CCInfo.analyzeCallResult(Ins, Subtarget.abiUsesSoftFloat(),
-                               CallNode, RetTy);
+  Cpu0CCInfo.analyzeCallResult(Ins, Subtarget.abiUsesSoftFloat(), CallNode,
+                               RetTy);
 
   // Copy all of the result registers out of their specified physreg.
   for (unsigned i = 0; i != RVLocs.size(); ++i) {
@@ -1513,14 +1554,10 @@ Cpu0TargetLowering::LowerCallResult(SDValue Chain, SDValue InFlag,
 //@LowerFormalArguments {
 /// LowerFormalArguments - transform physical registers into virtual registers
 /// and generate load operations for arguments places on the stack.
-SDValue
-Cpu0TargetLowering::LowerFormalArguments(SDValue Chain,
-                                         CallingConv::ID CallConv,
-                                         bool IsVarArg,
-                                         const SmallVectorImpl<ISD::InputArg> &Ins,
-                                         const SDLoc &DL, SelectionDAG &DAG,
-                                         SmallVectorImpl<SDValue> &InVals)
-                                          const {
+SDValue Cpu0TargetLowering::LowerFormalArguments(
+    SDValue Chain, CallingConv::ID CallConv, bool IsVarArg,
+    const SmallVectorImpl<ISD::InputArg> &Ins, const SDLoc &DL,
+    SelectionDAG &DAG, SmallVectorImpl<SDValue> &InVals) const {
   MachineFunction &MF = DAG.getMachineFunction();
   MachineFrameInfo &MFI = MF.getFrameInfo();
   Cpu0FunctionInfo *Cpu0FI = MF.getInfo<Cpu0FunctionInfo>();
@@ -1529,10 +1566,9 @@ Cpu0TargetLowering::LowerFormalArguments(SDValue Chain,
 
   // Assign locations to all of the incoming arguments.
   SmallVector<CCValAssign, 16> ArgLocs;
-  CCState CCInfo(CallConv, IsVarArg, DAG.getMachineFunction(),
-                 ArgLocs, *DAG.getContext());
-  Cpu0CC Cpu0CCInfo(CallConv, ABI.IsO32(), 
-                    CCInfo);
+  CCState CCInfo(CallConv, IsVarArg, DAG.getMachineFunction(), ArgLocs,
+                 *DAG.getContext());
+  Cpu0CC Cpu0CCInfo(CallConv, ABI.IsO32(), CCInfo);
 
   const Function &Func = DAG.getMachineFunction().getFunction();
   Function::const_arg_iterator FuncArg = Func.arg_begin();
@@ -1551,7 +1587,7 @@ Cpu0TargetLowering::LowerFormalArguments(SDValue Chain,
 
   //@2 {
   for (unsigned i = 0, e = ArgLocs.size(); i != e; ++i) {
-  //@2 }
+    //@2 }
     CCValAssign &VA = ArgLocs[i];
     if (Ins[i].isOrigArg()) {
       std::advance(FuncArg, Ins[i].getOrigArgIndex() - CurArgIdx);
@@ -1593,8 +1629,8 @@ Cpu0TargetLowering::LowerFormalArguments(SDValue Chain,
         else if (VA.getLocInfo() == CCValAssign::ZExt)
           Opcode = ISD::AssertZext;
         if (Opcode)
-          ArgValue = DAG.getNode(Opcode, DL, RegVT, ArgValue,
-                                 DAG.getValueType(ValVT));
+          ArgValue =
+              DAG.getNode(Opcode, DL, RegVT, ArgValue, DAG.getValueType(ValVT));
         ArgValue = DAG.getNode(ISD::TRUNCATE, DL, ValVT, ArgValue);
       }
 
@@ -1610,8 +1646,8 @@ Cpu0TargetLowering::LowerFormalArguments(SDValue Chain,
       assert(VA.isMemLoc());
 
       // The stack pointer offset is relative to the caller stack frame.
-      int FI = MFI.CreateFixedObject(ValVT.getSizeInBits()/8,
-                                      VA.getLocMemOffset(), true);
+      int FI = MFI.CreateFixedObject(ValVT.getSizeInBits() / 8,
+                                     VA.getLocMemOffset(), true);
 
       // Create load nodes to retrieve arguments from the stack
       SDValue FIN = DAG.getFrameIndex(FI, getPointerTy(DAG.getDataLayout()));
@@ -1623,7 +1659,7 @@ Cpu0TargetLowering::LowerFormalArguments(SDValue Chain,
     }
   }
 
-//@Ordinary struct type: 1 {
+  //@Ordinary struct type: 1 {
   for (unsigned i = 0, e = ArgLocs.size(); i != e; ++i) {
     // The cpu0 ABIs for returning structs by value requires that we copy
     // the sret argument into $v0 for the return. Save the argument into
@@ -1631,8 +1667,7 @@ Cpu0TargetLowering::LowerFormalArguments(SDValue Chain,
     if (Ins[i].Flags.isSRet()) {
       unsigned Reg = Cpu0FI->getSRetReturnReg();
       if (!Reg) {
-        Reg = MF.getRegInfo().createVirtualRegister(
-            getRegClassFor(MVT::i32));
+        Reg = MF.getRegInfo().createVirtualRegister(getRegClassFor(MVT::i32));
         Cpu0FI->setSRetReturnReg(Reg);
       }
       SDValue Copy = DAG.getCopyToReg(DAG.getEntryNode(), DL, Reg, InVals[i]);
@@ -1640,7 +1675,7 @@ Cpu0TargetLowering::LowerFormalArguments(SDValue Chain,
       break;
     }
   }
-//@Ordinary struct type: 1 }
+  //@Ordinary struct type: 1 }
 
   if (IsVarArg)
     writeVarArgRegs(OutChains, Cpu0CCInfo, Chain, DL, DAG);
@@ -1660,20 +1695,17 @@ Cpu0TargetLowering::LowerFormalArguments(SDValue Chain,
 //@              Return Value Calling Convention Implementation
 //===----------------------------------------------------------------------===//
 
-bool
-Cpu0TargetLowering::CanLowerReturn(CallingConv::ID CallConv,
-                                   MachineFunction &MF, bool IsVarArg,
-                                   const SmallVectorImpl<ISD::OutputArg> &Outs,
-                                   LLVMContext &Context) const {
+bool Cpu0TargetLowering::CanLowerReturn(
+    CallingConv::ID CallConv, MachineFunction &MF, bool IsVarArg,
+    const SmallVectorImpl<ISD::OutputArg> &Outs, LLVMContext &Context) const {
   SmallVector<CCValAssign, 16> RVLocs;
-  CCState CCInfo(CallConv, IsVarArg, MF,
-                 RVLocs, Context);
+  CCState CCInfo(CallConv, IsVarArg, MF, RVLocs, Context);
   return CCInfo.CheckReturn(Outs, RetCC_Cpu0);
 }
 
 SDValue
-Cpu0TargetLowering::LowerReturn(SDValue Chain,
-                                CallingConv::ID CallConv, bool IsVarArg,
+Cpu0TargetLowering::LowerReturn(SDValue Chain, CallingConv::ID CallConv,
+                                bool IsVarArg,
                                 const SmallVectorImpl<ISD::OutputArg> &Outs,
                                 const SmallVectorImpl<SDValue> &OutVals,
                                 const SDLoc &DL, SelectionDAG &DAG) const {
@@ -1683,10 +1715,8 @@ Cpu0TargetLowering::LowerReturn(SDValue Chain,
   MachineFunction &MF = DAG.getMachineFunction();
 
   // CCState - Info about the registers and stack slot.
-  CCState CCInfo(CallConv, IsVarArg, MF, RVLocs,
-                 *DAG.getContext());
-  Cpu0CC Cpu0CCInfo(CallConv, ABI.IsO32(), 
-                    CCInfo);
+  CCState CCInfo(CallConv, IsVarArg, MF, RVLocs, *DAG.getContext());
+  Cpu0CC Cpu0CCInfo(CallConv, ABI.IsO32(), CCInfo);
 
   // Analyze return values.
   Cpu0CCInfo.analyzeReturn(Outs, Subtarget.abiUsesSoftFloat(),
@@ -1711,7 +1741,7 @@ Cpu0TargetLowering::LowerReturn(SDValue Chain,
     RetOps.push_back(DAG.getRegister(VA.getLocReg(), VA.getLocVT()));
   }
 
-//@Ordinary struct type: 2 {
+  //@Ordinary struct type: 2 {
   // The cpu0 ABIs for returning structs by value requires that we copy
   // the sret argument into $v0 for the return. We saved the argument into
   // a virtual register in the entry block, so now we copy the value out
@@ -1730,9 +1760,9 @@ Cpu0TargetLowering::LowerReturn(SDValue Chain,
     Flag = Chain.getValue(1);
     RetOps.push_back(DAG.getRegister(V0, getPointerTy(DAG.getDataLayout())));
   }
-//@Ordinary struct type: 2 }
+  //@Ordinary struct type: 2 }
 
-  RetOps[0] = Chain;  // Update chain.
+  RetOps[0] = Chain; // Update chain.
 
   // Add the flag if we have it.
   if (Flag.getNode())
@@ -1748,20 +1778,20 @@ Cpu0TargetLowering::LowerReturn(SDValue Chain,
 
 /// getConstraintType - Given a constraint letter, return the type of
 /// constraint it is for this target.
-Cpu0TargetLowering::ConstraintType 
-Cpu0TargetLowering::getConstraintType(StringRef Constraint) const
-{
+Cpu0TargetLowering::ConstraintType
+Cpu0TargetLowering::getConstraintType(StringRef Constraint) const {
   // Cpu0 specific constraints
   // GCC config/mips/constraints.md
   // 'c' : A register suitable for use in an indirect
   //       jump. This will always be $t9 for -mabicalls.
   if (Constraint.size() == 1) {
     switch (Constraint[0]) {
-      default : break;
-      case 'c':
-        return C_RegisterClass;
-      case 'R':
-        return C_Memory;
+    default:
+      break;
+    case 'c':
+      return C_RegisterClass;
+    case 'R':
+      return C_Memory;
     }
   }
   return TargetLowering::getConstraintType(Constraint);
@@ -1775,8 +1805,8 @@ Cpu0TargetLowering::getSingleConstraintMatchWeight(
     AsmOperandInfo &info, const char *constraint) const {
   ConstraintWeight weight = CW_Invalid;
   Value *CallOperandVal = info.CallOperandVal;
-    // If we don't have a value, we can't do a match,
-    // but allow it at the lowest weight.
+  // If we don't have a value, we can't do a match,
+  // but allow it at the lowest weight.
   if (!CallOperandVal)
     return CW_Default;
   Type *type = CallOperandVal->getType();
@@ -1810,9 +1840,9 @@ Cpu0TargetLowering::getSingleConstraintMatchWeight(
 /// into non-numeric and numeric parts (Prefix and Reg). The first boolean flag
 /// that is returned indicates whether parsing was successful. The second flag
 /// is true if the numeric part exists.
-static std::pair<bool, bool>
-parsePhysicalReg(const StringRef &C, std::string &Prefix,
-                 unsigned long long &Reg) {
+static std::pair<bool, bool> parsePhysicalReg(const StringRef &C,
+                                              std::string &Prefix,
+                                              unsigned long long &Reg) {
   if (C.front() != '{' || C.back() != '}')
     return std::make_pair(false, false);
 
@@ -1831,8 +1861,9 @@ parsePhysicalReg(const StringRef &C, std::string &Prefix,
                         true);
 }
 
-std::pair<unsigned, const TargetRegisterClass *> Cpu0TargetLowering::
-parseRegForInlineAsmConstraint(const StringRef &C, MVT VT) const {
+std::pair<unsigned, const TargetRegisterClass *>
+Cpu0TargetLowering::parseRegForInlineAsmConstraint(const StringRef &C,
+                                                   MVT VT) const {
   const TargetRegisterClass *RC;
   std::string Prefix;
   unsigned long long Reg;
@@ -1844,7 +1875,7 @@ parseRegForInlineAsmConstraint(const StringRef &C, MVT VT) const {
   if (!R.second)
     return std::make_pair(0U, nullptr);
 
- // Parse $0-$15.
+  // Parse $0-$15.
   assert(Prefix == "$");
   RC = getRegClassFor((VT == MVT::Other) ? MVT::i32 : VT);
 
@@ -1858,8 +1889,7 @@ parseRegForInlineAsmConstraint(const StringRef &C, MVT VT) const {
 std::pair<unsigned, const TargetRegisterClass *>
 Cpu0TargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
                                                  StringRef Constraint,
-                                                 MVT VT) const
-{
+                                                 MVT VT) const {
   if (Constraint.size() == 1) {
     switch (Constraint[0]) {
     case 'r':
@@ -1869,7 +1899,7 @@ Cpu0TargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
       if (VT == MVT::i64)
         return std::make_pair(0U, &Cpu0::CPURegsRegClass);
       // This will generate an error message
-      return std::make_pair(0u, static_cast<const TargetRegisterClass*>(0));
+      return std::make_pair(0u, static_cast<const TargetRegisterClass *>(0));
     case 'c': // register suitable for indirect jump
       if (VT == MVT::i32)
         return std::make_pair((unsigned)Cpu0::T9, &Cpu0::CPURegsRegClass);
@@ -1889,18 +1919,20 @@ Cpu0TargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
 /// LowerAsmOperandForConstraint - Lower the specified operand into the Ops
 /// vector.  If it is invalid, don't add anything to Ops.
 void Cpu0TargetLowering::LowerAsmOperandForConstraint(SDValue Op,
-                                                     std::string &Constraint,
-                                                     std::vector<SDValue>&Ops,
-                                                     SelectionDAG &DAG) const {
+                                                      std::string &Constraint,
+                                                      std::vector<SDValue> &Ops,
+                                                      SelectionDAG &DAG) const {
   SDLoc DL(Op);
   SDValue Result;
 
   // Only support length 1 constraints for now.
-  if (Constraint.length() > 1) return;
+  if (Constraint.length() > 1)
+    return;
 
   char ConstraintLetter = Constraint[0];
   switch (ConstraintLetter) {
-  default: break; // This will fall through to the generic implementation
+  default:
+    break;  // This will fall through to the generic implementation
   case 'I': // Signed 16 bit constant
     // If this fails, the parent routine will give an error
     if (ConstantSDNode *C = dyn_cast<ConstantSDNode>(Op)) {
@@ -1936,7 +1968,7 @@ void Cpu0TargetLowering::LowerAsmOperandForConstraint(SDValue Op,
     if (ConstantSDNode *C = dyn_cast<ConstantSDNode>(Op)) {
       EVT Type = Op.getValueType();
       int64_t Val = C->getSExtValue();
-      if ((isInt<32>(Val)) && ((Val & 0xffff) == 0)){
+      if ((isInt<32>(Val)) && ((Val & 0xffff) == 0)) {
         Result = DAG.getTargetConstant(Val, DL, Type);
         break;
       }
@@ -1984,7 +2016,8 @@ void Cpu0TargetLowering::LowerAsmOperandForConstraint(SDValue Op,
 
 bool Cpu0TargetLowering::isLegalAddressingMode(const DataLayout &DL,
                                                const AddrMode &AM, Type *Ty,
-                                               unsigned AS, Instruction *I) const {
+                                               unsigned AS,
+                                               Instruction *I) const {
   // No global is ever allowed as a base.
   if (AM.BaseGV)
     return false;
@@ -2003,33 +2036,33 @@ bool Cpu0TargetLowering::isLegalAddressingMode(const DataLayout &DL,
   return true;
 }
 
-bool
-Cpu0TargetLowering::isOffsetFoldingLegal(const GlobalAddressSDNode *GA) const {
+bool Cpu0TargetLowering::isOffsetFoldingLegal(
+    const GlobalAddressSDNode *GA) const {
   // The Cpu0 target isn't yet aware of offsets.
   return false;
 }
 
 Cpu0TargetLowering::Cpu0CC::SpecialCallingConvType
-  Cpu0TargetLowering::getSpecialCallingConv(SDValue Callee) const {
+Cpu0TargetLowering::getSpecialCallingConv(SDValue Callee) const {
   Cpu0CC::SpecialCallingConvType SpecialCallingConv =
-    Cpu0CC::NoSpecialCallingConv;
+      Cpu0CC::NoSpecialCallingConv;
   return SpecialCallingConv;
 }
 
 Cpu0TargetLowering::Cpu0CC::Cpu0CC(
-  CallingConv::ID CC, bool IsO32_, CCState &Info,
-  Cpu0CC::SpecialCallingConvType SpecialCallingConv_)
-  : CCInfo(Info), CallConv(CC), IsO32(IsO32_) {
+    CallingConv::ID CC, bool IsO32_, CCState &Info,
+    Cpu0CC::SpecialCallingConvType SpecialCallingConv_)
+    : CCInfo(Info), CallConv(CC), IsO32(IsO32_) {
   // Pre-allocate reserved argument area.
   CCInfo.AllocateStack(reservedArgArea(), Align(1));
 }
 
 //@#if CH >= CH9_2 //6 {
-void Cpu0TargetLowering::Cpu0CC::
-analyzeCallOperands(const SmallVectorImpl<ISD::OutputArg> &Args,
-                    bool IsVarArg, bool IsSoftFloat, const SDNode *CallNode,
-                    std::vector<ArgListEntry> &FuncArgs) {
-//@analyzeCallOperands body {
+void Cpu0TargetLowering::Cpu0CC::analyzeCallOperands(
+    const SmallVectorImpl<ISD::OutputArg> &Args, bool IsVarArg,
+    bool IsSoftFloat, const SDNode *CallNode,
+    std::vector<ArgListEntry> &FuncArgs) {
+  //@analyzeCallOperands body {
   assert((CallConv != CallingConv::Fast || !IsVarArg) &&
          "CallingConv::Fast shouldn't be used for vararg functions.");
 
@@ -2039,7 +2072,7 @@ analyzeCallOperands(const SmallVectorImpl<ISD::OutputArg> &Args,
 
   //@3 {
   for (unsigned I = 0; I != NumOpnds; ++I) {
-  //@3 }
+    //@3 }
     MVT ArgVT = Args[I].VT;
     ISD::ArgFlagsTy ArgFlags = Args[I].Flags;
     bool R;
@@ -2051,8 +2084,7 @@ analyzeCallOperands(const SmallVectorImpl<ISD::OutputArg> &Args,
 
     if (IsVarArg && !Args[I].IsFixed)
       R = VarFn(I, ArgVT, ArgVT, CCValAssign::Full, ArgFlags, CCInfo);
-    else
-    {
+    else {
       MVT RegVT = getRegVT(ArgVT, IsSoftFloat);
       R = FixedFn(I, ArgVT, RegVT, CCValAssign::Full, ArgFlags, CCInfo);
     }
@@ -2068,9 +2100,9 @@ analyzeCallOperands(const SmallVectorImpl<ISD::OutputArg> &Args,
 }
 //@#if CH >= CH9_2 //6 }
 
-void Cpu0TargetLowering::Cpu0CC::
-analyzeFormalArguments(const SmallVectorImpl<ISD::InputArg> &Args,
-                       bool IsSoftFloat, Function::const_arg_iterator FuncArg) {
+void Cpu0TargetLowering::Cpu0CC::analyzeFormalArguments(
+    const SmallVectorImpl<ISD::InputArg> &Args, bool IsSoftFloat,
+    Function::const_arg_iterator FuncArg) {
   unsigned NumArgs = Args.size();
   llvm::CCAssignFn *FixedFn = fixedArgFn();
   unsigned CurArgIdx = 0;
@@ -2102,10 +2134,10 @@ analyzeFormalArguments(const SmallVectorImpl<ISD::InputArg> &Args,
   }
 }
 
-template<typename Ty>
-void Cpu0TargetLowering::Cpu0CC::
-analyzeReturn(const SmallVectorImpl<Ty> &RetVals, bool IsSoftFloat,
-              const SDNode *CallNode, const Type *RetTy) const {
+template <typename Ty>
+void Cpu0TargetLowering::Cpu0CC::analyzeReturn(
+    const SmallVectorImpl<Ty> &RetVals, bool IsSoftFloat,
+    const SDNode *CallNode, const Type *RetTy) const {
   CCAssignFn *Fn;
 
   Fn = RetCC_Cpu0;
@@ -2125,15 +2157,15 @@ analyzeReturn(const SmallVectorImpl<Ty> &RetVals, bool IsSoftFloat,
   }
 }
 
-void Cpu0TargetLowering::Cpu0CC::
-analyzeCallResult(const SmallVectorImpl<ISD::InputArg> &Ins, bool IsSoftFloat,
-                  const SDNode *CallNode, const Type *RetTy) const {
+void Cpu0TargetLowering::Cpu0CC::analyzeCallResult(
+    const SmallVectorImpl<ISD::InputArg> &Ins, bool IsSoftFloat,
+    const SDNode *CallNode, const Type *RetTy) const {
   analyzeReturn(Ins, IsSoftFloat, CallNode, RetTy);
 }
 
-void Cpu0TargetLowering::Cpu0CC::
-analyzeReturn(const SmallVectorImpl<ISD::OutputArg> &Outs, bool IsSoftFloat,
-              const Type *RetTy) const {
+void Cpu0TargetLowering::Cpu0CC::analyzeReturn(
+    const SmallVectorImpl<ISD::OutputArg> &Outs, bool IsSoftFloat,
+    const Type *RetTy) const {
   analyzeReturn(Outs, IsSoftFloat, nullptr, RetTy);
 }
 
@@ -2146,17 +2178,18 @@ void Cpu0TargetLowering::Cpu0CC::handleByValArg(unsigned ValNo, MVT ValVT,
   struct ByValArgInfo ByVal;
   unsigned RegSize = regSize();
   unsigned ByValSize = alignTo(ArgFlags.getByValSize(), RegSize);
-  Align Alignment = std::min(std::max(ArgFlags.getNonZeroByValAlign(), Align(RegSize)),
-                            Align(RegSize * 2));
+  Align Alignment =
+      std::min(std::max(ArgFlags.getNonZeroByValAlign(), Align(RegSize)),
+               Align(RegSize * 2));
 
   if (useRegsForByval())
     allocateRegs(ByVal, ByValSize, Alignment.value());
 
   // Allocate space on caller's stack.
-  ByVal.Address = CCInfo.AllocateStack(ByValSize - RegSize * ByVal.NumRegs,
-                                       Alignment);
-  CCInfo.addLoc(CCValAssign::getMem(ValNo, ValVT, ByVal.Address, LocVT,
-                                    LocInfo));
+  ByVal.Address =
+      CCInfo.AllocateStack(ByValSize - RegSize * ByVal.NumRegs, Alignment);
+  CCInfo.addLoc(
+      CCValAssign::getMem(ValNo, ValVT, ByVal.Address, LocVT, LocInfo));
   ByValArgs.push_back(ByVal);
 }
 
@@ -2209,19 +2242,18 @@ void Cpu0TargetLowering::Cpu0CC::allocateRegs(ByValArgInfo &ByVal,
     CCInfo.AllocateReg(IntArgRegs[I]);
 }
 
-MVT Cpu0TargetLowering::Cpu0CC::getRegVT(MVT VT,
-                                         bool IsSoftFloat) const {
+MVT Cpu0TargetLowering::Cpu0CC::getRegVT(MVT VT, bool IsSoftFloat) const {
   if (IsSoftFloat || IsO32)
     return VT;
 
   return VT;
 }
 
-void Cpu0TargetLowering::
-copyByValRegs(SDValue Chain, const SDLoc &DL, std::vector<SDValue> &OutChains,
-              SelectionDAG &DAG, const ISD::ArgFlagsTy &Flags,
-              SmallVectorImpl<SDValue> &InVals, const Argument *FuncArg,
-              const Cpu0CC &CC, const ByValArgInfo &ByVal) const {
+void Cpu0TargetLowering::copyByValRegs(
+    SDValue Chain, const SDLoc &DL, std::vector<SDValue> &OutChains,
+    SelectionDAG &DAG, const ISD::ArgFlagsTy &Flags,
+    SmallVectorImpl<SDValue> &InVals, const Argument *FuncArg, const Cpu0CC &CC,
+    const ByValArgInfo &ByVal) const {
   MachineFunction &MF = DAG.getMachineFunction();
   MachineFrameInfo &MFI = MF.getFrameInfo();
   unsigned RegAreaSize = ByVal.NumRegs * CC.regSize();
@@ -2231,8 +2263,9 @@ copyByValRegs(SDValue Chain, const SDLoc &DL, std::vector<SDValue> &OutChains,
   const ArrayRef<MCPhysReg> ByValArgRegs = CC.intArgRegs();
 
   if (RegAreaSize)
-    FrameObjOffset = (int)CC.reservedArgArea() -
-      (int)((CC.numIntArgRegs() - ByVal.FirstIdx) * CC.regSize());
+    FrameObjOffset =
+        (int)CC.reservedArgArea() -
+        (int)((CC.numIntArgRegs() - ByVal.FirstIdx) * CC.regSize());
   else
     FrameObjOffset = ByVal.Address;
 
@@ -2262,17 +2295,18 @@ copyByValRegs(SDValue Chain, const SDLoc &DL, std::vector<SDValue> &OutChains,
 }
 
 // Copy byVal arg to registers and stack.
-void Cpu0TargetLowering::
-passByValArg(SDValue Chain, const SDLoc &DL,
-             std::deque< std::pair<unsigned, SDValue> > &RegsToPass,
-             SmallVectorImpl<SDValue> &MemOpChains, SDValue StackPtr,
-             MachineFrameInfo &MFI, SelectionDAG &DAG, SDValue Arg,
-             const Cpu0CC &CC, const ByValArgInfo &ByVal,
-             const ISD::ArgFlagsTy &Flags, bool isLittle) const {
+void Cpu0TargetLowering::passByValArg(
+    SDValue Chain, const SDLoc &DL,
+    std::deque<std::pair<unsigned, SDValue>> &RegsToPass,
+    SmallVectorImpl<SDValue> &MemOpChains, SDValue StackPtr,
+    MachineFrameInfo &MFI, SelectionDAG &DAG, SDValue Arg, const Cpu0CC &CC,
+    const ByValArgInfo &ByVal, const ISD::ArgFlagsTy &Flags,
+    bool isLittle) const {
   unsigned ByValSizeInBytes = Flags.getByValSize();
   unsigned OffsetInBytes = 0; // From beginning of struct
   unsigned RegSizeInBytes = CC.regSize();
-  unsigned Alignment = std::min((unsigned)Flags.getNonZeroByValAlign().value(), RegSizeInBytes);
+  unsigned Alignment =
+      std::min((unsigned)Flags.getNonZeroByValAlign().value(), RegSizeInBytes);
   EVT PtrTy = getPointerTy(DAG.getDataLayout()),
       RegTy = MVT::getIntegerVT(RegSizeInBytes * 8);
 
@@ -2286,8 +2320,8 @@ passByValArg(SDValue Chain, const SDLoc &DL,
          ++I, OffsetInBytes += RegSizeInBytes) {
       SDValue LoadPtr = DAG.getNode(ISD::ADD, DL, PtrTy, Arg,
                                     DAG.getConstant(OffsetInBytes, DL, PtrTy));
-      SDValue LoadVal = DAG.getLoad(RegTy, DL, Chain, LoadPtr,
-                                    MachinePointerInfo());
+      SDValue LoadVal =
+          DAG.getLoad(RegTy, DL, Chain, LoadPtr, MachinePointerInfo());
       MemOpChains.push_back(LoadVal.getValue(1));
       unsigned ArgReg = ArgRegs[ByVal.FirstIdx + I];
       RegsToPass.push_back(std::make_pair(ArgReg, LoadVal));
@@ -2312,8 +2346,9 @@ passByValArg(SDValue Chain, const SDLoc &DL,
           continue;
 
         // Load subword.
-        SDValue LoadPtr = DAG.getNode(ISD::ADD, DL, PtrTy, Arg,
-                                      DAG.getConstant(OffsetInBytes, DL, PtrTy));
+        SDValue LoadPtr =
+            DAG.getNode(ISD::ADD, DL, PtrTy, Arg,
+                        DAG.getConstant(OffsetInBytes, DL, PtrTy));
         SDValue LoadVal = DAG.getExtLoad(
             ISD::ZEXTLOAD, DL, RegTy, Chain, LoadPtr, MachinePointerInfo(),
             MVT::getIntegerVT(LoadSizeInBytes * 8), Alignment);
@@ -2352,17 +2387,17 @@ passByValArg(SDValue Chain, const SDLoc &DL,
                             DAG.getConstant(OffsetInBytes, DL, PtrTy));
   SDValue Dst = DAG.getNode(ISD::ADD, DL, PtrTy, StackPtr,
                             DAG.getIntPtrConstant(ByVal.Address, DL));
-  Chain = DAG.getMemcpy(Chain, DL, Dst, Src,
-                        DAG.getConstant(MemCpySize, DL, PtrTy),
-                        Align(Alignment), /*isVolatile=*/false, /*AlwaysInline=*/false,
-                        /*isTailCall=*/false,
-                        MachinePointerInfo(), MachinePointerInfo());
+  Chain = DAG.getMemcpy(
+      Chain, DL, Dst, Src, DAG.getConstant(MemCpySize, DL, PtrTy),
+      Align(Alignment), /*isVolatile=*/false, /*AlwaysInline=*/false,
+      /*isTailCall=*/false, MachinePointerInfo(), MachinePointerInfo());
   MemOpChains.push_back(Chain);
 }
 
 void Cpu0TargetLowering::writeVarArgRegs(std::vector<SDValue> &OutChains,
                                          const Cpu0CC &CC, SDValue Chain,
-                                         const SDLoc &DL, SelectionDAG &DAG) const {
+                                         const SDLoc &DL,
+                                         SelectionDAG &DAG) const {
   unsigned NumRegs = CC.numIntArgRegs();
   const ArrayRef<MCPhysReg> ArgRegs = CC.intArgRegs();
   const CCState &CCInfo = CC.getCCInfo();
@@ -2396,11 +2431,11 @@ void Cpu0TargetLowering::writeVarArgRegs(std::vector<SDValue> &OutChains,
     SDValue ArgValue = DAG.getCopyFromReg(Chain, DL, Reg, RegTy);
     FI = MFI.CreateFixedObject(RegSize, VaArgOffset, true);
     SDValue PtrOff = DAG.getFrameIndex(FI, getPointerTy(DAG.getDataLayout()));
-    SDValue Store = DAG.getStore(Chain, DL, ArgValue, PtrOff,
-                                 MachinePointerInfo());
-    cast<StoreSDNode>(Store.getNode())->getMemOperand()->setValue(
-        (Value *)nullptr);
+    SDValue Store =
+        DAG.getStore(Chain, DL, ArgValue, PtrOff, MachinePointerInfo());
+    cast<StoreSDNode>(Store.getNode())
+        ->getMemOperand()
+        ->setValue((Value *)nullptr);
     OutChains.push_back(Store);
   }
 }
-
