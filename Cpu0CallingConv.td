@@ -11,11 +11,19 @@
 
 /// CCIfSubtarget - Match if the current subtarget has a feature F.
 
-// 描述调用约定
+//
+/*
+ * brief:     描述调用约定,
+ * function:  1. 参数分配的顺序
+ *            2. 参数和返回值存放地址(栈上或者堆上)
+ *            3. 哪个寄存器将被使用
+ *            4. 调用者或被调用者是否展开堆栈
+ */
 
 class CCIfSubtarget<string F, CCAction A>:
   CCIf<!strconcat("State.getTarget().getSubtarget<Cpu0Subtarget>().", F), A>;
 
+// CCAssignToReg会将参数分配给(V0, V1, A0, A1)中第一个可以使用的寄存器
 def RetCC_Cpu0EABI : CallingConv<[
   // i32 are returned in registers V0, V1, A0, A1
   CCIfType<[i32], CCAssignToReg<[V0, V1, A0, A1]>>

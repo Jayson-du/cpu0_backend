@@ -29,6 +29,7 @@ using namespace llvm;
 
 #define DEBUG_TYPE "cpu0"
 
+// 将Cpu0后端注册到LLVM后端llc中
 extern "C" void LLVMInitializeCpu0Target() {
   // Register the target.
   //- Big endian Target Machine
