@@ -1,0 +1,31 @@
+!include ../../../PlantumlStyle/libs/core.puml
+
+package MCParsedAsmOperand {
+
+    class MCParsedAsmOperand {
+
+    }
+
+    note top of MCParsedAsmOperand
+        <b><color:royalBlue>在LLVM中, MCParsedAsmOperand是用于表示已解析的汇编操作数的类,MCParsedAsmOperand的作用\
+            是将汇编代码中的操作数解析为对应的数据结构,并提供访问和操作这些操作数的方法;其作用如下:</color>
+        <b><color:royalBlue></color>
+        <b><color:Tomato>1.操作数类型: MCParsedAsmOperand可以表示不同类型的汇编操作数,例如寄存器,立即数,内存引用,它包\
+            含了操作数的类型信息,以便后续处理和生成相应的指令</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.操作数值: MCParsedAsmOperand可以存储操作数的值,对于寄存器操作数,可以存储寄存器的编号或名称;\
+            对于立即数操作数,可以存储其值;对于内存引用操作数,可以存储偏移量和基址等信息</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.操作数约束: 在某些情况下, 汇编代码可能会对操作数施加特定的约束条件,例如只能使用特定的寄存器或遵\
+            循特定的地址模式;MCParsedAsmOperand可以存储和检查这些约束条件,以确保生成的指令满足要求</color>
+        <b><color:Tomato></color>
+        <b><color:royalBlue>通过使用MCParsedAsmOperand,汇编解析器能够将输入的汇编操作数解析为对应的数据结构,并提供给LLVM\
+            后端进行进一步的处理和生成目标代码;这使得LLVM能够支持各种不同类型的操作数和约束条件,并具有良好的可移植性与可拓展性;</color>
+    endnote
+
+    class Cpu0Operand {
+
+    }
+
+    Cpu0Operand                         -up-|>          MCParsedAsmOperand
+}

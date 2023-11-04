@@ -1,0 +1,28 @@
+!include ../../PlantumlStyle/libs/core.puml
+
+package AsmPrinter {
+
+    class AsmPrinter {
+
+    }
+
+    note top of AsmPrinter
+        <b><color:royalBlue>在LLVM中，AsmPrinter(汇编打印器)是一个关键的组件,它的主要作用是将LLVM的IR(中间表示)转换为\
+            目标平台的机器代码;具体而言,AsmPrinter负责将LLVM的IR中的指令和数据结构转化为与目标硬件平台相关的汇编代码格\
+            式;它通过使用目标平台的机器指令集和特定的代码生成规则,生成可由汇编器进一步处理的汇编指令;</color>
+        <b><color:royalBlue></color>
+        <b><color:Tomato>1.代码生成:根据目标平台的特定规则,将LLVM的IR转化为与目标平台兼容的机器指令序列</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.符号表管理:生成正确的符号表,确保全局变量,函数和其他符号在汇编代码中得到正确地引用</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.调试信息支持:生成调试信息,使得在调试时可以准确地映射源代码与目标代码之间的对应关系</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>4.可读性优化:生成易于阅读和理解的汇编代码,以便开发人员进行调试和分析</color>
+    endnote
+
+    class Cpu0AsmPrinter {
+
+    }
+
+    AsmPrinter                       -up-|>         Cpu0AsmPrinter
+}

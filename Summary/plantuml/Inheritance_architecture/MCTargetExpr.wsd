@@ -1,0 +1,32 @@
+!include ../../../PlantumlStyle/libs/core.puml
+
+package MCTargetExpr {
+
+    class MCTargetExpr {
+
+    }
+
+    note top of MCTargetExpr
+        <b><color:royalBlue>在LLVM中,MCTargetExpr用于表示目标平台特定表达式的类,其作用是表示与目标平台相关的表达式,这些\
+            表达式可以在汇编代码中出现;用于计算地址,跳转偏移量等与目标平台相关的值,它提供了一种通用的方式来表示和处理目标平台\
+            的特定表达式,以便在代码生成过程中使用,主要作用如下:</color>
+        <b><color:royalBlue></color>
+        <b><color:Tomato>1.表达式类型表示: MCTargetExpr提供不同类型的表达式表示,如绝对地址(Absolate),符号引用(SymbolRef),\
+            偏移量(Offset)等;它根据目标平台的特性定义和支持相应的表达式类型,以满足代码生成的需求</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.表达式求值: MCTargetExpr允许对表达式求值,以得到实际数值结果;它可以根据目标平台的规则和上下文\
+            环境,计算表达式所代表的具体值,并用于代码生成的过程</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.表达式解析: 在汇编代码中,可能会涉及对表达式的解析和处理;例如符号的解析和重定位等;MCTargetExpr\
+            提供了方法来解析和处理表达式,以便正确计算和应用表达式的值和引用</color>
+        <b><color:Tomato></color>
+        <b><color:royalBlue>通过使用MCTargetExpr类及其相关方法,LLVM能够表示和处理与目标平台相关的表达式;这使得LLVM具有\
+            灵活性和可移植性,能够在代码生成过程中使用目标平台特定的表达式,并根据目标平台的规则进行求值和解析</color>
+    endnote
+
+    class Cpu0MCExpr {
+
+    }
+
+    Cpu0MCExpr                          -up-|>          MCTargetExpr
+}

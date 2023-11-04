@@ -1,0 +1,41 @@
+@startuml
+
+!include ../../PlantumlStyle/libs/core.puml
+
+
+
+
+package MachineFunctionInfo {
+
+    class MachineFunctionInfo {
+
+    }
+
+    note top of MachineFunctionInfo
+        <b><color:royalBlue>在LLVM中,MachineFunctionInfo是用于存储与机器相关的函数信息;它是LLVM机器级别IR的一部分,用\
+        于表示机器指令的函数信息的类;它是LLVM机器级别的一部分,用于表示机器指令级别的代码</color>
+        <b><color:royalBlue>MachineFunction提供了一个拓展点,允许用户存储和检索特定于目标机器的信息,用户可以自定义自己的\
+            机器级别函数信息</color>
+        <b><color:royalBlue></color>
+        <b><color:Tomato>1.存储与机器指令相关的状态信息;如当前函数的寄存器分配情况,栈帧大小等;这些信息对于后续代码生成和优\
+            化阶段非常重要,因为它们直接影响代码的质量和性能;</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.提供与目标机器相关的接口:MachineFunctionInfo定义了一组接口,用于获取和设置特定于目标机器的信\
+            息,这些接口可以用于查询当前目标机器的特性,并根据需要进行优化</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.支持机器级别的代码转换和优化:MachineFunctionInfo对于一些特定的机器级别代码转换和优化非常有用;\
+            例如,某些优化可能需要检查寄存器间的依赖关系或者修改特定的机器指令序列。通过使用MachineFunctionInfo类,用户可以方\
+            便地访问和修改这些信息</color>
+        <b><color:royalBlue></color>
+        <b><color:royalBlue>MachineFunctionInfo提供了一种灵活和可拓展的机制,用于存储和处理与目标机器相关的函数信息,通过\
+            使用MachineFunctionInfo类,用户可以更好的控制和优化生成的机器代码</color>
+    endnote
+
+    class Cpu0FunctionInfo {
+
+    }
+
+    Cpu0FunctionInfo                    -up-|>          MachineFunctionInfo
+}
+
+@enduml

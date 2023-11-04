@@ -1,0 +1,76 @@
+!include ../../plantuml-style/sketchy-outline.puml
+
+!include ../../plantuml-style/core.puml
+
+title Cpu0后端架构图
+
+package LLVMTargetMachine {
+
+    class TargetMachine {
+    }
+
+    class LLVMTargetMachine {
+    }
+
+    note left of LLVMTargetMachine
+        <b><color:royalBlue>在LLVM中,LLVMTargetMachine主要用于表示目标机器的抽象概念;它提供了一种通用的接口,用于生成特\
+            定目标机器上的优化和代码生成</color>
+        <b><color:royalBlue>LLVMTargetMachine的主要作用如下:</color>
+        <b><color:royalBlue></color>
+        <b><color:Red>1.代码生成:LLVMTargetMachine类负责将IR转换为目标机器的机器码,它通过使用与目标机器相关的信息和\
+            算法,将高级IR转换为可以在目标机器上执行的机器码</color>
+        <b><color:Red></color>
+        <b><color:Red>2.优化:LLVMTargetMachine类负责在代码生成之前进行优化,它可以应用各种优化技术,如常量折叠,死代码\
+            消除,寄存器分配等以改善生成机器码的性能和质量</color>
+        <b><color:Red></color>
+        <b><color:Red>3.目标机器相关配置:LLVMTargetMachine类允许用户配置与目标机器相关的选项和属性,例如,用户可以指定\
+            机器的指令集架构,寄存器文件布局,代码模型等;这些配置可以影响代码生成结果,并根据目标机器的需求进行调整;</color>
+        <b><color:Red></color>
+        <b><color:Red>4.目标机器信息获取:LLVMTargetMachine类提供了一组接口来查询与目标机器相关的信息;用户可以使用这\
+            些接口来获取目标机器的特性,支持的指令集,寄存器文件,数据布局等信息;这些信息对于代码生成和优化非常重要,可以帮助用户\
+            更好地理解目标机器的特性和限制</color>
+        <b><color:Red></color>
+        <b><color:royalBlue>LLVMTargetMachine为代码生成和优化提供了一个通用的接口;通过使用LLVMTargetMachine类,用户可\
+            以生成针对特定目标机器的高效且优化的机器代码</color>
+    endnote
+
+    class Cpu0TargetMachine {
+        + Cpu0TargetMachine
+        + getSubtargetImpl
+        + createPassConfig
+        + getObjFileLowering
+        + isLittleEndian
+        + getABI
+        ----
+        - bool isLittle
+        - TargetLoweringObjectFile TLOF
+        - Cpu0ABIInfo ABI
+        - Cpu0Subtarget DefaultSubtarget
+    }
+
+    note left of Cpu0TargetMachine::DefaultSubtarget
+        "Cpu0TargetMachine通过继承LLVMTargetMachine,
+            在注册到LLVM的后端,使得LLVMM可以自由的调用
+            Cpu0的后端,对外提供功能的是Cpu0Subtarget这个类型"
+    endnote
+
+    class Cpu0ebTargetMachine {
+        + Cpu0ebTargetMachine
+        - void anchor()
+    }
+
+    class Cpu0elTargetMachine {
+        + Cpu0elTargetMachine
+        - void anchor()
+    }
+
+
+    ' Cpu0TargetMachine类关系
+    LLVMTargetMachine                   -up-|>          TargetMachine
+    Cpu0TargetMachine                   -up-|>          LLVMTargetMachine
+    Cpu0ebTargetMachine                 -up-|>          Cpu0TargetMachine
+    Cpu0elTargetMachine                 -up-|>          Cpu0TargetMachine
+
+    ExternNote                          .left.          Cpu0ebTargetMachine
+    ExternNote                          .right.         Cpu0elTargetMachine
+}

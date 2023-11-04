@@ -1,0 +1,32 @@
+!include ../../../PlantumlStyle/libs/core.puml
+
+package MCCodeEmitter {
+
+    class MCCodeEmitter {
+
+    }
+
+    note top of MCCodeEmitter
+        <b><color:royalBlue>在LLVM中,MCCodeEmitter是用于生成机器码(二进制指令)的类,将LLVM的IR转换为特定平台的机器码,\
+            它负责处理指令编码和位操作,并提供方法来生成符合目标平台指令集架构的二进制指令序列,主要作用如下:</color>
+        <b><color:royalBlue></color>
+        <b><color:Tomato>1.指令编码: MCCodeEmitter根据目标平台的指令集架构,在给定的机器指令对象(MCInst)上执行指令编码过\
+            程;它将指令操作码,操作数和其他相关信息编码为对应的二进制形式</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.位操作: 机器指令的编码操作通常涉及位操作,包括位移,位掩码和位填充等;MCCodeEmitter负责处理这些位操\
+            作,确保生成的二进制指令符合目标平台的规范和约束</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.代码生成: 将编码后的二进制指令序列生成到指定的输出缓冲区中,它按照指令的顺序和布局生成相应的机器码,\
+            并处理字节序(endianness)等细节</color>
+        <b><color:Tomato></color>
+        <b><color:royalBlue>通过使用MCCodeEmitter类及其相关方法,LLVM能够将LLVM的IR或汇编代码转换成目标平台特定的机器码;\
+            这使得LLVM能够生成与目标平台兼容的二进制指令序列,用于后续的链接,装载和执行操作;MCCodeEmitter是实现目标平台代码\
+            生成的关键组成部分之一</color>
+    endnote
+
+    class MCCodeEmitter {
+
+    }
+
+    Cpu0MCCodeEmitter                   -up-|>          MCCodeEmitter
+}

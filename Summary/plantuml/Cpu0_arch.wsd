@@ -1,0 +1,101 @@
+!include ../plantuml-style/sketchy-outline.puml
+
+!include ../plantuml-style/core.puml
+
+title Cpu0后端架构图
+
+' --------------------LLVM层关系--------------------
+package LLVM后端 {
+
+    entity LLVM_BACKEND {
+        LLVM的后端
+    }
+}
+
+
+' --------------------Cpu0层一级类与关系--------------------
+package 第一次关系 {
+
+    ' 注册类与LLVM之间的关系
+    Cpu0TargetMachine                   -up->           LLVM_BACKEND
+
+    class Cpu0TargetMachine {
+        注册对象的基类
+        基类中有Cpu0SubTarget对象
+        ----
+        - Cpu0ABIInfo ABI
+        - Cpu0Subtarget DefaultSubtarget
+    }
+
+    note left of Cpu0TargetMachine::DefaultSubtarget
+        Cpu0TargetMachine通过继承LLVMTargetMachine,
+        注册到LLVM的后端,使得LLVMM可以自由的调用
+        Cpu0的后端,对外提供功能的是Cpu0Subtarget这个类型
+    endnote
+
+    class Cpu0ebTargetMachine {
+        Cpu0eb架构(只负责注册)
+    }
+
+    class Cpu0elTargetMachine {
+        Cpu0el架构(只负责注册)
+    }
+
+    note "对外注册\
+      Cpu0ebTargetMachine与Cpu0elTargetMachine\
+      两个类,使得llc可以调用起Cpu0的后端" as ExternNote
+    ' Cpu0TargetMachine类关系
+    Cpu0ebTargetMachine                 -up-|>            Cpu0TargetMachine
+    Cpu0elTargetMachine                 -up-|>            Cpu0TargetMachine
+
+    ExternNote                          .up.                Cpu0ebTargetMachine
+    ExternNote                          .up.                Cpu0elTargetMachine
+}
+
+
+' --------------------Cpu0层二级类与关系--------------------
+package 第二层关系 {
+
+    class Cpu0Subtarget {
+        对外真正提供功能的类
+    }
+
+    note top of Cpu0Subtarget #red
+        Cpu0后端核心类
+    endnote
+
+    class Cpu0InstrInfo {
+        指令相关的类
+    }
+
+
+    class Cpu0FrameLowering {
+        堆栈指针相关的类
+    }
+
+    class Cpu0TargetLowering {
+        指令合法化类
+    }
+
+    class Cpu0ABIInfo {
+        描述ABI的类
+    }
+
+    Cpu0Subtarget                       -up-*               Cpu0TargetMachine
+    Cpu0InstrInfo                       -up-*               Cpu0Subtarget
+    Cpu0FrameLowering                   -up-*               Cpu0Subtarget
+    Cpu0TargetLowering                  -up-*               Cpu0Subtarget
+
+    Cpu0ABIInfo                         -up-*               Cpu0TargetMachine
+}
+
+
+' --------------------Cpu0层三级类与关系--------------------
+package 第三层关系 {
+
+    class Cpu0RegisterInfo {
+        寄存器相关的类
+    }
+
+    Cpu0RegisterInfo                    -up-*               Cpu0InstrInfo
+}

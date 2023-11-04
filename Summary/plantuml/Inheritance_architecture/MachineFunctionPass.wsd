@@ -1,0 +1,45 @@
+@startuml
+
+!include ../../../PlantumlStyle/libs/core.puml
+
+package MachineFunctionPass {
+
+    class MachineFunctionPass {
+
+    }
+
+    note top of MachineFunctionPass
+        <b><color:royalBlue>在LLVM中,MachineFuncPass是一个用于机器级别函数的转换和优化类,</color>
+        <b><color:royalBlue>它是LLVM的机器级别转换和优化框架之一,用于实现编译器的各种转换和优化功能;</color>
+        <b><color:royalBlue>通过继承MachineFunctionPass,可以编写自定义的机器级别转换和优化的PASS;</color>
+        <b><color:royalBlue>这些PASS可以在编译器的后端阶段应用于机器码生成过程,对机器码进行优化,如</color>
+        <b><color:Tomato>指令选择,指令调度,寄存器分配等</color>
+    endnote
+
+    class Filler {
+
+    }
+
+
+    class DelJmp {
+
+    }
+
+
+    class Inserter {
+
+    }
+
+    class Cpu0LongBranch {
+
+    }
+
+
+    Filler                              -up-|>          MachineFunctionPass
+    DelJmp                              -up-|>          MachineFunctionPass
+    Inserter                            -up-|>          MachineFunctionPass
+    Cpu0LongBranch                      -up-|>          MachineFunctionPass
+}
+
+
+@enduml

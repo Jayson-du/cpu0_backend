@@ -1,0 +1,44 @@
+@startuml
+
+!include ../../PlantumlStyle/libs/core.puml
+
+
+package TargetFrameLowring {
+
+    class TargetFrameLowring {
+
+    }
+
+    note top of TargetFrameLowring
+        <b><color:royalBlue>在LLVM中,TargetFrameLowering是一个用于处理函数栈帧的类;</color>
+        <b><color:royalBlue>它负责在代码生成过程中管理和控制函数调用期间所需的栈帧分配和访问;</color>
+        <b><color:royalBlue>TargetFrameLowering主要有一下几个方面作用:</color>
+        <b><color:Tomato>1. 栈帧布局: TargetFrameLowering确定了每个函数在栈上分配内存的方式,它决定了局部变量,参数,返\
+            回值以及其他与函数执行相关的数据在栈上的相对位置,并确保它们可以正确地被访问和使用;</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2. 参数传递: TargetFrameLowering定义了函数参数的传递方式;它可以确定将函数参数存储在寄存器上还\
+            是栈上,并指定参数之间的相对位置和顺序</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3. 函数调用约定: TargetFrameLowering定义了函数调用的约定规则;它可以确定函数调用是需要保存哪些\
+            寄存器的值,如何进行函数调用的栈帧设置和恢复,并且可以提供一些优化策略来减少函数\
+            调用的开销</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>4. 异常处理: TargetFrameLowering类可以处理与异常相关的栈帧设置,它可以为异常处理程序提供所需的\
+            额外信息,如异常处理表的地址等</color>
+        <b><color:royalBlue>总体来说,TargetFrameLowering类通过管理函数栈帧的分配和访问,为代码生成阶段提供了与函数执行\
+            相关的底层细节;它确保了生成机器码可以正确地操作栈上的数据,并遵循目标架构的规范和约定;</color>
+    endnote
+
+    class Cpu0FrameLowering {
+
+    }
+
+    class Cpu0SEFrameLowering {
+
+    }
+
+    Cpu0FrameLowering                   -up-|>          TargetFrameLowring
+    Cpu0SEFrameLowering                 -up-|>          Cpu0FrameLowering
+}
+
+@enduml

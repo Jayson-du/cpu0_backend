@@ -1,0 +1,46 @@
+@startuml
+
+!include ../../../PlantumlStyle/libs/core.puml
+
+package SelectionDAGISel #LightCoral {
+
+    class SelectionDAGISel {
+
+    }
+
+    note top of SelectionDAGISel
+        <b><color:royalBlue>在LLVM中,SlectionDAGISel是一个用于选择和生成目标机器码的关键类;它负责将LLVM的中间IR转换\
+            为目标架构特定的指令序列</color>
+        <b><color:royalBlue>SelectionDAGISel类的作用主要包括以下几个方面:</color>
+        <b><color:royalBlue></color>
+        <b><color:Tomato>1.指令选择: SelectionDAGISel根据中间IR的操作和约束信息选择合适的目标机器指令来实现相应的操作;\
+            它会考虑目标架构的特性,寄存器分配情况以及其他优化目标,以及生成高效的目标机器码</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.DAG图构建: SelectionDAGISel使用DAG(有向无环图)来表示IR中的表达式和指令;它会构建一个DAG图,\
+            其中每个节点代表一个操作或值,并通过连接边来表示它们之间的依赖关系;这个DAG图可以用于进行指令选择和优化</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.寄存器分配: SelectionDAGISel可以与寄存器分配(Register Allocator)协同工作,将DAG图上的值\
+            映射到目标架构的物理寄存器上;它会根据寄存器约束,活跃变量信息等考虑因素,为每个值选择合适的寄存器,并生成寄存器分配\
+            代码</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>4.指令编码: SelectionDAGISel将选择的目标机器指令转化为目标架构特定的二进制编码;它会将指令的操\
+            作码,寄存器操作数以及其他相关信息映射到目标机器码的格式和字段中,并生成最终的可执行可执行机器码</color>
+        <b><color:Tomato></color>
+        <b><color:royalBlue>通过使用SelectionDAGISel类,在LLVM中可以在IR和目标机器码之间建立通道,实现从高级语言到底层硬\
+            件的代码转换;这个过程涉及指令选择,寄存器分配和指令编码等关键步骤,以确保生成目标机器码具有正确性和高效性</color>
+    endnote
+
+    class Cpu0DAGToDAGISel {
+
+    }
+
+    class Cpu0SEDAGToDAGISel {
+
+    }
+
+    Cpu0DAGToDAGISel                    -up-|>          SelectionDAGISel
+    Cpu0SEDAGToDAGISel                  -up-|>          Cpu0DAGToDAGISel
+}
+
+
+@enduml

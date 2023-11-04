@@ -1,0 +1,35 @@
+!include ../../../PlantumlStyle/libs/core.puml
+
+package MCAsmInfoELF {
+
+    class MCAsmInfoELF {
+
+    }
+
+    note top of MCAsmInfoELF
+        <b><color:royalBlue>在LLVM中,MCAsmInfoELF是用于ELF目标文件的汇编信息类;作用是提供有关ELF目标文件的汇编信息和选\
+        项;它定义了目标平台特定的汇编语法,符号命名约定,节(section)布局和其他与ELF目标文件相关的规范,其作用如下:</color>
+        <b><color:royalBlue></color>
+        <b><color:Tomato>1.汇编语法：MCAsmInfoELF定义了目标平台的汇编语法规则,包括指令的书写格式,寄存器和操作数表示法等;\
+            它确保生成的汇编代码符合目标平台的规范,并能被正确地汇编为目标文件</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.符号命名约定: 在ELF目标文件中,符号的命名遵循一定的约定规则;MCAsmInfoELF负责定义符号的命名规\
+            则,包括全局符号,局部符号,弱引用符号等的命名方式,以便生成符合规范的符号表</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.节(Sections)布局: ELF目标文件由多个节组成,每个节存储特定类型的数据或代码;MCAsmInfoELF定义\
+            了各个节的布局和顺序,包括.text节(存储代码),.data节(存储数据)和.bss节(存储未初始化的全局变量)等;它确保生成的目\
+            标文件的节布局符合ELF规范</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>4.数据对齐：在ELF目标文件中,数据和代码通常需要满足一定的对齐要求;MCAsmInfoELF定义了数据和代码的\
+            对齐规则,以便生成对齐正确的目标文件;</color>
+        <b><color:Tomato></color>
+        <b><color:royalBlue>通过使用MCAsmInfoELF类及其相关方法,LLVM能够根据目标平台特定的ELF规范生成汇编信息和选项;这使\
+            得LLVM能够按照目标平台的规范生成符合ELF格式的汇编代码,并产生与目标平台兼容的可执行的ELF目标文件</color>
+    endnote
+
+    class Cpu0MCAsmInfo {
+
+    }
+
+    Cpu0MCAsmInfo                       -up-|>          MCAsmInfoELF
+}

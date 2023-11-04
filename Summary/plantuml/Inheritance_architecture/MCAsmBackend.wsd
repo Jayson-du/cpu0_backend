@@ -1,0 +1,35 @@
+!include ../../../PlantumlStyle/libs/core.puml
+
+package MCAsmBackend {
+
+    class MCAsmBackend {
+
+    }
+
+    note top of MCAsmBackend
+        <b><color:royalBlue>在LLVM中,MCAsmBackend是用于目标平台的汇编后端的类,处理和生成与目标平台汇编相关的低级别任务,\
+            包括目标文件格式,重定位和符号表,它提供了一组接口和方法,使得LLVM能够将汇编代码转化为最终可执行的目标文件或二进制,\
+            其作用如下:</color>
+        <b><color:royalBlue></color>
+        <b><color:Tomato>1.目标文件格式: MCAsmBackend负责处理特定目标平台的目标文件格式,它定义了如何组织和布局目标文件的\
+            各个部分,包括头部信息,节和数据段</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.重定位: 在将汇编代码转化为目标文件时,可能需要进行符号的重定位,以便正确的解析引用地址;MCAsmBackend\
+            提供了对重定位的支持,包括生成和应用重定位条目,并确保符号的正确解析和计算</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.符号表: MCAsmBackend负责处理目标文件中的符号表,包括全局变量,局部变量和外部符号;它提供了方法来\
+            添加符号,更新符号的值和属性,并生成相应的符号表信息</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>4.目标文件生成: 最终MCAsmBackend负责将处理后的汇编代码生成目标文件,它提供了方法将节和数据段写入\
+            目标文件,并处理相关的头部信息,重定位表和符号表</color>
+        <b><color:Tomato></color>
+        <b><color:royalBlue>通过使用MCAsmBackend类及其相关方法,LLVM可以处理与目标平台相关的低级别任务,并生成最终的可执行\
+            目标文件</color>
+    endnote
+
+    class MCAsmBackend {
+
+    }
+
+    Cpu0AsmBackend                      -up-|>          MCAsmBackend
+}

@@ -1,0 +1,88 @@
+!include ../../plantuml-style/sketchy-outline.puml
+
+!include ../../plantuml-style/core.puml
+
+package Cpu0Subtarget {
+
+    class MCSubtargetInfo {
+
+    }
+
+    class TargetSubtargetInfo {
+
+    }
+
+    struct Cpu0GenSubtargetInfo {
+
+    }
+
+    note left of Cpu0GenSubtargetInfo
+        "Cpu0GenSubtargetInfo是TableGen\
+         生成的类型,包含在\
+         Cpu0GenSubtargetInfo.inc文件中,\
+         猜测可能是Cpu0.td文件生成的"
+    end note
+
+    class Cpu0Subtarget {
+        ' Cpu0 architecture version
+        # Cpu0ArchEnum Cpu0ArchVersion
+        # bool IsLittle
+        # bool EnableOverflow
+        # bool HasCmp
+        # bool HasSlt
+        # InstrItineraryData InstrItins
+        # bool UseSmallSection
+        # Cpu0TargetMachine TM
+        # Triple TargetTriple
+        # SelectionDAGTargetInfo TSInfo
+        # Cpu0InstrInfo InstrInfo
+        # Cpu0FrameLowering FrameLowering
+        # Cpu0TargetLowering TLInfo
+        ----
+        + getInstrInfo()
+        + getFrameLowering()
+        + getRegisterInfo()
+        + getTargetLowering()
+        + getInstrItineraryData()
+    }
+
+    note left of Cpu0Subtarget
+        "Cpu0Subtarget对外提供Cpu0后端的\
+         所有功能"
+        ----
+        Cpu0ArchVersion:记录Cpu0架构版本
+        ----
+        IsLittle:记录Cpu0是否是小端类型的芯片
+        ----
+        EnableOverflow:?
+        ----
+        HasCmp:是否有cmp指令
+               CMP指令是MIPS指令集中的一种比较指令,用于比较两个操作数的值,
+               但不将比较结果保存到目标寄存器中;CMP指令格式如下:
+               <b><color:LightSeaGreen>cmp rs, rt</color>
+        ----
+        HasSlt:是否有slt指令
+               SLT指令是MIPS指令集中的一种比较指令,用于比较两个寄存器的值,
+               并将比较结果保存到目标寄存器中;SLT指令的格式如下:
+               <b><color:LightSeaGreen>slt rd, rs, rt</color>
+        ----
+        InstrItins:用来迭代遍历Cpu0Subtarget中的数据
+        ----
+        TM:<b><color:Tomato>?</color>
+        ----
+        TargetTriple:LLVM官方解释是配置名字,<b><color:Tomato>具体还需调查</color>
+        ----
+        TSInfo:LLVM官方解释是,目标可以将其子类化为参数化
+               SelectionDAG降低和指令选择过程,<b><color:Tomato>具体还需调查</color>
+        ----
+        InstrInfo:<b><color:OrangeRed>指令相关的类</color>
+        ----
+        FrameLowering:<b><color:OrangeRed>主要描述函数堆栈指针及堆栈指针偏移</color>
+        ----
+        TLInfo:<b><color:OrangeRed>代码合法化相关</color>
+    end note
+
+    TargetSubtargetInfo                 -up->           MCSubtargetInfo
+    Cpu0GenSubtargetInfo                -up->           TargetSubtargetInfo
+    Cpu0Subtarget                       -up-|>          Cpu0GenSubtargetInfo
+}

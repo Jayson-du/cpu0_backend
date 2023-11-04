@@ -1,0 +1,35 @@
+!include ../../../PlantumlStyle/libs/core.puml
+
+package MCInstrAnalysis {
+
+    class MCInstrAnalysis {
+
+    }
+
+    note top of MCInstrAnalysis
+        <b><color:royalBlue>在LLVM中,MCInstrAnalysis是用于分析目标平台指令的类,作用是提供对目标平台指令进行静态分析的能\
+            力,以便获取有关指令的信息和特性;它可以检查指令的操作数,读取和写入的寄存器,访问的内存地址等,从而帮助优化,代码生成和\
+            调试等方面工作,主要作用如下</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>1.操作数分析: MCInstrAnalysis可以解析指令操作数,包括立即数,寄存器和内存引用等,它可以提供指令使\
+            用寄存器和内存地址相关信息</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.读写寄存器分析: MCInstrAnalysis能够确定读取和写入的寄存器;这对于识别数据依赖,寄存器重命名和\
+            冲突等优化和调度操作有很大帮助</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.内存访问分析: MCInstrAnalysis可以分析指令对内存的访问,包括读取和写入的地址,访问对象大小等</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>4.控制流分析: MCInstrAnalysis可以分析指令的控制流行为,包括条件分支,跳转和函数调用等</color>
+        <b><color:Tomato></color>
+        <b><color:royalBlue>通过使用MCInstrAnalysis类及其相关方法,LLVM能够对目标平台指令进行静态分析,并获得关于指令操\
+            作数,寄存器读写,内存访问和控制流等方面的信息;这使得LLVM具有更好的优化和代码生成能力,并提供了一些基础的分析工具</color>
+    endnote
+
+
+    class Cpu0MCInstrAnalysis {
+
+    }
+
+
+    Cpu0MCInstrAnalysis                 -up-|>          MCInstrAnalysis
+}

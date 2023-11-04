@@ -1,0 +1,35 @@
+!include ../../../PlantumlStyle/libs/core.puml
+
+
+package TargetPassConfig {
+
+    class TargetPassConfig {
+
+    }
+
+    note top of TargetPassConfig
+        <b><color:royalBlue>在LLVM中,TargetPassConfig用于配置目标机器相关的优化和代码转换的PASS类,它是LLVM框架中针对\
+            特定目标机器的通用优化流程的一部分</color>
+        <b><color:royalBlue>TargetPassConfig主要有以下几个作用:</color>
+        <b><color:royalBlue></color>
+        <b><color:Tomato>1.配置目标机器相关的PASS顺序:TargetPassConfig提供了一个接口来配置优化和代码转换PASS的顺序;通\
+            过重写这些接口,用户可以根据目标机器的特性和需求来定义自己的PASS顺序,这样可以确保在生成机器代码之前,对中间IR进行\
+            适当的优化和调整</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.确定目标机器上可用的优化和代码转换PASS:TargetPassConfig类定义了一组接口来查询目标机器上可用\
+            的优化和代码转换PASS;这些接口使得用户可以根据目标机器的支持程度选择适当的PASS,并将其添加到优化流程中</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.配置目标机器相关的PASS选项:TargetPassConfig提供了一组接口来配置目标机器相关的PASS选项,通过\
+            这些选项,用户可以控制优化和代码转换PASS的行为,以便更好地适应目标机器特性和限制</color>
+        <b><color:Tomato></color>
+        <b><color:royalBlue>TargetPassConfig提供了一个通用框架,用于配置和管理与目标机器相关的优化和代码转换PASS,帮助用\
+            更好的定制优化生成的机器代码</color>
+    endnote
+
+    class Cpu0PassConfig {
+
+    }
+
+    Cpu0PassConfig                      -up-|>          TargetPassConfig
+
+}

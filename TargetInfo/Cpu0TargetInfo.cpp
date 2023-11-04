@@ -14,6 +14,8 @@ using namespace llvm;
 
 Target llvm::TheCpu0Target, llvm::TheCpu0elTarget;
 
+
+// 将Cpu0后端注册到LLVM后端llc中
 extern "C" void LLVMInitializeCpu0TargetInfo() {
   RegisterTarget<Triple::cpu0,
         /*HasJIT=*/true> X(TheCpu0Target, "cpu0", "CPU0 (32-bit big endian)", "Cpu0");

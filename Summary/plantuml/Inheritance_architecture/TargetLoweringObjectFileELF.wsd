@@ -1,0 +1,33 @@
+!include ../../../PlantumlStyle/libs/core.puml
+
+package TargetLoweringObjectFileELF {
+
+    class TargetLoweringObjectFileELF {
+
+    }
+
+    note top of TargetLoweringObjectFileELF
+        <b><color:royalBlue>在LLVM中, TargetLoweringObjectFileELF是用于处理ELF目标文件格式的类,\
+            ELF(Executable&&Linkable Format)是一种常见的可执行文件和共享库文件格式</color>
+        <b><color:royalBlue>该类的作用是定义了如何在LLVM中生成和处理ELF目标文件,作用如下:</color>
+        <b><color:Tomato>1.符号表: TargetLoweringObjectFileELF负责管理符号表,指定符号的命名,属性和位置等信息;它可以生\
+            成符号表那部分,并支持符号修饰和重定位</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.节: TargetLoweringObjectFileELF定义了ELF目标文件中节的规则和属性;它确定了代码段,数据段,BSS\
+            段等不同类型的节,并指定其属性,例如可执行,只读,可写等</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.重定位: 当编译器生成目标代码时,需要对符号进行重定位,以便确保正确地解析引用和地址;TargetLoweringObjectFileELF\
+            提供了处理重定位的接口和方法,确保生成的目标代码可以正确地链接和执行</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>动态符号表: 在动态链接过程中,需要将符号信息添加到动态符号表中;TargetLoweringObjectFileELF支持\
+            生成动态符号表并填充必要的信息,以便正确地加载和链接共享库</color>
+        <b><color:Tomato></color>
+        <b><color:royalBlue>TargetLoweringObjectFileELF定义了生成,处理和操作ELF目标文件所需的功能和接口</color>
+    endnote
+
+    class Cpu0TargetObjectFile {
+
+    }
+
+    Cpu0TargetObjectFile                -up-|>          TargetLoweringObjectFileELF
+}

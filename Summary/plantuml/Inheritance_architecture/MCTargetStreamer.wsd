@@ -1,0 +1,43 @@
+!include ../../../PlantumlStyle/libs/core.puml
+
+package MCTargetStreamer {
+
+    class MCTargetStreamer {
+
+    }
+
+    note top of MCTargetStreamer
+        <b><color:royalBlue>在LLVM中,MCTargetStreamer是用于与目标平台相关的指令流生成和输出的抽象类;它提供了一种统一的\
+            接口,使得LLVM能够生成针对特定目标平台的指令流;并将其输出到相应的目标文件或汇编文件中;它允许LLVM根据目标平台的要\
+            求进行特定指令的生成和输出</color>
+        <b><color:royalBlue></color>
+        <b><color:royalBlue>MCTargetStreamer主要功能如下:</color>
+        <b><color:royalBlue></color>
+        <b><color:Tomato>1.指令生成: MCTargetStreamer允许目标平台特定的代码生成器通过提供适当的方法来生成特定指令的二进\
+            制表示,这些方法可以用于生成不同类型的指令,操作数和寄存器等</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>2.符号表和重定位: MCTargetStreamer还负责处理与符号表和重定位相关的任务;它提供了方法来添加符号,\
+            更新符号的值和属性,并生成相关的重定位信息,以便正确的解析引用和地址</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>3.数据段和节属性: 除了指令流外,MCTargetStreamer支持定义和输出数据段和节的属性,包括指定数据段和\
+            节的名称,大小,属性(可读,可写,可执行)等</color>
+        <b><color:Tomato></color>
+        <b><color:Tomato>4.注释和调试信息: 某些目标平台可能需要注释和调试信息的生成和输出,MCTargetStreamer提供了方法来添\
+            加注释,调试符号和其他与调试相关的信息</color>
+        <b><color:Tomato></color>
+        <b><color:royalBlue>通过使用MCTargetStreamer类和其派生类,LLVM可以根据目标平台的需求生成相应的指令流,并将其转化\
+            为目标文件或汇编文件,这使得LLVM具有良好的可移植性和可拓展性,能够支持不同的目标平台和体系结构</color>
+    endnote
+
+    class Cpu0TargetStreamer {
+
+    }
+
+    class Cpu0TargetAsmStreamer {
+
+    }
+
+
+    Cpu0TargetStreamer                  -up-|>          MCTargetStreamer
+    Cpu0TargetAsmStreamer               -up-|>          Cpu0TargetStreamer
+}

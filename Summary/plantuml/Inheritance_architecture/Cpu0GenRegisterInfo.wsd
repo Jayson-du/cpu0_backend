@@ -1,0 +1,19 @@
+!include ../../../PlantumlStyle/libs/core.puml
+
+package Cpu0GenRegisterInfo {
+
+    class Cpu0GenRegisterInfo {
+
+    }
+
+    class Cpu0RegisterInfo {
+
+    }
+
+    class Cpu0SERegisterInfo {
+
+    }
+
+    Cpu0RegisterInfo                    -up-|>          Cpu0GenRegisterInfo
+    Cpu0SERegisterInfo                  -up-|>          Cpu0RegisterInfo
+}
