@@ -1,9 +1,13 @@
 # [llvm后端CodeGenerator学习总结](https://llvm.org/docs/CodeGenerator.html)
 
-## Cpu0后端总架构图
+## 1 Cpu0后端总架构图
 ![Cpu0后端总架构图](./out/plantuml/Cpu0_arch/Cpu0_arch.svg)
 
+## 2 基础结构
 
+### 2.1 分析Cpu0InstrInfo结构
+Cpu0InstrInfo类是LLVM官方提供的[TargetInstrInfo](https://llvm.org/doxygen/classllvm_1_1TargetInstrInfo.html)关于<strong>Cpu0</strong>的实现;它的继承关系如下所示
+![Cpu0InstrInfo](./out/plantuml/Inheritance_architecture/Cpu0InstrInfo/Cpu0InstrInfo.svg)
 ## Cpu0后端使用LLVM提供类总结
 
 | 类                           | 描述                                                    |

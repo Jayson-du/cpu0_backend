@@ -4,6 +4,7 @@
 
 title Cpu0后端架构图
 
+
 ' --------------------LLVM层关系--------------------
 package LLVM后端 {
 
@@ -27,7 +28,7 @@ package 第一次关系 {
         - Cpu0Subtarget DefaultSubtarget
     }
 
-    note left of Cpu0TargetMachine::DefaultSubtarget
+    note bottom of Cpu0TargetMachine
         Cpu0TargetMachine通过继承LLVMTargetMachine,
         注册到LLVM的后端,使得LLVMM可以自由的调用
         Cpu0的后端,对外提供功能的是Cpu0Subtarget这个类型
@@ -45,11 +46,11 @@ package 第一次关系 {
       Cpu0ebTargetMachine与Cpu0elTargetMachine\
       两个类,使得llc可以调用起Cpu0的后端" as ExternNote
     ' Cpu0TargetMachine类关系
-    Cpu0ebTargetMachine                 -up-|>            Cpu0TargetMachine
-    Cpu0elTargetMachine                 -up-|>            Cpu0TargetMachine
+    Cpu0ebTargetMachine                 -left-|>              Cpu0TargetMachine
+    Cpu0elTargetMachine                 -down-|>              Cpu0TargetMachine
 
-    ExternNote                          .up.                Cpu0ebTargetMachine
-    ExternNote                          .up.                Cpu0elTargetMachine
+    ExternNote                          .up.                    pu0ebTargetMachine
+    ExternNote                          .up.                    Cpu0elTargetMachine
 }
 
 
@@ -64,8 +65,19 @@ package 第二层关系 {
         Cpu0后端核心类
     endnote
 
+    class Cpu0ABIInfo {
+        描述ABI的类
+    }
+
+    Cpu0ABIInfo                         -up-*               Cpu0TargetMachine
+}
+
+
+' --------------------Cpu0层三级类与关系--------------------
+package 第三层关系 {
+
     class Cpu0InstrInfo {
-        指令相关的类
+        指令集相关的接口类
     }
 
 
@@ -77,8 +89,10 @@ package 第二层关系 {
         指令合法化类
     }
 
-    class Cpu0ABIInfo {
-        描述ABI的类
+
+
+    class Cpu0RegisterInfo {
+        寄存器相关的类
     }
 
     Cpu0Subtarget                       -up-*               Cpu0TargetMachine
@@ -86,16 +100,22 @@ package 第二层关系 {
     Cpu0FrameLowering                   -up-*               Cpu0Subtarget
     Cpu0TargetLowering                  -up-*               Cpu0Subtarget
 
-    Cpu0ABIInfo                         -up-*               Cpu0TargetMachine
+
+    Cpu0RegisterInfo                    -up-*               Cpu0InstrInfo
 }
 
 
-' --------------------Cpu0层三级类与关系--------------------
-package 第三层关系 {
+' --------------------Cpu0层四级类与关系--------------------
+package 第四级关系 {
 
-    class Cpu0RegisterInfo {
-        寄存器相关的类
+    class Cpu0SEInstrInfo {
+        Cpu032/64位指令集真正实现类
     }
 
-    Cpu0RegisterInfo                    -up-*               Cpu0InstrInfo
+    class Cpu0SERegisterInfo {
+        Cpu0真正的寄存器信息类
+    }
+
+    Cpu0SEInstrInfo                     -up-|>              Cpu0InstrInfo
+    Cpu0SERegisterInfo                  -up-|>              Cpu0RegisterInfo
 }

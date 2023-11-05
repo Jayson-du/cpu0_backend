@@ -1,0 +1,115 @@
+@startuml
+
+title Cpu0INstrInfo继承分析
+
+!include ../../plantuml-style/sketchy-outline.puml
+!include ../../plantuml-style/core.puml
+!include ../../plantuml-style/class-relation.puml
+
+package LLVM官方接口 {
+
+    class MCInstrInfo {
+        LLVM官方提供的一个描述机器指令的接口类
+        ----
+        + InitMCInstrInfo()
+        + getNumOpcodes()
+        + get()
+        + getName()
+        + getDeprecatedInfo()
+    }
+
+    class TargetInstrInfo {
+        LLVM官方提供的一个描述机器指令的接口类
+        ----
+        + virtual storeRegToStackSlot()
+    }
+
+    Generalize(TargetInstrInfo, MCInstrInfo, up)
+
+    note left of TargetInstrInfo
+        <b><color:royalBlue>在LLVM中,TargetInstrInfo是\
+            一个用于描述目标体系结构指令信息的类;\
+            它提供了一组方法和函数,用于\
+        操作和查询与目标体系结构相关的指令</color>
+        ----
+        storeRegToStackSlot:存储指定的寄存器
+    endnote
+
+}
+
+package TableGen生成 {
+    struct Cpu0GenInstrInfo {
+        TableGen生成的结构体
+        ----
+        + Cpu0GenInstrInfo()
+    }
+
+    note left of Cpu0GenInstrInfo
+        <b><color:royalBlue>该类来TableGen生成的\
+            Cpu0GeninstrInfo.inc,\
+            结构体内只定义了构造函数无\
+            其他方法文件</color>
+    endnote
+}
+
+
+package Cpu0实现 {
+
+    class Cpu0InstrInfo {
+        Cpu0指令集的接口类
+        ----
+        - virtual anchor()
+        ----
+        + static create()
+        + virtual getRegisterInfo() =0
+        + getOppositeBranchOpc() =0
+        + storeRegToStack() = 0
+        + loadRegFromStack() = 0
+        + adjustStackPtr() = 0
+    }
+
+    note left of Cpu0InstrInfo
+        <b><color:royalBlue>create:通过create函数构造\
+            一个Cpu0SEInstrInfo对象</color>
+    endnote
+
+    class Cpu0SEInstrInfo {
+        Cpu032/64位指令集真正实现类
+        ----
+        - Cpu0SERegisterInfo RI
+        ----
+        + copyPhysReg()
+        + getRegisterInfo()
+        + storeRegToStack()
+        + loadRegFromStack()
+        + adjustStackPtr()
+        + expandPostRAPseudo()
+        ----
+        - getOppositeBranchOpc()
+    }
+
+    note left of Cpu0SEInstrInfo
+        <b><color:Red>Cpu0SEInstrInfo将\
+        getOppositeBranchOpc私有化了</color>
+        ----
+        RI:寄存器信息
+        ----
+        copyPhysReg():重写TargetInstrInfo::copyPhysReg,\
+            官方解释是:在指令选择时,进行对物理寄存器进行拷贝操作
+        ----
+        expandPostRAPseudo:重写TargetInstrInfo::expandPostRAPseudo,\
+            伪指令对寄存器分配有帮助;在寄存器分配之后,仍然会存在一些伪指令,\
+            这个函数的作用就是将伪指令转为真实指令
+    endnote
+
+
+    Generalize(Cpu0GenInstrInfo, TargetInstrInfo, up)
+    Generalize(Cpu0InstrInfo, Cpu0GenInstrInfo, up)
+    Generalize(Cpu0SEInstrInfo, Cpu0InstrInfo, up)
+}
+
+!procedure Link($class_1, $class_2, $e_label, $direction="")
+$class1 -$direction-> $class2 : "$e_label"
+!endprocedure
+
+@enduml

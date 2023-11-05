@@ -30,6 +30,17 @@ public:
 
   const Cpu0RegisterInfo &getRegisterInfo() const override;
 
+  /**
+   * @brief 重写自TargetInstrInfo::copyPhysReg,
+   *        在指令选择期间,发射一条对一对物理寄存器拷贝的指令
+   *
+   * @param MBB
+   * @param MI
+   * @param DL
+   * @param DestReg
+   * @param SrcReg
+   * @param KillSrc
+   */
   void copyPhysReg(MachineBasicBlock &MBB, MachineBasicBlock::iterator MI,
                    const DebugLoc &DL, MCRegister DestReg, MCRegister SrcReg,
                    bool KillSrc) const override;
@@ -49,6 +60,14 @@ public:
                         int64_t Offset) const override;
 
 //@expandPostRAPseudo
+  /**
+   * @brief 重写TargetInstrInfo::expandPostRAPseudo,伪指令对寄存器分配有帮助,
+   *        在寄存器分配之后,仍然会存在一些伪指令,这个函数的作用就是将伪指令转为真实指令
+   *
+   * @param MI
+   * @return true
+   * @return false
+   */
   bool expandPostRAPseudo(MachineInstr &MI) const override;
 
   /// Adjust SP by Amount bytes.
@@ -65,7 +84,7 @@ private:
   void expandRetLR(MachineBasicBlock &MBB, MachineBasicBlock::iterator I) const;
 
   unsigned getOppositeBranchOpc(unsigned Opc) const override;
-  
+
   void expandEhReturn(MachineBasicBlock &MBB,
                       MachineBasicBlock::iterator I) const;
 };
