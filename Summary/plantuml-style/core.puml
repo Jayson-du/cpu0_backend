@@ -3,6 +3,8 @@
 
 !include skinparam.puml
 
+!include class-relation.puml
+
 !define TECHN_FONT_SIZE 12
 
 !define LAYOUT_TOP_DOWN top to bottom direction

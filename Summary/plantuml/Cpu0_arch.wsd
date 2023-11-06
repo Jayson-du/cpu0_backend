@@ -21,17 +21,27 @@ package 第一次关系 {
     Cpu0TargetMachine                   -up->           LLVM_BACKEND
 
     class Cpu0TargetMachine {
-        注册对象的基类
-        基类中有Cpu0SubTarget对象
+        注册对象的基类,基类中
+        有Cpu0SubTarget对象
+        ----
+        + virtual getSubtargetImpl()
+        + virtual createPassConfig()
+        + virtual getObjFileLowering()
         ----
         - Cpu0ABIInfo ABI
         - Cpu0Subtarget DefaultSubtarget
     }
 
-    note bottom of Cpu0TargetMachine
+    note left of Cpu0TargetMachine
         Cpu0TargetMachine通过继承LLVMTargetMachine,
         注册到LLVM的后端,使得LLVMM可以自由的调用
         Cpu0的后端,对外提供功能的是Cpu0Subtarget这个类型
+        ----
+        getSubtargetImpl:通过该函数向LLVM后端传递Cpu0Subtarget
+        ----
+        createPassConfig:通过该函数向LLVM后端传递Cpu0PassConfig
+        ----
+        getObjFileLowering:通过该函数向LLVM后端传递Cpu0TargetObjectFile
     endnote
 
     class Cpu0ebTargetMachine {
@@ -46,16 +56,21 @@ package 第一次关系 {
       Cpu0ebTargetMachine与Cpu0elTargetMachine\
       两个类,使得llc可以调用起Cpu0的后端" as ExternNote
     ' Cpu0TargetMachine类关系
-    Cpu0ebTargetMachine                 -left-|>              Cpu0TargetMachine
-    Cpu0elTargetMachine                 -down-|>              Cpu0TargetMachine
+    Generalize(Cpu0ebTargetMachine, Cpu0TargetMachine, up)
+    Generalize(Cpu0elTargetMachine, Cpu0TargetMachine, up)
 
-    ExternNote                          .up.                    pu0ebTargetMachine
+    ExternNote                          .up.                    Cpu0ebTargetMachine
     ExternNote                          .up.                    Cpu0elTargetMachine
 }
 
 
 ' --------------------Cpu0层二级类与关系--------------------
 package 第二层关系 {
+
+    class Cpu0SEDAGToDAGISel {
+
+    }
+
 
     class Cpu0Subtarget {
         对外真正提供功能的类
@@ -69,7 +84,22 @@ package 第二层关系 {
         描述ABI的类
     }
 
-    Cpu0ABIInfo                         -up-*               Cpu0TargetMachine
+    class Cpu0PassConfig {
+
+    }
+
+    class Cpu0TargetObjectFile {
+
+    }
+
+    ' 聚合关系
+    Composition(Cpu0Subtarget, Cpu0TargetMachine, up)
+    Composition(Cpu0ABIInfo, Cpu0TargetMachine, up)
+
+    ' 依赖关系
+    Dependency(Cpu0SEDAGToDAGISel, Cpu0TargetMachine, up)
+    Dependency(Cpu0PassConfig, Cpu0TargetMachine, up)
+    Dependency(Cpu0TargetObjectFile, Cpu0TargetMachine, up)
 }
 
 
@@ -89,13 +119,10 @@ package 第三层关系 {
         指令合法化类
     }
 
-
-
     class Cpu0RegisterInfo {
         寄存器相关的类
     }
 
-    Cpu0Subtarget                       -up-*               Cpu0TargetMachine
     Cpu0InstrInfo                       -up-*               Cpu0Subtarget
     Cpu0FrameLowering                   -up-*               Cpu0Subtarget
     Cpu0TargetLowering                  -up-*               Cpu0Subtarget

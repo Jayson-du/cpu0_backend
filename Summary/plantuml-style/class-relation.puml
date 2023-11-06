@@ -1,4 +1,4 @@
-@startuml
+@startuml class-relation
 
 ' 泛化 类继承
 !procedure Generalize($e_alias1, $e_alias2, $direction="", $e_label="")
