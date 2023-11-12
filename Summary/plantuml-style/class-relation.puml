@@ -54,4 +54,9 @@ $e_alias1 -$direction- $e_alias2 : "$e_label"
 $e_alias1 -$direction- $e_alias2 : "$e_label"
 !endprocedure
 
+' 注释连接
+!procedure NOTE_LINEK($e_alias1, $e_alias2, $direction="", $e_label="")
+$e_alias1 .$direction. $e_alias2 : "$e_label"
+!endprocedure
+
 @enduml

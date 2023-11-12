@@ -1,13 +1,29 @@
-!include ../../../PlantumlStyle/libs/core.puml
+title Cpu0PassConfig继承分析
+
+!include ../../plantuml-style/sketchy-outline.puml
+!include ../../plantuml-style/core.puml
+!include ../../plantuml-style/class-relation.puml
 
 
 package TargetPassConfig {
 
-    class TargetPassConfig {
+    class Pass {
 
     }
 
-    note top of TargetPassConfig
+    class ModulePass {
+
+    }
+
+    class ImmutablePass {
+
+    }
+
+    class TargetPassConfig {
+        + virtual addIRPasses()
+    }
+
+    note left of TargetPassConfig
         <b><color:royalBlue>在LLVM中,TargetPassConfig用于配置目标机器相关的优化和代码转换的PASS类,它是LLVM框架中针对\
             特定目标机器的通用优化流程的一部分</color>
         <b><color:royalBlue>TargetPassConfig主要有以下几个作用:</color>
@@ -27,9 +43,17 @@ package TargetPassConfig {
     endnote
 
     class Cpu0PassConfig {
-
+        添加PASS优化的类
+        ----
+        + virtual addIRPasses()
+        + virtual addInstSelector()
+        + virtual addPreEmitPass()
+        + virtual addPreRegAlloc()
     }
 
-    Cpu0PassConfig                      -up-|>          TargetPassConfig
+    Generalize(ModulePass, Pass, up)
+    Generalize(ImmutablePass, ModulePass, up)
+    Generalize(TargetPassConfig, ImmutablePass, up)
+    Generalize(Cpu0PassConfig, TargetPassConfig, up)
 
 }

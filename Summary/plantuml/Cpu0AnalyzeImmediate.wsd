@@ -1,0 +1,18 @@
+@startuml
+
+title Cpu0INstrInfo继承分析
+
+!include ../plantuml-style/sketchy-outline.puml
+!include ../plantuml-style/core.puml
+
+class Cpu0AnalyzeImmediate {
+
+}
+
+struct Inst {
+
+}
+
+Composition(Inst, Cpu0AnalyzeImmediate, up)
+
+@enduml

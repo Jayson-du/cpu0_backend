@@ -1,0 +1,24 @@
+@startuml
+
+!include ../plantuml-style/sketchy-outline.puml
+
+!include ../plantuml-style/core.puml
+
+title Cpu0后端llc流程
+
+start
+
+:注册Cpu0的后端;
+
+' start
+
+' if (Graphviz installed?) then (yes)
+'   :process all\ndiagrams;
+' else (no)
+'   :process only
+'   __sequence__ and __activity__ diagrams;
+' endif
+
+stop
+
+@enduml

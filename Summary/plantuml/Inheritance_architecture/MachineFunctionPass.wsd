@@ -1,6 +1,10 @@
 @startuml
 
-!include ../../../PlantumlStyle/libs/core.puml
+title Cpu0INstrInfo继承分析
+
+!include ../../plantuml-style/sketchy-outline.puml
+!include ../../plantuml-style/core.puml
+!include ../../plantuml-style/class-relation.puml
 
 package MachineFunctionPass {
 

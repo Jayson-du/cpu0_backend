@@ -4,6 +4,8 @@
 
 title Cpu0后端架构图
 
+LAYOUT_TOP_DOWN
+' LAYOUT_LEFT_RIGHT
 
 ' --------------------LLVM层关系--------------------
 package LLVM后端 {
@@ -55,22 +57,19 @@ package 第一次关系 {
     note "对外注册\
       Cpu0ebTargetMachine与Cpu0elTargetMachine\
       两个类,使得llc可以调用起Cpu0的后端" as ExternNote
-    ' Cpu0TargetMachine类关系
+
+    ' Cpu0TargetMachine类关系(继承关系)
     Generalize(Cpu0ebTargetMachine, Cpu0TargetMachine, up)
     Generalize(Cpu0elTargetMachine, Cpu0TargetMachine, up)
 
-    ExternNote                          .up.                    Cpu0ebTargetMachine
-    ExternNote                          .up.                    Cpu0elTargetMachine
+    ' 注释
+    NOTE_LINEK(ExternNote, Cpu0ebTargetMachine, up)
+    NOTE_LINEK(ExternNote, Cpu0elTargetMachine, up)
 }
 
 
 ' --------------------Cpu0层二级类与关系--------------------
 package 第二层关系 {
-
-    class Cpu0SEDAGToDAGISel {
-
-    }
-
 
     class Cpu0Subtarget {
         对外真正提供功能的类
@@ -97,7 +96,6 @@ package 第二层关系 {
     Composition(Cpu0ABIInfo, Cpu0TargetMachine, up)
 
     ' 依赖关系
-    Dependency(Cpu0SEDAGToDAGISel, Cpu0TargetMachine, up)
     Dependency(Cpu0PassConfig, Cpu0TargetMachine, up)
     Dependency(Cpu0TargetObjectFile, Cpu0TargetMachine, up)
 }
@@ -112,23 +110,75 @@ package 第三层关系 {
 
 
     class Cpu0FrameLowering {
-        堆栈指针相关的类
+        堆栈指针相关的类接口
+    }
+
+    class Cpu0SEFrameLowering {
+        堆栈指针相关的类真正实现
     }
 
     class Cpu0TargetLowering {
         指令合法化类
     }
 
-    class Cpu0RegisterInfo {
-        寄存器相关的类
+    class Cpu0SEDAGToDAGISel {
+
     }
 
-    Cpu0InstrInfo                       -up-*               Cpu0Subtarget
-    Cpu0FrameLowering                   -up-*               Cpu0Subtarget
-    Cpu0TargetLowering                  -up-*               Cpu0Subtarget
+    class Cpu0DAGToDAGISel {
 
+    }
 
-    Cpu0RegisterInfo                    -up-*               Cpu0InstrInfo
+    class Cpu0LongBranch {
+        Cpu0的PASS优化
+        ----
+    }
+
+    class Filler {
+        Cpu0的PASS优化
+        ----
+    }
+
+    struct DelJmp {
+        Cpu0的PASS优化
+        ----
+    }
+
+    struct Inserter {
+        Cpu0的PASS优化
+        ----
+    }
+
+    note "通过重写Cpu0PassConfig::addInstSelector\
+          函数添加这个PASS" as PassConfig_Inst
+
+    note "通过重写Cpu0PassConfig::addPreEmitPass\
+          函数添加这3个PASS" as PassConfig_EmitPass
+
+    note "通过重写Cpu0PassConfig::addPreRegAlloc\
+          函数添加这个PASS" as PassConfig_RegAlloc
+
+    ' Cpu0PassConfig与其他PASS优化关系(依赖关系)
+    Dependency(Cpu0SEDAGToDAGISel, Cpu0PassConfig, up)
+    Dependency(Cpu0LongBranch, Cpu0PassConfig, up)
+    Dependency(Filler, Cpu0PassConfig, up)
+    Dependency(DelJmp, Cpu0PassConfig, up)
+    Dependency(Inserter, Cpu0PassConfig, up)
+    ' Cpu0PassConfig注释
+    NOTE_LINEK(PassConfig_Inst, Cpu0SEDAGToDAGISel, up)
+    NOTE_LINEK(PassConfig_EmitPass, Cpu0LongBranch, up)
+    NOTE_LINEK(PassConfig_EmitPass, Filler, up)
+    NOTE_LINEK(PassConfig_EmitPass, DelJmp, up)
+    NOTE_LINEK(PassConfig_RegAlloc, Inserter, up)
+
+    ' 组合关系
+    Composition(Cpu0InstrInfo, Cpu0Subtarget, up)
+    Composition(Cpu0SEFrameLowering, Cpu0Subtarget, up)
+    Composition(Cpu0TargetLowering, Cpu0Subtarget, up)
+
+    ' 继承关系
+    Generalize(Cpu0SEFrameLowering, Cpu0FrameLowering, up)
+    Generalize(Cpu0SEDAGToDAGISel, Cpu0DAGToDAGISel, up)
 }
 
 
@@ -143,6 +193,35 @@ package 第四级关系 {
         Cpu0真正的寄存器信息类
     }
 
-    Cpu0SEInstrInfo                     -up-|>              Cpu0InstrInfo
-    Cpu0SERegisterInfo                  -up-|>              Cpu0RegisterInfo
+    class Cpu0RegisterInfo {
+        寄存器相关的类
+    }
+
+    ' 继承关系
+    Generalize(Cpu0SEInstrInfo, Cpu0InstrInfo, up)
+    Generalize(Cpu0SERegisterInfo, Cpu0RegisterInfo, up)
+
+    ' 组合关系
+    Composition(Cpu0RegisterInfo, Cpu0InstrInfo, up)
+}
+
+
+' --------------------Cpu0层五级类与关系--------------------
+package 第五层关系 {
+    class Cpu0AnalyzeImmediate {
+
+    }
+
+    class Cpu0FunctionInfo {
+
+    }
+
+    Dependency(Cpu0AnalyzeImmediate, Cpu0SEInstrInfo, up)
+    Dependency(Cpu0FunctionInfo, Inserter, up)
+    Dependency(Cpu0FunctionInfo, Cpu0DAGToDAGISel, up)
+    Dependency(Cpu0FunctionInfo, Cpu0TargetLowering, up)
+    Dependency(Cpu0FunctionInfo, Cpu0LongBranch, up)
+    Dependency(Cpu0FunctionInfo, Cpu0RegisterInfo, up)
+    Dependency(Cpu0FunctionInfo, Cpu0SEFrameLowering, up)
+
 }
