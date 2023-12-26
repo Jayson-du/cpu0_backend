@@ -225,3 +225,6 @@ package 第五层关系 {
     Dependency(Cpu0FunctionInfo, Cpu0SEFrameLowering, up)
 
 }
+
+
+note "类图中的SE表示standard edition,即标准版的意思" as CPU0

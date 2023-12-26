@@ -136,6 +136,7 @@ Cpu0TargetLowering::Cpu0TargetLowering(const Cpu0TargetMachine &TM,
   AddPromotedToType(ISD::SETCC, MVT::i1, MVT::i32);
 
   // Cpu0 Custom Operations
+  // setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);可以告诉llc, Cpu0后端已经实现了全局变量的自定义实现
   setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
   setOperationAction(ISD::GlobalTLSAddress, MVT::i32, Custom);
   setOperationAction(ISD::BlockAddress, MVT::i32, Custom);
@@ -897,6 +898,13 @@ SDValue Cpu0TargetLowering::lowerSELECT(SDValue Op, SelectionDAG &DAG) const {
   return Op;
 }
 
+/**
+ * @brief Cpu0后端实现全局变量
+ *
+ * @param Op
+ * @param DAG
+ * @return SDValue
+ */
 SDValue Cpu0TargetLowering::lowerGlobalAddress(SDValue Op,
                                                SelectionDAG &DAG) const {
   //@lowerGlobalAddress }

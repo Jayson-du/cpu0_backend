@@ -34,6 +34,12 @@ Cpu0SEFrameLowering::Cpu0SEFrameLowering(const Cpu0Subtarget &STI)
     : Cpu0FrameLowering(STI, STI.stackAlignment()) {}
 
 //@emitPrologue {
+/**
+ * @brief 用于函数前插入指定内容
+ *
+ * @param MF
+ * @param MBB
+ */
 void Cpu0SEFrameLowering::emitPrologue(MachineFunction &MF,
                                        MachineBasicBlock &MBB) const {
   MachineFrameInfo &MFI    = MF.getFrameInfo();
@@ -66,7 +72,7 @@ void Cpu0SEFrameLowering::emitPrologue(MachineFunction &MF,
   TII.adjustStackPtr(SP, -StackSize, MBB, MBBI);
 
   // emit ".cfi_def_cfa_offset StackSize"
-  unsigned CFIIndex = 
+  unsigned CFIIndex =
       MF.addFrameInst(
       MCCFIInstruction::cfiDefCfaOffset(nullptr, StackSize));
   BuildMI(MBB, MBBI, dl, TII.get(TargetOpcode::CFI_INSTRUCTION))
@@ -146,6 +152,12 @@ void Cpu0SEFrameLowering::emitPrologue(MachineFunction &MF,
 //}
 
 //@emitEpilogue {
+/**
+ * @brief 用于从函数返回插入指定内容
+ *
+ * @param MF
+ * @param MBB
+ */
 void Cpu0SEFrameLowering::emitEpilogue(MachineFunction &MF,
                                  MachineBasicBlock &MBB) const {
   MachineBasicBlock::iterator MBBI = MBB.getFirstTerminator();
@@ -255,9 +267,9 @@ static void setAliasRegs(MachineFunction &MF, BitVector &SavedRegs, unsigned Reg
 }
 
 //@determineCalleeSaves {
-// This method is called immediately before PrologEpilogInserter scans the 
-//  physical registers used to determine what callee saved registers should be 
-//  spilled. This method is optional. 
+// This method is called immediately before PrologEpilogInserter scans the
+//  physical registers used to determine what callee saved registers should be
+//  spilled. This method is optional.
 void Cpu0SEFrameLowering::determineCalleeSaves(MachineFunction &MF,
                                                BitVector &SavedRegs,
                                                RegScavenger *RS) const {
