@@ -7,11 +7,34 @@
 //
 //===----------------------------------------------------------------------===//
 
-// Without this will have error: 'cpu032I' is not a recognized processor for 
+// Without this will have error: 'cpu032I' is not a recognized processor for
 //  this target (ignoring processor)
 //===----------------------------------------------------------------------===//
 // Cpu0 Subtarget features                                                    //
 //===----------------------------------------------------------------------===//
+
+// SubtargetFeature - A characteristic of the chip set.
+// class SubtargetFeature<string n, string a,  string v, string d,
+//                        list<SubtargetFeature> i = []> {
+//   // 定义芯片系列
+//   string Name = n;
+
+//   // 特征名
+//   string Attribute = a;
+
+//   // 特征值
+//   string Value = v;
+
+//   // Desc - Feature description.  Used by command line (-mattr=) to display help
+//   // information.
+//   //
+//   string Desc = d;
+
+//   // Implies - Features that this feature implies are present. If one of those
+//   // features isn't set, then this one shouldn't be set either.
+//   //
+//   list<SubtargetFeature> Implies = i;
+// }
 
 def FeatureChapter3_1  : SubtargetFeature<"ch3_1", "HasChapterDummy", "true",
                                 "Enable Chapter instructions.">;
@@ -53,26 +76,26 @@ def FeatureChapter12_1 : SubtargetFeature<"ch12_1", "HasChapterDummy", "true",
                                 "Enable Chapter instructions.">;
 def FeatureChapterAll  : SubtargetFeature<"chall", "HasChapterDummy", "true",
                                 "Enable Chapter instructions.",
-                                [FeatureChapter3_1, FeatureChapter3_2, 
-                                 FeatureChapter3_3, FeatureChapter3_4, 
-                                 FeatureChapter3_5, 
-                                 FeatureChapter4_1, FeatureChapter4_2, 
-                                 FeatureChapter5_1, FeatureChapter6_1, 
-                                 FeatureChapter7_1, FeatureChapter8_1, 
-                                 FeatureChapter8_2, FeatureChapter9_1, 
-                                 FeatureChapter9_2, FeatureChapter9_3, 
-                                 FeatureChapter10_1, 
-                                 FeatureChapter11_1, FeatureChapter11_2, 
+                                [FeatureChapter3_1, FeatureChapter3_2,
+                                 FeatureChapter3_3, FeatureChapter3_4,
+                                 FeatureChapter3_5,
+                                 FeatureChapter4_1, FeatureChapter4_2,
+                                 FeatureChapter5_1, FeatureChapter6_1,
+                                 FeatureChapter7_1, FeatureChapter8_1,
+                                 FeatureChapter8_2, FeatureChapter9_1,
+                                 FeatureChapter9_2, FeatureChapter9_3,
+                                 FeatureChapter10_1,
+                                 FeatureChapter11_1, FeatureChapter11_2,
                                  FeatureChapter12_1]>;
 
 def FeatureCmp         : SubtargetFeature<"cmp", "HasCmp", "true",
                                 "Enable 'cmp' instructions.">;
 def FeatureSlt         : SubtargetFeature<"slt", "HasSlt", "true",
                                 "Enable 'slt' instructions.">;
-def FeatureCpu032I     : SubtargetFeature<"cpu032I", "Cpu0ArchVersion", 
+def FeatureCpu032I     : SubtargetFeature<"cpu032I", "Cpu0ArchVersion",
                                 "Cpu032I", "Cpu032I ISA Support",
                                 [FeatureCmp, FeatureChapterAll]>;
-def FeatureCpu032II    : SubtargetFeature<"cpu032II", "Cpu0ArchVersion",                      
+def FeatureCpu032II    : SubtargetFeature<"cpu032II", "Cpu0ArchVersion",
                                "Cpu032II", "Cpu032II ISA Support (slt)",
                                 [FeatureCmp, FeatureSlt, FeatureChapterAll]>;
 
@@ -83,6 +106,51 @@ def FeatureCpu032II    : SubtargetFeature<"cpu032II", "Cpu0ArchVersion",
 include "Cpu0Schedule.td"
 include "Cpu0InstrInfo.td"
 include "Cpu0CallingConv.td"
+
+/*
+ // InstrInfo - This class should only be instantiated once to provide parameters
+// which are global to the target machine.
+//
+class InstrInfo {
+  // Target can specify its instructions in either big or little-endian formats.
+  // For instance, while both Sparc and PowerPC are big-endian platforms, the
+  // Sparc manual specifies its instructions in the format [31..0] (big), while
+  // PowerPC specifies them using the format [0..31] (little).
+  bit isLittleEndianEncoding = false;
+
+  // The instruction properties mayLoad, mayStore, and hasSideEffects are unset
+  // by default, and TableGen will infer their value from the instruction
+  // pattern when possible.
+  //
+  // Normally, TableGen will issue an error it it can't infer the value of a
+  // property that hasn't been set explicitly. When guessInstructionProperties
+  // is set, it will guess a safe value instead.
+  //
+  // This option is a temporary migration help. It will go away.
+  bit guessInstructionProperties = true;
+
+  // TableGen's instruction encoder generator has support for matching operands
+  // to bit-field variables both by name and by position. While matching by
+  // name is preferred, this is currently not possible for complex operands,
+  // and some targets still reply on the positional encoding rules. When
+  // generating a decoder for such targets, the positional encoding rules must
+  // be used by the decoder generator as well.
+  //
+  // This option is temporary; it will go away once the TableGen decoder
+  // generator has better support for complex operands and targets have
+  // migrated away from using positionally encoded operands.
+  bit decodePositionallyEncodedOperands = false;
+
+  // When set, this indicates that there will be no overlap between those
+  // operands that are matched by ordering (positional operands) and those
+  // matched by name.
+  //
+  // This option is temporary; it will go away once the TableGen decoder
+  // generator has better support for complex operands and targets have
+  // migrated away from using positionally encoded operands.
+  bit noNamedPositionallyEncodedOperands = false;
+}
+ */
 
 def Cpu0InstrInfo : InstrInfo;
 //===----------------------------------------------------------------------===//
@@ -113,7 +181,7 @@ def Cpu0AsmParserVariant : AsmParserVariant {
   string RegisterPrefix = "$";
 }
 
-// Will generate Cpu0GenAsmWrite.inc included by Cpu0InstPrinter.cpp, contents 
+// Will generate Cpu0GenAsmWrite.inc included by Cpu0InstPrinter.cpp, contents
 //  as follows,
 // void Cpu0InstPrinter::printInstruction(const MCInst *MI, raw_ostream &O) {...}
 // const char *Cpu0InstPrinter::getRegisterName(unsigned RegNo) {...}

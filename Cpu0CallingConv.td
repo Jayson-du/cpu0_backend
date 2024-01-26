@@ -20,10 +20,27 @@
  *            4. 调用者或被调用者是否展开堆栈
  */
 
+/*
+ *  CCIf - If the predicate matches, apply A
+ *  class CCIf<string predicate, CCAction A> : CCPredicateAction<A> {
+ *    string Predicate = predicate;
+ *  }
+ */
 class CCIfSubtarget<string F, CCAction A>:
   CCIf<!strconcat("State.getTarget().getSubtarget<Cpu0Subtarget>().", F), A>;
 
 // CCAssignToReg会将参数分配给(V0, V1, A0, A1)中第一个可以使用的寄存器
+/*
+ *  class CallingConv<list<CCAction> actions> {
+ *    list<CCAction> Actions = actions;
+ *    // If true, this calling convention will be emitted as externally visible in
+ *    // the llvm namespace instead of as a static function
+ *
+ *    bit Entry = false;
+ *
+ *    bit Custom = false;
+  * }
+ */
 def RetCC_Cpu0EABI : CallingConv<[
   // i32 are returned in registers V0, V1, A0, A1
   CCIfType<[i32], CCAssignToReg<[V0, V1, A0, A1]>>
