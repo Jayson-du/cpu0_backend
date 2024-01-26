@@ -35,20 +35,39 @@ tablegen(LLVM Cpu0GenAsmMatcher.inc -gen-asm-matcher)
 
 set(LLVM_TARGET_DEFINITIONS Cpu0Other.td)
 
-# Generate Cpu0GenRegisterInfo.inc and Cpu0GenInstrInfo.inc which included by 
-#  your hand code C++ files. 
-# Cpu0GenRegisterInfo.inc came from Cpu0RegisterInfo.td, Cpu0GenInstrInfo.inc 
+# Generate Cpu0GenRegisterInfo.inc and Cpu0GenInstrInfo.inc which included by
+#  your hand code C++ files.
+# Cpu0GenRegisterInfo.inc came from Cpu0RegisterInfo.td, Cpu0GenInstrInfo.inc
 #  came from Cpu0InstrInfo.td.
+
+# 生成目标寄存器和寄存器组描述
 tablegen(LLVM Cpu0GenRegisterInfo.inc -gen-register-info)
+
+# 生成目标指令描述
 tablegen(LLVM Cpu0GenInstrInfo.inc -gen-instr-info)
+
+# 生成反汇编器所需的元数据
 tablegen(LLVM Cpu0GenDisassemblerTables.inc -gen-disassembler)
+
+# 生成对象文件发射器
 tablegen(LLVM Cpu0GenCodeEmitter.inc -gen-emitter)
+
+# 生成对象文件发射器
 tablegen(LLVM Cpu0GenMCCodeEmitter.inc -gen-emitter)
 
+# 生成汇编发射器
 tablegen(LLVM Cpu0GenAsmWriter.inc -gen-asm-writer)
+
+# 生成自动指令选择相关描述
 tablegen(LLVM Cpu0GenDAGISel.inc -gen-dag-isel)
+
+# 生成调用约定
 tablegen(LLVM Cpu0GenCallingConv.inc -gen-callingconv)
+
+# 生成子目标相关信息
 tablegen(LLVM Cpu0GenSubtargetInfo.inc -gen-subtarget)
+
+# 生成伪指令下降实现
 tablegen(LLVM Cpu0GenMCPseudoLowering.inc -gen-pseudo-lowering)
 
 # Cpu0CommonTableGen must be defined
