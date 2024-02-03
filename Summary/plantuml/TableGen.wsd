@@ -1,0 +1,91 @@
+@startuml
+
+title TableGen类型分析
+
+!include ../plantuml-style/sketchy-outline.puml
+!include ../plantuml-style/core.puml
+!include ../plantuml-style/class-relation.puml
+
+class RecordKeeper {
+
+}
+
+class DefInit {
+
+}
+
+class RecordVal {
+
+}
+
+' ====================
+class Init {
+
+}
+
+class TypedInit {
+
+}
+
+class UnsetInit {
+
+}
+
+' ====================
+class Record {
+    {static} - LastID
+    - Name
+    - TemplateArgs
+    - Values
+    - Assertions
+    - SuperClasses
+    - ID
+}
+
+note left of Record
+    Name的类型为Init
+    ----
+    Template的类型为Init
+    ----
+    Values的类型为RecordVal
+endnote
+
+
+' 类关系
+
+' ----- Init -----
+Generalize(TypedInit, Init, up)
+Generalize(UnsetInit, Init, up)
+
+Generalize(BitInit,            TypedInit,  up)
+Generalize(BitsInit,           TypedInit,  up)
+Generalize(CondOpinit,         TypedInit,  up)
+Generalize(DagInit,            TypedInit,  up)
+Generalize(DefInit,            TypedInit,  up)
+Generalize(FieldInit,          TypedInit,  up)
+Generalize(FoldOpInit,         TypedInit,  up)
+Generalize(IntInit,            TypedInit,  up)
+Generalize(IsAOpInit,          TypedInit,  up)
+Generalize(ListInit,           TypedInit,  up)
+Generalize(OpInit,             TypedInit,  up)
+Generalize(StringInit,         TypedInit,  up)
+Generalize(VarBitInit,         TypedInit,  up)
+Generalize(VarDefInit,         TypedInit,  up)
+Generalize(VarInit,            TypedInit,  up)
+Generalize(VarListElementInit, TypedInit,  up)
+
+' ----- OpInit -----
+Generalize(BinOpInit,  OpInit, up)
+Generalize(TernOpInit, OpInit, up)
+Generalize(UnOpInit,   OpInit, up)
+
+
+' ----- Record -----
+Composition(RecordVal,    Record, up)
+Composition(Init,         Record, up)
+Composition(RecordKeeper, Record, up)
+
+Aggregation(DefInit,        Record, up)
+
+
+@enduml
