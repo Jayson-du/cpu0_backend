@@ -18,6 +18,10 @@ class RecordVal {
 
 }
 
+note top of RecordVal
+    该类型记录命名, 类型, 值已经源码位置
+endnote
+
 ' ====================
 class Init {
 
@@ -81,9 +85,9 @@ Generalize(UnOpInit,   OpInit, up)
 
 
 ' ----- Record -----
-Composition(RecordVal,    Record, up)
 Composition(Init,         Record, up)
 Composition(RecordKeeper, Record, up)
+Composition(RecordVal,    Record, up)
 
 Aggregation(DefInit,        Record, up)
 
