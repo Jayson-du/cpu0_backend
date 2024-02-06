@@ -1,0 +1,25 @@
+@startmindmap
+
+title TD文件之间关系
+
+* Cpu0Other.td
+** Cpu0RegisterInfo.td
+** Cpu0RegisterInfoGPROutForOther.td
+** Cpu0.td
+*** Cpu0Schedule.td
+*** Cpu0InstrInfo.td
+**** Cpu0InstrFormats.td
+**** Cpu0CondMov.td
+*** Cpu0CallingConv.td
+
+* Cpu0Asm.td
+** Cpu0RegisterInfo.td
+** Cpu0RegisterInfoGPROutForAsm.td
+** Cpu0.td
+*** Cpu0Schedule.td
+*** Cpu0InstrInfo.td
+**** Cpu0InstrFormats.td
+**** Cpu0CondMov.td
+*** Cpu0CallingConv.td
+
+@endmindmap
