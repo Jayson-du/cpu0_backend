@@ -1,0 +1,28 @@
+@startuml
+
+title TableGen后端库依赖
+
+!include ../plantuml-style/sketchy-outline.puml
+!include ../plantuml-style/core.puml
+!include ../plantuml-style/class-relation.puml
+skinparam rectangle<<behavior>> {
+	roundCorner 25
+}
+
+sprite $bProcess jar:archimate/business-process
+sprite $bComponet jar:archimate/application-component
+
+rectangle "LLVM-tblgen" as tblgen <<$bProcess>><<behavior>> #Application
+
+rectangle "LLVMTableGen" as tablegen <<$bComponet>><<behavior>> #BUSINESS
+
+rectangle "LLVMTableGenGlobalISel" as globalISel <<$bComponet>><<behavior>> #BUSINESS
+
+rectangle "LLVMSupport" as support <<$bComponet>><<behavior>> #BUSINESS
+
+support     -up->   tablegen
+support     -up->   globalISel
+tablegen    -up->   tblgen
+globalISel  -up->   tablegen
+
+@enduml
