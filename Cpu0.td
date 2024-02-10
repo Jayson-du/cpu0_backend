@@ -160,6 +160,9 @@ def Cpu0InstrInfo : InstrInfo;
 class Proc<string Name, list<SubtargetFeature> Features>
  : Processor<Name, Cpu0GenericItineraries, Features>;
 
+// 定义两种类型的芯片, 分别是 "cpu032I" 与 "cpu032II"
+// "cpu032I"的特征是"FeatureCpu032I"
+// "cpu032II"的特征是 "FeatureCpu032II"
 def : Proc<"cpu032I",  [FeatureCpu032I]>;
 def : Proc<"cpu032II", [FeatureCpu032II]>;
 // Above make Cpu0GenSubtargetInfo.inc set feature bit as the following order

@@ -10,6 +10,8 @@
 #ifdef GET_SUBTARGETINFO_ENUM
 #undef GET_SUBTARGETINFO_ENUM
 
+
+// 一组芯片枚举
 namespace llvm {
 namespace Cpu0 {
 enum {
@@ -48,6 +50,27 @@ enum {
 #ifdef GET_SUBTARGETINFO_MC_DESC
 #undef GET_SUBTARGETINFO_MC_DESC
 
+/**
+    Used to provide key value pairs for feature and CPU bit flags.
+    struct SubtargetFeatureKV {
+      const char *Key;                      ///< K-V key string
+      const char *Desc;                     ///< Help descriptor
+      unsigned Value;                       ///< K-V integer value
+      FeatureBitArray Implies;              ///< K-V bit mask
+
+      /// Compare routine for std::lower_bound
+      bool operator<(StringRef S) const {
+        return StringRef(Key) < S;
+      }
+
+      /// Compare routine for std::is_sorted.
+      bool operator<(const SubtargetFeatureKV &Other) const {
+        return StringRef(Key) < StringRef(Other.Key);
+      }
+    };
+    记录每个系列芯片的特征
+ *
+ */
 namespace llvm {
 // Sorted (by key) array of values for CPU features.
 extern const llvm::SubtargetFeatureKV Cpu0FeatureKV[] = {
@@ -77,6 +100,7 @@ extern const llvm::SubtargetFeatureKV Cpu0FeatureKV[] = {
   { "slt", "Enable 'slt' instructions.", Cpu0::FeatureSlt, { { { 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, } } } },
 };
 
+// 这部分是TableGen生成到
 #ifdef DBGFIELD
 #error "<target>GenSubtargetInfo.inc requires a DBGFIELD macro"
 #endif
@@ -87,6 +111,7 @@ extern const llvm::SubtargetFeatureKV Cpu0FeatureKV[] = {
 #endif
 
 // Functional units for "Cpu0GenericItineraries"
+// 指令调度相关(读取)
 namespace Cpu0GenericItinerariesFU {
   const InstrStage::FuncUnits ALU = 1ULL << 0;
   const InstrStage::FuncUnits IMULDIV = 1ULL << 1;
@@ -175,7 +200,26 @@ static const llvm::MCSchedModel Cpu0GenericItinerariesModel = {
   nullptr // No extra processor descriptor
 };
 
+// 芯片型号相关的定义, 从"Cpu0.td"文件获取的
 // Sorted (by key) array of values for CPU subtype.
+// 用于为CPU的特性的位标志提供键值对
+// 在创建Cpu0Subtarget时会构造Cpu0GenSubtargetInfo类型对象
+// struct SubtargetSubTypeKV {
+//   const char *Key;                      ///< K-V key string
+//   FeatureBitArray Implies;              ///< K-V bit mask
+//   FeatureBitArray TuneImplies;          ///< K-V bit mask
+//   const MCSchedModel *SchedModel;
+
+//   /// Compare routine for std::lower_bound
+//   bool operator<(StringRef S) const {
+//     return StringRef(Key) < S;
+//   }
+
+//   /// Compare routine for std::is_sorted.
+//   bool operator<(const SubtargetSubTypeKV &Other) const {
+//     return StringRef(Key) < StringRef(Other.Key);
+//   }
+// };
 extern const llvm::SubtargetSubTypeKV Cpu0SubTypeKV[] = {
  { "cpu032I", { { { 0x200000ULL, 0x0ULL, 0x0ULL, 0x0ULL, } } }, { { { 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, } } }, &Cpu0GenericItinerariesModel },
  { "cpu032II", { { { 0x400000ULL, 0x0ULL, 0x0ULL, 0x0ULL, } } }, { { { 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, } } }, &Cpu0GenericItinerariesModel },
@@ -209,8 +253,8 @@ struct Cpu0GenMCSubtargetInfo : public MCSubtargetInfo {
 };
 
 static inline MCSubtargetInfo *createCpu0MCSubtargetInfoImpl(const Triple &TT, StringRef CPU, StringRef TuneCPU, StringRef FS) {
-  return new Cpu0GenMCSubtargetInfo(TT, CPU, TuneCPU, FS, Cpu0FeatureKV, Cpu0SubTypeKV, 
-                      Cpu0WriteProcResTable, Cpu0WriteLatencyTable, Cpu0ReadAdvanceTable, 
+  return new Cpu0GenMCSubtargetInfo(TT, CPU, TuneCPU, FS, Cpu0FeatureKV, Cpu0SubTypeKV,
+                      Cpu0WriteProcResTable, Cpu0WriteLatencyTable, Cpu0ReadAdvanceTable,
                       Cpu0Stages, Cpu0OperandCycles, Cpu0ForwardingPaths);
 }
 
@@ -270,6 +314,7 @@ namespace Cpu0_MC {
 unsigned resolveVariantSchedClassImpl(unsigned SchedClass, const MCInst *MI, const MCInstrInfo *MCII, unsigned CPUID);
 } // end namespace Cpu0_MC
 
+// 在创建Cpu0Subtarget时会构造Cpu0GenSubtargetInfo类型对象
 struct Cpu0GenSubtargetInfo : public TargetSubtargetInfo {
   explicit Cpu0GenSubtargetInfo(const Triple &TT, StringRef CPU, StringRef TuneCPU, StringRef FS);
 public:
@@ -297,8 +342,8 @@ extern const llvm::InstrStage Cpu0Stages[];
 extern const unsigned Cpu0OperandCycles[];
 extern const unsigned Cpu0ForwardingPaths[];
 Cpu0GenSubtargetInfo::Cpu0GenSubtargetInfo(const Triple &TT, StringRef CPU, StringRef TuneCPU, StringRef FS)
-  : TargetSubtargetInfo(TT, CPU, TuneCPU, FS, makeArrayRef(Cpu0FeatureKV, 24), makeArrayRef(Cpu0SubTypeKV, 2), 
-                        Cpu0WriteProcResTable, Cpu0WriteLatencyTable, Cpu0ReadAdvanceTable, 
+  : TargetSubtargetInfo(TT, CPU, TuneCPU, FS, makeArrayRef(Cpu0FeatureKV, 24), makeArrayRef(Cpu0SubTypeKV, 2),
+                        Cpu0WriteProcResTable, Cpu0WriteLatencyTable, Cpu0ReadAdvanceTable,
                         Cpu0Stages, Cpu0OperandCycles, Cpu0ForwardingPaths) {}
 
 unsigned Cpu0GenSubtargetInfo
