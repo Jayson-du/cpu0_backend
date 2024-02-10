@@ -6,9 +6,23 @@ title TableGen类型分析
 !include ../plantuml-style/core.puml
 !include ../plantuml-style/class-relation.puml
 
-class RecordKeeper {
-
+class TGParser {
+    - Records
 }
+
+note left of TGParser
+    TD文件词法分析器
+endnote
+
+class RecordKeeper {
+    - Classes
+        |_** std::map<std::string, Record>**
+}
+
+note left of RecordKeeper
+    RecordKeeper是所有Record封装的一个hash表,
+    <b><color:OrangeRed>所有Record都存储在Classes中</color>
+endnote
 
 class DefInit {
 
@@ -57,39 +71,47 @@ endnote
 
 ' 类关系
 
-' ----- Init -----
-Generalize(TypedInit, Init, up)
-Generalize(UnsetInit, Init, up)
-
-Generalize(BitInit,            TypedInit,  up)
-Generalize(BitsInit,           TypedInit,  up)
-Generalize(CondOpinit,         TypedInit,  up)
-Generalize(DagInit,            TypedInit,  up)
-Generalize(DefInit,            TypedInit,  up)
-Generalize(FieldInit,          TypedInit,  up)
-Generalize(FoldOpInit,         TypedInit,  up)
-Generalize(IntInit,            TypedInit,  up)
-Generalize(IsAOpInit,          TypedInit,  up)
-Generalize(ListInit,           TypedInit,  up)
-Generalize(OpInit,             TypedInit,  up)
-Generalize(StringInit,         TypedInit,  up)
-Generalize(VarBitInit,         TypedInit,  up)
-Generalize(VarDefInit,         TypedInit,  up)
-Generalize(VarInit,            TypedInit,  up)
-Generalize(VarListElementInit, TypedInit,  up)
-
-' ----- OpInit -----
-Generalize(BinOpInit,  OpInit, up)
-Generalize(TernOpInit, OpInit, up)
-Generalize(UnOpInit,   OpInit, up)
-
+' ----- TGParser -----
+Composition(RecordKeeper,       TGParser, up)
 
 ' ----- Record -----
-Composition(Init,         Record, up)
-Composition(RecordKeeper, Record, up)
-Composition(RecordVal,    Record, up)
+Composition(Init,               Record, up)
+Dependency(RecordKeeper,        Record, down)
+Composition(Record,             RecordKeeper, up)
+Composition(RecordVal,          Record, up)
 
-Aggregation(DefInit,        Record, up)
+' ----- Init -----
+Generalize(TypedInit,           Init, up)
+Generalize(UnsetInit,           Init, up)
+
+Generalize(BitInit,             TypedInit,  up)
+Generalize(BitsInit,            TypedInit,  up)
+Generalize(CondOpinit,          TypedInit,  up)
+Generalize(DagInit,             TypedInit,  up)
+Generalize(DefInit,             TypedInit,  up)
+Generalize(FieldInit,           TypedInit,  up)
+Generalize(FoldOpInit,          TypedInit,  up)
+Generalize(IntInit,             TypedInit,  up)
+Generalize(IsAOpInit,           TypedInit,  up)
+Generalize(ListInit,            TypedInit,  up)
+Generalize(OpInit,              TypedInit,  up)
+Generalize(StringInit,          TypedInit,  up)
+Generalize(VarBitInit,          TypedInit,  up)
+Generalize(VarDefInit,          TypedInit,  up)
+Generalize(VarInit,             TypedInit,  up)
+Generalize(VarListElementInit,  TypedInit,  up)
+
+' ----- OpInit -----
+Generalize(BinOpInit,           OpInit, up)
+Generalize(TernOpInit,          OpInit, up)
+Generalize(UnOpInit,            OpInit, up)
+
+
+
+
+Aggregation(DefInit,            Record, up)
+
+
 
 
 @enduml
