@@ -10,12 +10,34 @@
 //===----------------------------------------------------------------------===//
 // Functional units across Cpu0 chips sets. Based on GCC/Cpu0 backend files.
 //===----------------------------------------------------------------------===//
+/*  FuncUnit定义
+    //===----------------------------------------------------------------------===//
+    // Processor functional unit - These values represent the function units
+    // available across all chip sets for the target.  Eg., IntUnit, FPUnit, ...
+    // These may be independent values for each chip set or may be shared across
+    // all chip sets of the target.  Each functional unit is treated as a resource
+    // during scheduling and has an affect instruction order based on availability
+    // during a time interval.
+    //
+    class FuncUnit;
+ */
+// 两条管线
 def ALU     : FuncUnit;
 def IMULDIV : FuncUnit;
 
 //===----------------------------------------------------------------------===//
 // Instruction Itinerary classes used for Cpu0
 //===----------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
+/*
+    // Instruction itinerary classes - These values represent 'named' instruction
+    // itinerary.  Using named itineraries simplifies managing groups of
+    // instructions across chip sets.  An instruction uses the same itinerary class
+    // across all chip sets.  Thus a new chip set can be added without modifying
+    // instruction information.
+    //
+    class InstrItinClass;
+*/
 def IIAlu              : InstrItinClass;
 def II_CLO             : InstrItinClass;
 def II_CLZ             : InstrItinClass;

@@ -50,7 +50,7 @@ enum {
 #ifdef GET_SUBTARGETINFO_MC_DESC
 #undef GET_SUBTARGETINFO_MC_DESC
 
-/**
+/*
     Used to provide key value pairs for feature and CPU bit flags.
     struct SubtargetFeatureKV {
       const char *Key;                      ///< K-V key string
@@ -69,7 +69,6 @@ enum {
       }
     };
     记录每个系列芯片的特征
- *
  */
 namespace llvm {
 // Sorted (by key) array of values for CPU features.
