@@ -16,7 +16,16 @@
 //===----------------------------------------------------------------------===//
 
 // 定义特定目标的指令的模板、条件与指令集
-
+/*  SDTypeProfile定义
+    // SDTypeProfile - This profile describes the type requirements of a Selection
+    // DAG node.
+    class SDTypeProfile<int numresults, int numoperands,
+                        list<SDTypeConstraint> constraints> {
+        int NumResults = numresults;                            //
+        int NumOperands = numoperands;                          // 源操作数个数
+        list<SDTypeConstraint> Constraints = constraints;       // 源操作数类型
+    }
+ */
 def SDT_Cpu0Ret          : SDTypeProfile<0, 1, [SDTCisInt<0>]>;
 // Only op DAG can be disabled by ch4_1, data DAG cannot.
 def SDT_Cpu0DivRem       : SDTypeProfile<0, 2,
@@ -31,6 +40,19 @@ def SDT_Cpu0CallSeqEnd   : SDCallSeqEnd<[SDTCisVT<0, i32>, SDTCisVT<1, i32>]>;
 def SDT_Sync             : SDTypeProfile<0, 1, [SDTCisVT<0, i32>]>;
 
 // Call
+/*  SDNode定义
+    //===----------------------------------------------------------------------===//
+    // Selection DAG Node definitions.
+    //
+    class SDNode<string opcode, SDTypeProfile typeprof,
+                list<SDNodeProperty> props = [], string sdclass = "SDNode">
+                : SDPatternOperator {
+        string Opcode  = opcode;
+        string SDClass = sdclass;
+        let Properties = props;
+        SDTypeProfile TypeProfile = typeprof;
+    }
+ */
 def Cpu0JmpLink : SDNode<"Cpu0ISD::JmpLink",SDT_Cpu0JmpLink,
                          [SDNPHasChain, SDNPOutGlue, SDNPOptInGlue,
                           SDNPVariadic]>;
@@ -246,7 +268,7 @@ def immZExt5 : ImmLeaf<i32, [{return Imm == (Imm & 0x1f);}]>;
 
 // Cpu0 Address Mode! SDNode frameindex could possibily be a match
 // since load and store instructions from stack used it.
-def addr : 
+def addr :
   ComplexPattern<iPTR, 2, "SelectAddr", [frameindex], [SDNPWantParent]>;
 
 //===----------------------------------------------------------------------===//
@@ -301,8 +323,8 @@ class IntrinArithLogicR<bits<8> op, string instr_asm, SDPatternOperator OpNode,
 }
 
 let Predicates = [Ch4_2] in {
-class CmpInstr<bits<8> op, string instr_asm, 
-               InstrItinClass itin, RegisterClass RC, RegisterClass RD, 
+class CmpInstr<bits<8> op, string instr_asm,
+               InstrItinClass itin, RegisterClass RC, RegisterClass RD,
                bit isComm = 0>:
   FA<op, (outs RD:$ra), (ins RC:$rb, RC:$rc),
      !strconcat(instr_asm, "\t$ra, $rb, $rc"), [], itin> {
@@ -422,7 +444,7 @@ class CBranch24<bits<8> op, string instr_asm, RegisterClass RC,
 class CBranch16<bits<8> op, string instr_asm, PatFrag cond_op, RegisterClass RC>:
   FL<op, (outs), (ins RC:$ra, RC:$rb, brtarget16:$imm16),
              !strconcat(instr_asm, "\t$ra, $rb, $imm16"),
-             [(brcond (i32 (cond_op RC:$ra, RC:$rb)), bb:$imm16)], IIBranch>, 
+             [(brcond (i32 (cond_op RC:$ra, RC:$rb)), bb:$imm16)], IIBranch>,
              Requires<[HasSlt]> {
   let isBranch = 1;
   let isTerminator = 1;
@@ -716,7 +738,7 @@ def LONG_BRANCH_LUi : Cpu0Pseudo<(outs GPROut:$dst),
 def LONG_BRANCH_ADDiu : Cpu0Pseudo<(outs GPROut:$dst),
   (ins GPROut:$src, jmptarget:$tgt, jmptarget:$baltgt), "", []>;
 }
-  
+
 //===----------------------------------------------------------------------===//
 // Instruction definition
 //===----------------------------------------------------------------------===//
@@ -872,7 +894,7 @@ def JMP     : UncondBranch<0x36, "jmp">;
 //@ long branch support //1
 let isBranch = 1, isTerminator = 1, isBarrier = 1,
     hasDelaySlot = 0, Defs = [LR] in
-def BAL: FJ<0x3A, (outs), (ins jmptarget:$addr), "bal\t$addr", [], IIBranch>, 
+def BAL: FJ<0x3A, (outs), (ins jmptarget:$addr), "bal\t$addr", [], IIBranch>,
              Requires<[HasSlt]>;
 
 /// Jump & link and Return Instructions
@@ -1082,8 +1104,8 @@ def : Pat<(i32 (extloadi16_a addr:$src)), (LHu addr:$src)>;
 let Predicates = [Ch8_1] in {
 
 // brcond for cmp instruction
-multiclass BrcondPatsCmp<RegisterClass RC, Instruction JEQOp, Instruction JNEOp, 
-Instruction JLTOp, Instruction JGTOp, Instruction JLEOp, Instruction JGEOp, 
+multiclass BrcondPatsCmp<RegisterClass RC, Instruction JEQOp, Instruction JNEOp,
+Instruction JLTOp, Instruction JGTOp, Instruction JLEOp, Instruction JGEOp,
 Instruction CMPOp, Instruction CMPuOp, Register ZEROReg> {
 def : Pat<(brcond (i32 (seteq RC:$lhs, RC:$rhs)), bb:$dst),
           (JEQOp (CMPOp RC:$lhs, RC:$rhs), bb:$dst)>;
