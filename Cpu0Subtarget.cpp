@@ -30,7 +30,7 @@ using namespace llvm;
 
 #define GET_SUBTARGETINFO_TARGET_DESC
 #define GET_SUBTARGETINFO_CTOR
-#include "Cpu0GenSubtargetInfo.inc"
+#include "./GenInc/Cpu0GenSubtargetInfo.inc"
 
 static cl::opt<bool> EnableOverflowOpt
                 ("cpu0-enable-overflow", cl::Hidden, cl::init(false),
@@ -59,7 +59,7 @@ void Cpu0Subtarget::anchor() { }
 
 //@1 {
 Cpu0Subtarget::Cpu0Subtarget(const Triple &TT, StringRef CPU,
-                             StringRef FS, bool little, 
+                             StringRef FS, bool little,
                              const Cpu0TargetMachine &_TM) :
 //@1 }
   // Cpu0GenSubtargetInfo will display features by llc -march=cpu0 -mcpu=help
@@ -107,7 +107,7 @@ Cpu0Subtarget::initializeSubtargetDependencies(StringRef CPU, StringRef FS,
            <<  "CPU = " << CPU << "\n";
     exit(0);
   }
-  
+
   if (CPU == "cpu032I")
     Cpu0ArchVersion = Cpu032I;
   else if (CPU == "cpu032II")

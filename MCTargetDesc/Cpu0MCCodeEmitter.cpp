@@ -31,7 +31,7 @@
 #define DEBUG_TYPE "mccodeemitter"
 
 #define GET_INSTRMAP_INFO
-#include "Cpu0GenInstrInfo.inc"
+#include "../GenInc/Cpu0GenInstrInfo.inc"
 #undef GET_INSTRMAP_INFO
 
 using namespace llvm;
@@ -130,7 +130,7 @@ getBranch24TargetOpValue(const MCInst &MI, unsigned OpNo,
 }
 
 /// getJumpTargetOpValue - Return binary encoding of the jump
-/// target operand, such as JSUB. 
+/// target operand, such as JSUB.
 /// If the machine operand requires relocation,
 /// record the relocation and return zero.
 //@getJumpTargetOpValue {
@@ -265,5 +265,5 @@ Cpu0MCCodeEmitter::getMemEncoding(const MCInst &MI, unsigned OpNo,
   return (OffBits & 0xFFFF) | RegBits;
 }
 
-#include "Cpu0GenMCCodeEmitter.inc"
+#include "./GenInc/Cpu0GenMCCodeEmitter.inc"
 

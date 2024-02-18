@@ -68,7 +68,7 @@ bool Cpu0AsmPrinter::lowerOperand(const MachineOperand &MO, MCOperand &MCOp) {
   return MCOp.isValid();
 }
 
-#include "Cpu0GenMCPseudoLowering.inc"
+#include "./GenInc/Cpu0GenMCPseudoLowering.inc"
 
 #ifdef ENABLE_GPRESTORE
 void Cpu0AsmPrinter::emitPseudoCPRestore(MCStreamer &OutStreamer,

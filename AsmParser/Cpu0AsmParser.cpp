@@ -62,7 +62,7 @@ class Cpu0AsmParser : public MCTargetAsmParser {
   Cpu0AssemblerOptions Options;
 
 #define GET_ASSEMBLER_HEADER
-#include "Cpu0GenAsmMatcher.inc"
+#include "../GenInc/Cpu0GenAsmMatcher.inc"
 
   bool MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
                                OperandVector &Operands, MCStreamer &Out,
@@ -245,7 +245,7 @@ public:
   }
 
   /// Internal constructor for register kinds
-  static std::unique_ptr<Cpu0Operand> CreateReg(unsigned RegNum, SMLoc S, 
+  static std::unique_ptr<Cpu0Operand> CreateReg(unsigned RegNum, SMLoc S,
                                                 SMLoc E) {
     auto Op = std::make_unique<Cpu0Operand>(k_Register);
     Op->Reg.RegNum = RegNum;
@@ -848,7 +848,7 @@ ParseInstruction(ParseInstructionInfo &Info, StringRef Name, SMLoc NameLoc,
   // Create the leading tokens for the mnemonic, split by '.' characters.
   size_t Start = 0, Next = Name.find('.');
   StringRef Mnemonic = Name.slice(Start, Next);
-  // Refer to the explanation in source code of function DecodeJumpFR(...) in 
+  // Refer to the explanation in source code of function DecodeJumpFR(...) in
   // Cpu0Disassembler.cpp
   if (Mnemonic == "ret")
     Mnemonic = "jr";
@@ -1012,5 +1012,5 @@ extern "C" void LLVMInitializeCpu0AsmParser() {
 
 #define GET_REGISTER_MATCHER
 #define GET_MATCHER_IMPLEMENTATION
-#include "Cpu0GenAsmMatcher.inc"
+#include "./GenInc/Cpu0GenAsmMatcher.inc"
 

@@ -23,14 +23,14 @@
 using namespace llvm;
 
 #define GET_INSTRINFO_CTOR_DTOR
-#include "Cpu0GenInstrInfo.inc"
+#include "./GenInc/Cpu0GenInstrInfo.inc"
 
 // Pin the vtable to this file.
 void Cpu0InstrInfo::anchor() {}
 
 //@Cpu0InstrInfo {
 Cpu0InstrInfo::Cpu0InstrInfo(const Cpu0Subtarget &STI)
-    : 
+    :
       Cpu0GenInstrInfo(Cpu0::ADJCALLSTACKDOWN, Cpu0::ADJCALLSTACKUP),
       Subtarget(STI) {}
 

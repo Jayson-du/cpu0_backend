@@ -1238,7 +1238,7 @@ static bool CC_Cpu0O32(unsigned ValNo, MVT ValVT, MVT LocVT,
   return false;
 }
 
-#include "Cpu0GenCallingConv.inc"
+#include "./GenInc/Cpu0GenCallingConv.inc"
 
 //===----------------------------------------------------------------------===//
 //                  Call Calling Convention Implementation
@@ -1708,6 +1708,7 @@ bool Cpu0TargetLowering::CanLowerReturn(
     const SmallVectorImpl<ISD::OutputArg> &Outs, LLVMContext &Context) const {
   SmallVector<CCValAssign, 16> RVLocs;
   CCState CCInfo(CallConv, IsVarArg, MF, RVLocs, Context);
+  // 检查当前函数的返回值是否可以被降级, CheckReturn返回true可以被降级, false不能被降级
   return CCInfo.CheckReturn(Outs, RetCC_Cpu0);
 }
 
