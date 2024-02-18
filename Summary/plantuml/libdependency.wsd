@@ -12,7 +12,9 @@ skinparam rectangle<<behavior>> {
 sprite $bProcess jar:archimate/business-process
 sprite $bComponet jar:archimate/application-component
 
-rectangle "LLVM-tblgen" as tblgen <<$bProcess>><<behavior>> #Application
+rectangle "llvm-tblgen" as tblgen <<$bProcess>><<behavior>> #Application
+
+rectangle "obj.llvm-tblgen" as obj <<$bComponet>><<behavior>> #BUSINESS
 
 rectangle "LLVMTableGen" as tablegen <<$bComponet>><<behavior>> #BUSINESS
 
@@ -22,7 +24,8 @@ rectangle "LLVMSupport" as support <<$bComponet>><<behavior>> #BUSINESS
 
 support     -up->   tablegen
 support     -up->   globalISel
-tablegen    -up->   tblgen
+tablegen    -up->   obj
+obj         -up->   tblgen
 globalISel  -up->   tablegen
 
 @enduml
