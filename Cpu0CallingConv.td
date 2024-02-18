@@ -39,13 +39,45 @@ class CCIfSubtarget<string F, CCAction A>:
  *    bit Entry = false;
  *
  *    bit Custom = false;
-  * }
+ *  }
+ */
+
+/*  CCDelegateTo定义
+    /// CCDelegateTo - This action invokes the specified sub-calling-convention.  It
+    /// is successful if the specified CC matches.
+    class CCDelegateTo<CallingConv cc> : CCAction {
+      CallingConv CC = cc;
+    }
+ */
+
+/*  CCIfType定义
+    /// CCIfType - If the current argument is one of the specified types, apply
+    /// Action A.
+    class CCIfType<list<ValueType> vts, CCAction A> : CCPredicateAction<A> {
+      list<ValueType> VTs = vts;
+    }
+ */
+
+/*  CCAssignToReg定义
+    /// CCAssignToReg - This action matches if there is a register in the specified
+    /// list that is still available.  If so, it assigns the value to the first
+    /// available register and succeeds.
+    class CCAssignToReg<list<Register> regList> : CCAction {
+      list<Register> RegList = regList;
+    }
+ */
+
+/*
+ *  brief: RetCC_Cpu0EABI是用来记录当前函数的参数或者返回值为i32类型的条件下, 是否可以被V0, V1, A0, A1寄存器进行分配
+ *         如果分配成功, 则表示当前函数的参数和返回值可以被降级
  */
 def RetCC_Cpu0EABI : CallingConv<[
   // i32 are returned in registers V0, V1, A0, A1
   CCIfType<[i32], CCAssignToReg<[V0, V1, A0, A1]>>
 ]>;
 
+/*  brief: 加壳函数, RetCC_Cpu0对外暴露, RetCC_EABI是真正执行函数
+ */
 def RetCC_Cpu0 : CallingConv<[
   CCDelegateTo<RetCC_Cpu0EABI>
 ]>;
