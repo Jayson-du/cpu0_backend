@@ -1,0 +1,44 @@
+@startuml
+
+!include ../../plantuml-style/sketchy-outline.puml
+!include ../../plantuml-style/core.puml
+!include ../../plantuml-style/class-relation.puml
+
+title SubtargetEmitter分析
+
+class SubtargetEmitter {
+    产生CodeGenSchedModels的适配器
+    --
+    - TGT
+    - SchedModels
+}
+
+note left of SubtargetEmitter
+    TGT: CodeGenTarget
+    ----
+    SchedModels: CodeGenSchedModels
+endnote
+
+class CodeGenTarget {
+
+}
+
+class CodeGenSchedModels {
+    - Target
+}
+
+struct CodeGenProcModel {
+    - ProcModels
+}
+
+' ----- 类关系 -----
+
+' SubtargetEmitter关系
+Composition(CodeGenTarget,          SubtargetEmitter, up)
+Composition(CodeGenSchedModels,     SubtargetEmitter, up)
+
+' CodeGenSchedModels关系
+Composition(CodeGenTarget,          CodeGenSchedModels, up)
+Composition(CodeGenProcModel,       CodeGenSchedModels, up)
+
+@enduml
