@@ -80,6 +80,7 @@ Dependency(RecordKeeper,        Record, down)
 Composition(Record,             RecordKeeper, up)
 Composition(RecordVal,          Record, up)
 
+
 ' ----- Init -----
 Generalize(TypedInit,           Init, up)
 Generalize(UnsetInit,           Init, up)
