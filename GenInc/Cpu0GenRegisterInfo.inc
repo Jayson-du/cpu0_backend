@@ -12,7 +12,11 @@
 
 namespace llvm {
 
+// MCRegisterClass是系统生成, MCRegisterClass是目标寄存器的基类
 class MCRegisterClass;
+
+// Cpu0MCRegisterClasses, 是根据目标"Cpu0"拼接"MCRegisterClasses",
+// 在文件最前面声明一个Cpu0MCRegisterClasses数组; (系统默认)
 extern const MCRegisterClass Cpu0MCRegisterClasses[];
 
 namespace Cpu0 {
@@ -95,6 +99,7 @@ extern const uint16_t Cpu0SubRegIdxLists[] = {
   /* 0 */ 0,
 };
 
+// 65535是TableGen自己生成的与td文件无关
 extern const MCRegisterInfo::SubRegCoveredBits Cpu0SubRegIdxRanges[] = {
   { 65535, 65535 },
 };
@@ -172,52 +177,52 @@ extern const MCPhysReg Cpu0RegUnitRoots[][2] = {
 namespace {     // Register classes...
   // CPURegs Register Class...
   const MCPhysReg CPURegs[] = {
-    Cpu0::ZERO, Cpu0::AT, Cpu0::V0, Cpu0::V1, Cpu0::A0, Cpu0::A1, Cpu0::T9, Cpu0::T0, Cpu0::T1, Cpu0::S0, Cpu0::S1, Cpu0::GP, Cpu0::FP, Cpu0::SP, Cpu0::LR, Cpu0::SW, 
+    Cpu0::ZERO, Cpu0::AT, Cpu0::V0, Cpu0::V1, Cpu0::A0, Cpu0::A1, Cpu0::T9, Cpu0::T0, Cpu0::T1, Cpu0::S0, Cpu0::S1, Cpu0::GP, Cpu0::FP, Cpu0::SP, Cpu0::LR, Cpu0::SW,
   };
 
   // CPURegs Bit set.
   const uint8_t CPURegsBits[] = {
-    0x9a, 0xfe, 0x1f, 
+    0x9a, 0xfe, 0x1f,
   };
 
   // GPROut Register Class...
   const MCPhysReg GPROut[] = {
-    Cpu0::ZERO, Cpu0::AT, Cpu0::V0, Cpu0::V1, Cpu0::A0, Cpu0::A1, Cpu0::T9, Cpu0::T0, Cpu0::T1, Cpu0::S0, Cpu0::S1, Cpu0::GP, Cpu0::FP, Cpu0::SP, Cpu0::LR, 
+    Cpu0::ZERO, Cpu0::AT, Cpu0::V0, Cpu0::V1, Cpu0::A0, Cpu0::A1, Cpu0::T9, Cpu0::T0, Cpu0::T1, Cpu0::S0, Cpu0::S1, Cpu0::GP, Cpu0::FP, Cpu0::SP, Cpu0::LR,
   };
 
   // GPROut Bit set.
   const uint8_t GPROutBits[] = {
-    0x9a, 0xfa, 0x1f, 
+    0x9a, 0xfa, 0x1f,
   };
 
   // C0Regs Register Class...
   const MCPhysReg C0Regs[] = {
-    Cpu0::PC, Cpu0::EPC, 
+    Cpu0::PC, Cpu0::EPC,
   };
 
   // C0Regs Bit set.
   const uint8_t C0RegsBits[] = {
-    0x04, 0x01, 
+    0x04, 0x01,
   };
 
   // HILO Register Class...
   const MCPhysReg HILO[] = {
-    Cpu0::HI, Cpu0::LO, 
+    Cpu0::HI, Cpu0::LO,
   };
 
   // HILO Bit set.
   const uint8_t HILOBits[] = {
-    0x60, 
+    0x60,
   };
 
   // SR Register Class...
   const MCPhysReg SR[] = {
-    Cpu0::SW, 
+    Cpu0::SW,
   };
 
   // SR Bit set.
   const uint8_t SRBits[] = {
-    0x00, 0x04, 
+    0x00, 0x04,
   };
 
 } // end anonymous namespace
@@ -485,23 +490,23 @@ static const TargetRegisterInfo::RegClassInfo RegClassInfos[] = {
 static const TargetRegisterClass *const NullRegClasses[] = { nullptr };
 
 static const uint32_t CPURegsSubClassMask[] = {
-  0x00000013, 
+  0x00000013,
 };
 
 static const uint32_t GPROutSubClassMask[] = {
-  0x00000002, 
+  0x00000002,
 };
 
 static const uint32_t C0RegsSubClassMask[] = {
-  0x00000004, 
+  0x00000004,
 };
 
 static const uint32_t HILOSubClassMask[] = {
-  0x00000008, 
+  0x00000008,
 };
 
 static const uint32_t SRSubClassMask[] = {
-  0x00000010, 
+  0x00000010,
 };
 
 static const uint16_t SuperRegIdxSeqs[] = {
