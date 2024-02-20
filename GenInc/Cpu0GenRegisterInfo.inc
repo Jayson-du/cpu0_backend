@@ -20,8 +20,9 @@ class MCRegisterClass;
 extern const MCRegisterClass Cpu0MCRegisterClasses[];
 
 namespace Cpu0 {
+// 这里 "1 ~ 20" 是根据插入到CodeGenRegister先后顺序产生的(函数位置: CodeGenRegBank::getReg)
 enum {
-  NoRegister,
+  NoRegister,   // 这个是TableGen自己产生的
   AT = 1,
   EPC = 2,
   FP = 3,
@@ -42,7 +43,7 @@ enum {
   T9 = 18,
   V0 = 19,
   V1 = 20,
-  NUM_TARGET_REGS // 21
+  NUM_TARGET_REGS // 21 // TableGen自己产生的
 };
 } // end namespace Cpu0
 
