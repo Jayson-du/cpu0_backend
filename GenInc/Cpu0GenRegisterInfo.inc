@@ -48,7 +48,8 @@ enum {
 } // end namespace Cpu0
 
 // Register classes
-
+// 定义通过TableGen文件(Cpu0RegisterInfo.td: 130 ~ 150)定义寄存器分类情况,
+// 其中"CPU0Regs", "GPRout", "C0", "SR"是通过TableGen文件定义的, "RegClassID"是TableGen补充的
 namespace Cpu0 {
 enum {
   CPURegsRegClassID = 0,

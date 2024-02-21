@@ -94,7 +94,7 @@ let Namespace = "Cpu0" in {
 //@Register Classes
 //===----------------------------------------------------------------------===//
 
-/*
+/*  RegisterClass定义
     class RegisterClass<string namespace,                               // 定义Namespace
 
                         list<ValueType> regTypes,                       // 定义寄存器类型值的列表(如i16, i32,
@@ -124,7 +124,9 @@ let Namespace = "Cpu0" in {
       code MethodBodies = [{}];
     }
 
-    下面分别定义4个RegisterClass对象(CPURegs, HILO, SR, C0Regs), 4个RegisterClass对象分别添加上面对应的寄存器信息
+    下面分别定义4个RegisterClass对象(CPURegs, HILO, SR, C0Regs), 4个RegisterClass对象分别添加上面对应的寄存器信息,
+    TableGen在编译时会将寄存器分为4大类: CPURegs, HILO, SR, C0Regs,
+    在Cpu0GenRegisterInfo.inc定义四个枚举值:
  */
 
 def CPURegs : RegisterClass<"Cpu0", [i32], 32, (add
