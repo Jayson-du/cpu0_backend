@@ -129,6 +129,24 @@ extern const char Cpu0RegStrings[] = {
 
 };
 
+/// MCRegisterDesc - This record contains information about a particular
+/// register. The SubRegs field is a zero teriminated array oear registers that
+/// are sub-registers of the specific register, e.g. AL, AH are sub-registers
+/// of AX. The SuperRegs field is a zero terminated array of registers that are
+/// super-registers of the specific register, e.g. RAX, EAX, are
+/// super-registers of AX.
+/// struct MCRegisterDesc {
+///   uint32_t  Name;             printable name for the reg (for debugging)
+///   uint32_t  SubRegs;          Sub-register set, described above
+///   uint32_t  SuperRegs;        Super-register set, described above
+///   uint32_t  SubRegIndices;    Offset into MCRI::SubRegIndices of a list of sub-register
+///                               indices for each sub-register in SubRegs
+///   uint32_t  RegUnits;         Point to the list of register units. The low 4 bits holds
+///                               the Scale, the high bits hold an offset into DiffLists.
+///                               See MCRegUnitIterator.
+///   uint32_t  RegUnitLaneMasks; Index into list with lane mask sequences. The sequence
+///                               contains a lanemask for every register unit.
+/// }
 extern const MCRegisterDesc Cpu0RegDesc[] = { // Descriptors
   { 2, 0, 0, 0, 0, 0 },
   { 54, 1, 1, 0, 1, 0 },
