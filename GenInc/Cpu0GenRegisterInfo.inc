@@ -422,21 +422,35 @@ namespace llvm {
 
 class Cpu0FrameLowering;
 
-struct Cpu0GenRegisterInfo : public TargetRegisterInfo {
+struct Cpu0GenRegisterInfo : public TargetRegisterInfo
+{
   explicit Cpu0GenRegisterInfo(unsigned RA, unsigned D = 0, unsigned E = 0,
-      unsigned PC = 0, unsigned HwMode = 0);
+                               unsigned PC = 0, unsigned HwMode = 0);
+
   const RegClassWeight &getRegClassWeight(const TargetRegisterClass *RC) const override;
+
+  // 获取寄存器的权重
   unsigned getRegUnitWeight(unsigned RegUnit) const override;
+
+  // 在LLVM中， "register pressure"(寄存器压力)是指在编译器优化过程中, 由于寄存器数量有限,
+  // 需要将变量存储到寄存器中的需求超过了可用寄存器数量, 从而导致需要频繁地将变两冲寄存器中保存
+  // 到内存中或者从内存中加载到寄存器中; 这种频繁的数据传输会降低程序性能
   unsigned getNumRegPressureSets() const override;
+
   const char *getRegPressureSetName(unsigned Idx) const override;
+
   unsigned getRegPressureSetLimit(const MachineFunction &MF, unsigned Idx) const override;
+
   const int *getRegClassPressureSets(const TargetRegisterClass *RC) const override;
+
   const int *getRegUnitPressureSets(unsigned RegUnit) const override;
+
   ArrayRef<const char *> getRegMaskNames() const override;
+
   ArrayRef<const uint32_t *> getRegMasks() const override;
+
   /// Devirtualized TargetFrameLowering.
-  static const Cpu0FrameLowering *getFrameLowering(
-      const MachineFunction &MF);
+  static const Cpu0FrameLowering *getFrameLowering(const MachineFunction &MF);
 };
 
 namespace Cpu0 { // Register classes
