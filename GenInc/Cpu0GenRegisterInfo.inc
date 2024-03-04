@@ -106,6 +106,14 @@ extern const MCRegisterInfo::SubRegCoveredBits Cpu0SubRegIdxRanges[] = {
   { 65535, 65535 },
 };
 
+/// 前面的注释/* 0 */, /* 3 */, /* 6 */, 是这样计算的, 起始位置为0, pre_location = 0, 计算第二个位置
+/// pre_location + sizeof("A0") + 1 => 2 + 1 => 3
+/// pre_location + sizeof("S0") + 1 => 3 + 2 + 1 = 6
+/// 其他位置依次类推, 后面的0是TableGen自己加的
+/// "A0", "S0", "EPC"是"Cpu0RegisterInfo.td"文件定义的寄存器名称
+/// 这里只有"A0", "S0", "T0", "V0", "A1", "S1", "T1", "V1", "T9", "EPC", "HI", "LO", "ZERO"
+///        "FP", "GP", "SP", "LR", "AT", "SW", 这19中寄存器,
+/// 由于寄存器"PC"的名字是寄存器"EPC"的子串, 所以这里没有计算"PC"的 *
 extern const char Cpu0RegStrings[] = {
   /* 0 */ 'A', '0', 0,
   /* 3 */ 'S', '0', 0,
@@ -147,8 +155,14 @@ extern const char Cpu0RegStrings[] = {
 ///   uint32_t  RegUnitLaneMasks; Index into list with lane mask sequences. The sequence
 ///                               contains a lanemask for every register unit.
 /// }
+/// Cpu0RegisterInfo.td文件没有定义子寄存器信息或者超父寄存器信息, 所以
+/// 第一个字段填写的都是寄存器名称, 在"Cpu0RegStrings"中定义
+/// 第二个字段填写的是寄存器是否有子寄存器, 没有就是1
+/// 第三个字段填写的是寄存器是否有父寄存器, 没有就是1
+/// 第四~第六个字段, 暂时不确定用处 (在"RegisterInfoEmitter.cpp"的RegisterInfoEmitter::runMCDesc
+///                             计算)
 extern const MCRegisterDesc Cpu0RegDesc[] = { // Descriptors
-  { 2, 0, 0, 0, 0, 0 },
+  { 2,  0, 0, 0, 0, 0 },           /// TableGen初始化生成的
   { 54, 1, 1, 0, 1, 0 },
   { 27, 1, 1, 0, 1, 0 },
   { 42, 1, 1, 0, 1, 0 },
@@ -160,14 +174,14 @@ extern const MCRegisterDesc Cpu0RegDesc[] = { // Descriptors
   { 48, 1, 1, 0, 1, 0 },
   { 57, 1, 1, 0, 1, 0 },
   { 37, 1, 1, 0, 1, 0 },
-  { 0, 1, 1, 0, 1, 0 },
+  { 0,  1, 1, 0, 1, 0 },
   { 12, 1, 1, 0, 1, 0 },
-  { 3, 1, 1, 0, 1, 0 },
+  { 3,  1, 1, 0, 1, 0 },
   { 15, 1, 1, 0, 1, 0 },
-  { 6, 1, 1, 0, 1, 0 },
+  { 6,  1, 1, 0, 1, 0 },
   { 18, 1, 1, 0, 1, 0 },
   { 24, 1, 1, 0, 1, 0 },
-  { 9, 1, 1, 0, 1, 0 },
+  { 9,  1, 1, 0, 1, 0 },
   { 21, 1, 1, 0, 1, 0 },
 };
 
@@ -194,8 +208,10 @@ extern const MCPhysReg Cpu0RegUnitRoots[][2] = {
   { Cpu0::V1 },
 };
 
+/// using MCPhyReg = uint16_T
 namespace {     // Register classes...
   // CPURegs Register Class...
+  /// "CPURegs" 比 "GPROut" 多了一个 "SW" 寄存器
   const MCPhysReg CPURegs[] = {
     Cpu0::ZERO, Cpu0::AT, Cpu0::V0, Cpu0::V1, Cpu0::A0, Cpu0::A1, Cpu0::T9, Cpu0::T0, Cpu0::T1, Cpu0::S0, Cpu0::S1, Cpu0::GP, Cpu0::FP, Cpu0::SP, Cpu0::LR, Cpu0::SW,
   };
@@ -256,36 +272,98 @@ extern const char Cpu0RegClassStrings[] = {
 
 };
 
+/// MCRegisterClass定义
+/// class MCRegisterClass {
+/// public:
+///   using iterator = const MCPhysReg*;
+///   using const_iterator = const MCPhyReg*;
+///
+///   const iterator RegsBegin;
+///   const uint8_t *const RegSet;
+///   const uint32_t NameIdx;
+///   const uint16_t RegSize;
+///   const uint16_t RegSetSize;
+///   const uint16_t ID;
+///   const int8_t   CopyCost;
+///   const bool     Allocatable;
+///
+///   /// getID() - Return the register class ID number.
+///   iterator begin() const { return RegsBegin(); }
+///   iterator end() const { return RegsBegin + RegsSize; }
+///
+///   /// getNumRegs - Return the number of registers in this class.
+///   unsigned getRegister(unsigned i) const {
+///     return RegsSize;
+///   }
+///
+///   /// getRegister - Return the specified register in the class.
+///   unsigned getRegister(unsigned i) const {
+///     assert(i < getNumRegs() && "Register number out of range!");
+///     return RegsBegin[i];
+///   }
+///
+///   /// contains - Return true if the specified register is included in this
+///   /// register class.  This does not include virtual registers.
+///   bool contains(MCRegister Reg) const {
+///   unsigned RegNo = unsigned(Reg);
+///   unsigned InByte = RegNo % 8;
+///   unsigned Byte = RegNo / 8;
+///   if (Byte >= RegSetSize)
+///     return false;
+///   return (RegSet[Byte] & (1 << InByte)) != 0;
+///   }
+///
+///   /// contains - Return true if both registers are in this class.
+///   bool contains(MCRegister Reg1, MCRegister Reg2) const {
+///     return contains(Reg1) && contains(Reg2);
+///   }
+///
+///   /// getCopyCost - Return the cost of copying a value between two registers in
+///   /// this class. A negative number means the register class is very expensive
+///   /// to copy e.g. status flag register classes.
+///   int getCopyCost() const { return CopyCost; }
+///
+///   /// isAllocatable - Return true if this register class may be used to create
+///   /// virtual registers.
+///   bool isAllocatable() const { return Allocatable; }
+/// };
 extern const MCRegisterClass Cpu0MCRegisterClasses[] = {
-  { CPURegs, CPURegsBits, 15, 16, sizeof(CPURegsBits), Cpu0::CPURegsRegClassID, 1, true },
-  { GPROut, GPROutBits, 23, 15, sizeof(GPROutBits), Cpu0::GPROutRegClassID, 1, true },
-  { C0Regs, C0RegsBits, 8, 2, sizeof(C0RegsBits), Cpu0::C0RegsRegClassID, 1, true },
-  { HILO, HILOBits, 0, 2, sizeof(HILOBits), Cpu0::HILORegClassID, 1, true },
-  { SR, SRBits, 5, 1, sizeof(SRBits), Cpu0::SRRegClassID, 1, true },
+    {CPURegs, CPURegsBits, 15, 16, sizeof(CPURegsBits), Cpu0::CPURegsRegClassID, 1, true},
+    {GPROut, GPROutBits, 23, 15, sizeof(GPROutBits), Cpu0::GPROutRegClassID, 1, true},
+    {C0Regs, C0RegsBits, 8, 2, sizeof(C0RegsBits), Cpu0::C0RegsRegClassID, 1, true},
+    {HILO, HILOBits, 0, 2, sizeof(HILOBits), Cpu0::HILORegClassID, 1, true},
+    {SR, SRBits, 5, 1, sizeof(SRBits), Cpu0::SRRegClassID, 1, true},
 };
 
 // Cpu0 Dwarf<->LLVM register mappings.
+/// DwarfLLVMRegPair定义
+/// DwarfLLVMRegPair - Emitted by tablegen so Dwarf<-> LLVM reg mapping s can be
+/// performed with a binary search.
+/// struct DwarfLLVMRegPair {
+///   unsigned FromReg;
+///   unsigned ToReg;
+/// };
 extern const MCRegisterInfo::DwarfLLVMRegPair Cpu0DwarfFlavour0Dwarf2L[] = {
-  { 0U, Cpu0::ZERO },
-  { 1U, Cpu0::AT },
-  { 2U, Cpu0::V0 },
-  { 3U, Cpu0::V1 },
-  { 4U, Cpu0::A0 },
-  { 5U, Cpu0::A1 },
-  { 6U, Cpu0::T9 },
-  { 7U, Cpu0::T0 },
-  { 8U, Cpu0::T1 },
-  { 9U, Cpu0::S0 },
-  { 10U, Cpu0::S1 },
-  { 11U, Cpu0::GP },
-  { 12U, Cpu0::FP },
-  { 13U, Cpu0::SP },
-  { 14U, Cpu0::LR },
-  { 15U, Cpu0::SW },
-  { 18U, Cpu0::HI },
-  { 19U, Cpu0::LO },
-  { 20U, Cpu0::PC },
-  { 21U, Cpu0::EPC },
+    {0U, Cpu0::ZERO},
+    {1U, Cpu0::AT},
+    {2U, Cpu0::V0},
+    {3U, Cpu0::V1},
+    {4U, Cpu0::A0},
+    {5U, Cpu0::A1},
+    {6U, Cpu0::T9},
+    {7U, Cpu0::T0},
+    {8U, Cpu0::T1},
+    {9U, Cpu0::S0},
+    {10U, Cpu0::S1},
+    {11U, Cpu0::GP},
+    {12U, Cpu0::FP},
+    {13U, Cpu0::SP},
+    {14U, Cpu0::LR},
+    {15U, Cpu0::SW},
+    {18U, Cpu0::HI},
+    {19U, Cpu0::LO},
+    {20U, Cpu0::PC},
+    {21U, Cpu0::EPC},
 };
 extern const unsigned Cpu0DwarfFlavour0Dwarf2LSize = array_lengthof(Cpu0DwarfFlavour0Dwarf2L);
 
@@ -385,6 +463,8 @@ extern const uint16_t Cpu0RegEncodingTable[] = {
   3,
 };
 static inline void InitCpu0MCRegisterInfo(MCRegisterInfo *RI, unsigned RA, unsigned DwarfFlavour = 0, unsigned EHFlavour = 0, unsigned PC = 0) {
+  /// Initialize MCRegisterInfo, called by TableGen
+  /// auto-generated routines,
   RI->InitMCRegisterInfo(Cpu0RegDesc, 21, RA, PC, Cpu0MCRegisterClasses, 5, Cpu0RegUnitRoots, 20, Cpu0RegDiffLists, Cpu0LaneMaskLists, Cpu0RegStrings, Cpu0RegClassStrings, Cpu0SubRegIdxLists, 1,
 Cpu0SubRegIdxRanges, Cpu0RegEncodingTable);
 
