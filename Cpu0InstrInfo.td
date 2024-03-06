@@ -15,23 +15,44 @@
 // Cpu0 profiles and nodes
 //===----------------------------------------------------------------------===//
 
-// 定义特定目标的指令的模板、条件与指令集
-/*  SDTypeProfile定义
-    // SDTypeProfile - This profile describes the type requirements of a Selection
-    // DAG node.
-    class SDTypeProfile<int numresults, int numoperands,
-                        list<SDTypeConstraint> constraints> {
-        int NumResults = numresults;                            //
-        int NumOperands = numoperands;                          // 源操作数个数
-        list<SDTypeConstraint> Constraints = constraints;       // 源操作数类型
-    }
- */
+/// 定义特定目标的指令的模板、条件与指令集
+/// SDTypeProfile定义
+/// SDTypeProfile - This profile describes the type requirements of a Selection
+/// DAG node.
+/// class SDTypeProfile<int numresults, int numoperands,
+///                     list<SDTypeConstraint> constraints> {
+///     int NumResults = numresults;                            //
+///     int NumOperands = numoperands;                          // 源操作数个数
+///     list<SDTypeConstraint> Constraints = constraints;       // 源操作数类型
+/// }
+///
+/// SDTypeConstraint定义
+/// Selection DAG Type Constraint definitions
+/// Note that the semantics of these constraints are hard coded into tblgen. To modify or
+/// add constraints, you have to hack tblgen
+/// class SDTypeConstraint<int opnum> {
+///   int OperandNum = opnum;
+/// }
+///
+/// SDTCisInt定义
+/// class SDTCisInt<int OpNum> : SDTypeConstraint<OpNum>;
 def SDT_Cpu0Ret          : SDTypeProfile<0, 1, [SDTCisInt<0>]>;
-// Only op DAG can be disabled by ch4_1, data DAG cannot.
+
+/// Only op DAG can be disabled by ch4_1, data DAG cannot.
+/// SDTCisSameAs定义
+/// The two specified operands have identical types
+/// class SDTCisSameAs<int OpNum, int OtherOp> : SDTypeConstraint<OpNum> {
+///   int OtherOperandNum = OtherOp;
+/// }
 def SDT_Cpu0DivRem       : SDTypeProfile<0, 2,
-                                         [SDTCisInt<0>,
+                                         [SDTCisInt/<0>,
                                           SDTCisSameAs<0, 1>]>;
 
+/// SDTCisVT定义
+/// SDTCisVT - The specified operand has exactly this VT.
+/// class SDTCisVT<int OpNum, ValueType vt> : SDTypeConstraint<OpNum> {
+///   ValueType VT = vt;
+/// }
 def SDT_Cpu0JmpLink      : SDTypeProfile<0, 1, [SDTCisVT<0, iPTR>]>;
 
 def SDT_Cpu0CallSeqStart : SDCallSeqStart<[SDTCisVT<0, i32>]>;
@@ -39,20 +60,17 @@ def SDT_Cpu0CallSeqEnd   : SDCallSeqEnd<[SDTCisVT<0, i32>, SDTCisVT<1, i32>]>;
 
 def SDT_Sync             : SDTypeProfile<0, 1, [SDTCisVT<0, i32>]>;
 
-// Call
-/*  SDNode定义
-    //===----------------------------------------------------------------------===//
-    // Selection DAG Node definitions.
-    //
-    class SDNode<string opcode, SDTypeProfile typeprof,
-                list<SDNodeProperty> props = [], string sdclass = "SDNode">
-                : SDPatternOperator {
-        string Opcode  = opcode;
-        string SDClass = sdclass;
-        let Properties = props;
-        SDTypeProfile TypeProfile = typeprof;
-    }
- */
+/// Call
+/// SDNode定义
+/// Selection DAG Node definitions.
+/// class SDNode<string opcode, SDTypeProfile typeprof,
+///             list<SDNodeProperty> props = [], string sdclass = "SDNode">
+///             : SDPatternOperator {
+///   string Opcode  = opcode;
+///   string SDClass = sdclass;
+///   let Properties = props;
+///   SDTypeProfile TypeProfile = typeprof;
+/// }
 def Cpu0JmpLink : SDNode<"Cpu0ISD::JmpLink",SDT_Cpu0JmpLink,
                          [SDNPHasChain, SDNPOutGlue, SDNPOptInGlue,
                           SDNPVariadic]>;
