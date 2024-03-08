@@ -384,6 +384,7 @@ namespace Sched {
 #undef GET_INSTRINFO_MC_DESC
 namespace llvm {
 
+/// using MCPhysReg = uint16_t
 static const MCPhysReg ImplicitList1[] = { Cpu0::SP, 0 };
 static const MCPhysReg ImplicitList2[] = { Cpu0::V0, Cpu0::V1, 0 };
 static const MCPhysReg ImplicitList3[] = { Cpu0::AT, 0 };
@@ -392,6 +393,36 @@ static const MCPhysReg ImplicitList5[] = { Cpu0::HI, 0 };
 static const MCPhysReg ImplicitList6[] = { Cpu0::LO, 0 };
 static const MCPhysReg ImplicitList7[] = { Cpu0::HI, Cpu0::LO, 0 };
 
+/// MCOperandInfo定义
+///   This holds information about one operand of a machine instruction
+///   indicating the register class for register operands, etc
+/// class MCOperandInfo {
+/// public:
+///     This specifies the register class enumeration of the operand
+///     if the operand is a register. If isLookupPtrRegClass is set, then this is
+///     an index that is passed to TargetRegisterInfo::getPointerRegClass(x) to
+///     get a dynamic register class.
+///   int16_t RegClass;
+///
+///     These are flags from the MCOI::OperandFlags enum
+///   uint8_t Flags;
+///
+///     Information about the type of the operand
+///   uint8_t OperandType;
+///
+///     Operand constraints (see OperandConstraint enum)
+///   uint16_t Constraints;
+/// }
+///
+/// OperandConstraint定义
+///   Operand constraints. These are encoded in 16 bits with one of the
+///   low-order 3 bits specifying that a constraint is present and the
+///   corresponding high-order hex digit specifying the constraint value.
+///   This allows for a maximum of 3 constraint.
+/// enum OperandConstraint {
+///   TIED_TO = 0;    Must be allocated the same register as specified value.
+///   EARLY_CLOBBER;  If present, operand is an early clobber register
+/// };
 static const MCOperandInfo OperandInfo2[] = { { -1, 0, MCOI::OPERAND_UNKNOWN, 0 }, };
 static const MCOperandInfo OperandInfo3[] = { { -1, 0, MCOI::OPERAND_IMMEDIATE, 0 }, };
 static const MCOperandInfo OperandInfo4[] = { { -1, 0, MCOI::OPERAND_UNKNOWN, 0 }, { -1, 0, MCOI::OPERAND_UNKNOWN, 0 }, { -1, 0, MCOI::OPERAND_IMMEDIATE, 0 }, };
