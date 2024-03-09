@@ -117,6 +117,34 @@ def Cpu0Sync : SDNode<"Cpu0ISD::Sync", SDT_Sync, [SDNPHasChain]>;
 // Cpu0 Instruction Predicate Definitions.
 //===----------------------------------------------------------------------===//
 
+/// Predicate定义
+///   Predicates - These are extra conditionals which are turned into instruction
+///   selector matching code. Currently each predicate is just a string
+/// class Predicate<string cond> {
+///   string CondString = cond;
+///
+///     AssembleMatcherPredicate - If this feature can be used by the assembler
+///     matcher, this is ture. Targets should set this by inheriting their
+///     feature from the AssemblerPredicate class in addition to Predicate.
+///   bit AssemblereMatcherPredicate = false;
+///
+///     AssemblerCondDag - Set of subtarget features being tested used
+///     as alternative condition string used for assembler matcher. Must be used
+///     with (all_of) to indicate that all features must be present, or (any_of)
+///     to indicate that at least one must be. The required lack of presence of
+///     a feature can be tested using  a (not) node including the feature.
+///     eg.
+///         "(all_of ModeThumb)"      is translated to "(Bits & ModeThumb) ! = 0"
+///
+///         "(all_of (not ModeThumb))" is translated to "(Bits & ModeThumb) == 0"
+///
+///         "(all_of ModeThumb, FeatureThumb2) is translated to
+///         "(Bits & ModeThumb) !=  0 && (Bits & FeatureThumb2) != 0".
+///
+///
+///         "(any_of ModeThumb, FeatureThumb2) is translated to
+///         "
+/// }
 def Ch3_1       :     Predicate<"Subtarget->hasChapter3_1()">,
                       AssemblerPredicate<(all_of FeatureChapter3_1)>;
 def Ch3_2       :     Predicate<"Subtarget->hasChapter3_2()">,
