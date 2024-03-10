@@ -10,6 +10,8 @@
 #undef GET_INSTRINFO_ENUM
 namespace llvm {
 
+/// 这个枚举是TableGen通过读取"llvm/Support/TargetOpcodes.def"文件生成的,
+/// 与td文件无关
 namespace Cpu0 {
   enum {
     PHI	= 0,
@@ -358,7 +360,7 @@ namespace Cpu0 {
 #ifdef GET_INSTRINFO_SCHED_ENUM
 #undef GET_INSTRINFO_SCHED_ENUM
 namespace llvm {
-
+/// Sched从Cpu0Schedule.td文件读取
 namespace Cpu0 {
 namespace Sched {
   enum {
@@ -384,6 +386,7 @@ namespace Sched {
 #undef GET_INSTRINFO_MC_DESC
 namespace llvm {
 
+/// 具体使用到的寄存器是根据"Cpu0InstrInfo.td"文件中使用到的寄存器创建的
 /// using MCPhysReg = uint16_t
 static const MCPhysReg ImplicitList1[] = { Cpu0::SP, 0 };
 static const MCPhysReg ImplicitList2[] = { Cpu0::V0, Cpu0::V1, 0 };

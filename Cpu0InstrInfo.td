@@ -60,7 +60,37 @@ def SDT_Cpu0CallSeqEnd   : SDCallSeqEnd<[SDTCisVT<0, i32>, SDTCisVT<1, i32>]>;
 
 def SDT_Sync             : SDTypeProfile<0, 1, [SDTCisVT<0, i32>]>;
 
-/// Call
+/// SDNodePropery定义
+/// class SDNodeProperty;
+
+/// SDPatternOperator定义
+///   # Selection DAG Pattern Operations
+/// class SDPatternOperator {
+///   list<SDNodeProperty> Properties = [];
+/// }
+
+/// SDTypeConstraint定义
+///   # Selection DAG Type Constraint definitions.
+///   # Note that the semantics of these constraints are hard coded into tblgen.  To
+///   # modify or add constraints, you have to hack tblgen.
+/// class SDTypeConstraint<int opnum> {
+///   int OperandNum = opnum;
+/// }
+
+/// SDTypeProfile定义
+///   # Selection DAG Type Profile definitions.
+///   # These use the constraints defined above to describe the type requirements of
+///   # the various nodes. These are not coded into tblgen, allowing targets to
+///   # add their own if needed.
+///   # SDTypeProfile - This profile descirbes the type requirements of a Selection
+///   # DAG node
+/// class SDTypeProfile<int numresults, int numoperands,
+///                     list<SDTypeConstraint> constraints> {
+///   int NumResults = numresults;
+///   int NumOperands = numoperands;
+///   list<SDTypeConstraint> Constraints = constraints;
+/// }
+
 /// SDNode定义
 /// Selection DAG Node definitions.
 /// class SDNode<string opcode, SDTypeProfile typeprof,
@@ -71,6 +101,8 @@ def SDT_Sync             : SDTypeProfile<0, 1, [SDTCisVT<0, i32>]>;
 ///   let Properties = props;
 ///   SDTypeProfile TypeProfile = typeprof;
 /// }
+
+/// Call
 def Cpu0JmpLink : SDNode<"Cpu0ISD::JmpLink",SDT_Cpu0JmpLink,
                          [SDNPHasChain, SDNPOutGlue, SDNPOptInGlue,
                           SDNPVariadic]>;
@@ -123,73 +155,108 @@ def Cpu0Sync : SDNode<"Cpu0ISD::Sync", SDT_Sync, [SDNPHasChain]>;
 /// class Predicate<string cond> {
 ///   string CondString = cond;
 ///
-///     AssembleMatcherPredicate - If this feature can be used by the assembler
-///     matcher, this is ture. Targets should set this by inheriting their
-///     feature from the AssemblerPredicate class in addition to Predicate.
+///     # AssembleMatcherPredicate - If this feature can be used by the assembler
+///     # matcher, this is ture. Targets should set this by inheriting their
+///     # feature from the AssemblerPredicate class in addition to Predicate.
 ///   bit AssemblereMatcherPredicate = false;
 ///
-///     AssemblerCondDag - Set of subtarget features being tested used
-///     as alternative condition string used for assembler matcher. Must be used
-///     with (all_of) to indicate that all features must be present, or (any_of)
-///     to indicate that at least one must be. The required lack of presence of
-///     a feature can be tested using  a (not) node including the feature.
-///     eg.
-///         "(all_of ModeThumb)"      is translated to "(Bits & ModeThumb) ! = 0"
+///     # AssemblerCondDag - Set of subtarget features being tested used
+///     # as alternative condition string used for assembler matcher. Must be used
+///     # with (all_of) to indicate that all features must be present, or (any_of)
+///     # to indicate that at least one must be. The required lack of presence of
+///     # a feature can be tested using  a (not) node including the feature.
+///     # eg.
+///     #     "(all_of ModeThumb)"      is translated to "(Bits & ModeThumb) ! = 0"
+///     #
+///     #     "(all_of (not ModeThumb))" is translated to "(Bits & ModeThumb) == 0"
+///     #
+///     #     "(all_of ModeThumb, FeatureThumb2) is translated to
+///     #     "(Bits & ModeThumb) !=  0 && (Bits & FeatureThumb2) != 0".
+///     #
+///     #
+///     #     "(any_of ModeThumb, FeatureThumb2) is translated to
+///     #      (Bits & ModeThumb) != 0 || (Bits & FeatureThumb2) != 0".
+///     #
+///     # all_fo an any of cannot be combined in a single dag, instead multiple
+///     # predicates can be placed onto Instruction definitions
+///   dag AssemblerCondDag;
 ///
-///         "(all_of (not ModeThumb))" is translated to "(Bits & ModeThumb) == 0"
+///     # PredicateName - User-level name to use for the predicate. Mainly for use
+///     # in diagnostics such as missing feature errors in the asm matcher.
+///   string PredicateName = "";
 ///
-///         "(all_of ModeThumb, FeatureThumb2) is translated to
-///         "(Bits & ModeThumb) !=  0 && (Bits & FeatureThumb2) != 0".
-///
-///
-///         "(any_of ModeThumb, FeatureThumb2) is translated to
-///         "
+///     # Setting this to '1' indicates that the predicate must be recomputed on
+///     # every function change. Most predicates can leave this at '0'.
+///     #
+///     # Ignored by SelectionDAG, it always recomputes the predicate on every use.
+///   bit RecomputePerFunction = false;
 /// }
 def Ch3_1       :     Predicate<"Subtarget->hasChapter3_1()">,
                       AssemblerPredicate<(all_of FeatureChapter3_1)>;
+
 def Ch3_2       :     Predicate<"Subtarget->hasChapter3_2()">,
                       AssemblerPredicate<(all_of FeatureChapter3_2)>;
+
 def Ch3_3       :     Predicate<"Subtarget->hasChapter3_3()">,
                       AssemblerPredicate<(all_of FeatureChapter3_3)>;
+
 def Ch3_4       :     Predicate<"Subtarget->hasChapter3_4()">,
                       AssemblerPredicate<(all_of FeatureChapter3_4)>;
+
 def Ch3_5       :     Predicate<"Subtarget->hasChapter3_5()">,
                       AssemblerPredicate<(all_of FeatureChapter3_5)>;
+
 def Ch4_1       :     Predicate<"Subtarget->hasChapter4_1()">,
                       AssemblerPredicate<(all_of FeatureChapter4_1)>;
+
 def Ch4_2       :     Predicate<"Subtarget->hasChapter4_2()">,
                       AssemblerPredicate<(all_of FeatureChapter4_2)>;
+
 def Ch5_1       :     Predicate<"Subtarget->hasChapter5_1()">,
                       AssemblerPredicate<(all_of FeatureChapter5_1)>;
+
 def Ch6_1       :     Predicate<"Subtarget->hasChapter6_1()">,
                       AssemblerPredicate<(all_of FeatureChapter6_1)>;
+
 def Ch7_1       :     Predicate<"Subtarget->hasChapter7_1()">,
                       AssemblerPredicate<(all_of FeatureChapter7_1)>;
+
 def Ch8_1       :     Predicate<"Subtarget->hasChapter8_1()">,
                       AssemblerPredicate<(all_of FeatureChapter8_1)>;
+
 def Ch8_2       :     Predicate<"Subtarget->hasChapter8_2()">,
                       AssemblerPredicate<(all_of FeatureChapter8_2)>;
+
 def Ch9_1       :     Predicate<"Subtarget->hasChapter9_1()">,
                       AssemblerPredicate<(all_of FeatureChapter9_1)>;
+
 def Ch9_2       :     Predicate<"Subtarget->hasChapter9_2()">,
                       AssemblerPredicate<(all_of FeatureChapter9_2)>;
+
 def Ch9_3       :     Predicate<"Subtarget->hasChapter9_3()">,
                       AssemblerPredicate<(all_of FeatureChapter9_3)>;
+
 def Ch10_1      :     Predicate<"Subtarget->hasChapter10_1()">,
                       AssemblerPredicate<(all_of FeatureChapter10_1)>;
+
 def Ch11_1      :     Predicate<"Subtarget->hasChapter11_1()">,
                       AssemblerPredicate<(all_of FeatureChapter11_1)>;
+
 def Ch11_2      :     Predicate<"Subtarget->hasChapter11_2()">,
                       AssemblerPredicate<(all_of FeatureChapter11_2)>;
+
 def Ch12_1      :     Predicate<"Subtarget->hasChapter12_1()">,
                       AssemblerPredicate<(all_of FeatureChapter12_1)>;
+
 def Ch_all      :     Predicate<"Subtarget->hasChapterAll()">,
                       AssemblerPredicate<(all_of FeatureChapterAll)>;
 
 def EnableOverflow  : Predicate<"Subtarget->enableOverflow()">;
+
 def DisableOverflow : Predicate<"Subtarget->disableOverflow()">;
 
 def HasCmp      :     Predicate<"Subtarget->hasCmp()">;
+
 def HasSlt      :     Predicate<"Subtarget->hasSlt()">;
 
 def RelocPIC    :     Predicate<"TM.getRelocationModel() == Reloc::PIC_">;
@@ -212,37 +279,84 @@ class IsTailCall {
 
 include "Cpu0InstrFormats.td"
 
-//===----------------------------------------------------------------------===//
-// Cpu0 Operand, Complex Patterns and Transformations Definitions.
-//===----------------------------------------------------------------------===//
-// Instruction operand types
+/// ===----------------------------------------------------------------------===//
+/// Cpu0 Operand, Complex Patterns and Transformations Definitions.
+/// ===----------------------------------------------------------------------===//
+/// Instruction operand types
 
-// BEQ, BNE
+/// DAGOperand定义
+///   # DAGOperand - An empty base class that unifies RegisterClass's and other forms
+///   # Operand's that are legal as type qualifiers in DAG patterns. This should
+///   # only ever be used for defining multiclasses that are polymorhpic over both
+///   # RegisterClass's and other Operand's
+/// class DAGOperand {
+///   string OperandNamespace = "MCOI";
+///   string DEcoderMethod = "";
+/// }
+
+/// Operand定义
+///   # Operand Types - These provide the built-in operand types that may be used
+///   # by a target. Targets can optionally provide their own operand types as
+///   # needed, though thsi should not be needed for RISC targets.
+/// class Operand<ValueType ty> : DaGOperadnd {
+///   ValueType Type = ty;
+///   string PrintMethod = "printOperand";
+///   string EncoderMethod = "";
+///   bit hasCompleteDecoder = true;
+///   string OperandType = "OPERAND_UNKNOWN";
+///   dag MIOperandInfo = (ops);
+///
+///     # MCOperandPredicate - Optionally, a code fragment opearting on
+///     # const MCOpearnd &MCOp, and returning a bool, to indicate if
+///     # the value of MCOp is valid for the specific subclass of Operand
+///   code MCOperandPredicate;
+///
+///     # ParserMatchClass - The "match class" that operands of this type fit
+///     # in. Match classes are used to define the order in which instructions are
+///     # match, to ensure that which instructions gets matched is deterministic.
+///     # The target specific parser must be able to classify an parsed operand into
+///     # a unique class, which does not partially overlap with any other classes. It
+///     # can match a subset of some other class, in which case the AsmOperandClass
+///     # should declare the other operand as one of its super classes.
+///   AsmOperandClass ParserMatchClass = ImmAsmOperand;
+/// }
+
+/// ValueType定义
+/// class ValueType<int size, int value> {
+///   string Namespace = "MVT";
+///   int Size = size;
+///   int Value = value;
+/// }
+
+/// def OtherVt : ValueType<0, 1>;  Other value
+
+/// BEQ, BNE
 def brtarget16    : Operand<OtherVT> {
   let EncoderMethod = "getBranch16TargetOpValue";
-  let OperandType = "OPERAND_PCREL";
+  let OperandType   = "OPERAND_PCREL";
   let DecoderMethod = "DecodeBranch16Target";
 }
 
 // JEQ, JNE, ...
 def brtarget24    : Operand<OtherVT> {
   let EncoderMethod = "getBranch24TargetOpValue";
-  let OperandType = "OPERAND_PCREL";
+  let OperandType   = "OPERAND_PCREL";
   let DecoderMethod = "DecodeBranch24Target";
 }
 
 // JMP
 def jmptarget    : Operand<OtherVT> {
   let EncoderMethod = "getJumpTargetOpValue";
-  let OperandType = "OPERAND_PCREL";
+  let OperandType   = "OPERAND_PCREL";
 }
 
 def calltarget  : Operand<iPTR> {
   let EncoderMethod = "getJumpTargetOpValue";
-  let OperandType = "OPERAND_PCREL";
+  let OperandType   = "OPERAND_PCREL";
 }
 
-// Signed Operand
+/// def i32 : ValueType<32, 5>; 32-bit integer value
+/// Signed Operand
 def simm16      : Operand<i32> {
   let DecoderMethod= "DecodeSimm16";
 }
@@ -254,6 +368,70 @@ def uimm16      : Operand<i32> {
   let PrintMethod = "printUnsignedImm";
 }
 
+/// AsmOperandClass定义
+///   # AsmOperandClass - Representation for the kinds of operands which the target
+///   # specific parser can create and the assembly matcher may need to distinguish.
+///
+///   # Operand classes are used to define the order in which instructions are
+///   # matched, to ensure that the instruction which gets matched for any
+///   # particular list of operands is deterministic.
+///
+///   # The target specific parser must be able to classify a parsed operand into a
+///   # unique class which does not partially overlap with any other classes. It can
+///   # match a subset of some other class, in which case the super class field
+///   # should be defined.
+/// class AsmOperandClass {
+///     # The name to use for this class, which should be usable as an enum value.
+///   string Name = ?;
+///
+///     # The super classes of this operand.
+///   list<AsmOperandClass> SuperClasses = [];
+///
+///     # The name of the method on the target specific operand to call to test
+///     # whether the operand is an instance of this class. If not set, this will
+///     # default to "isFoo", where Foo is the AsmOperandClass name. The method
+///     # signature should be:
+///   bool isFoo() const;
+///   string PredicateMethod = ?;
+///
+///     # The name of the method on the target specific operand to call to add the
+///     # target specific operand to an MCInst. If not set, this will default to
+///     # "addFooOperands", where Foo is the AsmOperandClass name. The method
+///     # signature should be:
+///     # void addFooOperands(MCInst &Inst, unsigned N) const;
+///   string RenderMethod = ?;
+///
+///     # The name of the method on the target specific operand to call to custom
+///     # handle the operand parsing. This is useful when the operands do not relate
+///     # to immediates or registers and are very instruction specific (as flags to
+///     # set in a processor register, coprocessor number, ...).
+///   string ParserMethod = ?;
+///
+///     # The diagnostic type to present when referencing this operand in a
+///     # match failure error message. By default, use a generic "invalid operand"
+///     # diagnostic. The target AsmParser maps these codes to text.
+///   string DiagnosticType = "";
+///
+///     # A diagnostic message to emit when an invalid value is provided for this
+///     # operand.
+///   string DiagnosticString = "";
+///
+///     # Set to 1 if this operand is optional and not always required. Typically,
+///     # the AsmParser will emit an error when it finishes parsing an
+///     # instruction if it hasn't matched all the operands yet.  However, this
+///     # error will be suppressed if all of the remaining unmatched operands are
+///     # marked as IsOptional.
+///
+///     # Optional arguments must be at the end of the operand list.
+///   bit IsOptional = false;
+///
+///     # The name of the method on the target specific asm parser that returns the
+///     # default operand for this optional operand. This method is only used if
+///     # IsOptional == 1. If not set, this will default to "defaultFooOperands",
+///     # where Foo is the AsmOperandClass name. The method signature should be:
+///     # std::unique_ptr<MCParsedAsmOperand> defaultFooOperands() const;
+///   string DefaultMethod = ?;
+/// }
 def Cpu0MemAsmOperand : AsmOperandClass {
   let Name = "Mem";
   let ParserMethod = "parseMemOperand";
@@ -278,6 +456,13 @@ def PtrRC : Operand<iPTR> {
   let DecoderMethod = "DecodeCPURegsRegisterClass";
 }
 
+/// SDNodeXForm定义
+///   # This mechanism allows targets to maniplate nodes in the output DAG once a
+///   # match has been formed. This is typically used to manipulate immediate values
+/// class SDNodeXForm<SDNode opc, code xformFuction> {
+///   SDNode Opcode = opc;
+///   code XFormFunction = xformFunction;
+/// }
 // Transformation Function - get the lower 16 bits.
 def LO16 : SDNodeXForm<imm, [{
   return getImm(N, N->getZExtValue() & 0xffff);
@@ -353,7 +538,7 @@ class ArithLogicR<bits<8> op, string instr_asm, SDNode OpNode,
      !strconcat(instr_asm, "\t$ra, $rb, $rc"),
      [(set GPROut:$ra, (OpNode RC:$rb, RC:$rc))], itin> {
   let shamt = 0;
-  let isCommutable = isComm;	// e.g. add rb rc =  add rc rb
+  let isCommutable = isComm;  // e.g. add rb rc =  add rc rb
   let isReMaterializable = 1;
 }
 }
@@ -364,7 +549,7 @@ class IntrinArithLogicR<bits<8> op, string instr_asm, SDPatternOperator OpNode,
      !strconcat(instr_asm, "\t$ra, $rb, $rc"),
      [(set GPROut:$ra, (OpNode RC:$rb, RC:$rc))], itin> {
   let shamt = 0;
-  let isCommutable = isComm;	// e.g. add rb rc =  add rc rb
+  let isCommutable = isComm;  // e.g. add rb rc =  add rc rb
   let isReMaterializable = 1;
 }
 

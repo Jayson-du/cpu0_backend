@@ -1,30 +1,30 @@
-//===-- Cpu0InstrFormats.td - Cpu0 Instruction Formats -----*- tablegen -*-===//
-//
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
+/// ===-- Cpu0InstrFormats.td - Cpu0 Instruction Formats -----*- tablegen -*-===//
+///
+///                      The LLVM Compiler Infrastructure
+///
+///  This file is distributed under the University of Illinois Open Source
+///  License. See LICENSE.TXT for details.
+///
+/// ===----------------------------------------------------------------------===//
 
-//===----------------------------------------------------------------------===//
-//  Describe CPU0 instructions format
-//
-//  CPU INSTRUCTION FORMATS
-//
-//  opcode  - operation code.
-//  ra      - dst reg, only used on 3 regs instr.
-//  rb      - src reg.
-//  rc      - src reg (on a 3 reg instr).
-//  cx      - immediate
-//
-//===----------------------------------------------------------------------===//
+/// ===----------------------------------------------------------------------===//
+///   Describe CPU0 instructions format
+///
+///   CPU INSTRUCTION FORMATS
+///
+///   opcode  - operation code.
+///   ra      - dst reg, only used on 3 regs instr.
+///   rb      - src reg.
+///   rc      - src reg (on a 3 reg instr).
+///   cx      - immediate
+///
+/// ===----------------------------------------------------------------------===//
 
-// 定义特定目标机器的指令格式
+/// 定义特定目标机器的指令格式
 
-// Format specifies the encoding used by the instruction.  This is part of the
-// ad-hoc solution used to emit machine instruction encodings by our machine
-// code emitter.
+/// Format specifies the encoding used by the instruction.  This is part of the
+/// ad-hoc solution used to emit machine instruction encodings by our machine
+/// code emitter.
 class Format<bits<4> val> {
   bits<4> Value = val;
 }
@@ -33,27 +33,27 @@ def Pseudo    : Format<0>;
 def FrmA      : Format<1>;
 def FrmL      : Format<2>;
 def FrmJ      : Format<3>;
-def FrmOther  : Format<4>; // Instruction w/ a custom format
+def FrmOther  : Format<4>; // Instruction w/a custom format
 
 /// Instruction定义
 /// class Instruction {
 ///   string Namespace = "";
-///   
-///     A dag containing the MI def operand list.
+///
+///     # A dag containing the MI def operand list.
 ///   dag OutOperandList;
 ///
-///     A dag containing the MI use operand list.
+///     # A dag containing the MI use operand list.
 ///   dag InOperandList;
 ///
-///     The .s format to print the instruction with.
+///     # The .s format to print the instruction with.
 ///   string AsmString = "";
 ///
-///     Set to the DAG pattern for this instruction.
+///     # Set to the DAG pattern for this instruction.
 ///   list<dag> Pattern;
 ///   list<Register> Uses = [];
 ///   list<Register> Defs = [];
 ///
-///     predicates turned into isel match code
+///     # predicates turned into isel match code
 ///   list<Predicate> Predicates = [];
 /// }
 
