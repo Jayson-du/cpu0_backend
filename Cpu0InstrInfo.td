@@ -473,6 +473,12 @@ def HI16 : SDNodeXForm<imm, [{
   return getImm(N, (N->getZExtValue() >> 16) & 0xffff);
 }]>;
 
+/// PatLeaf定义
+///   # PatLeaf's are pattern fragments that have no operands. This is just a helper
+///   # to define immediates and other common things concisely.
+/// class PatLeaf<dag frag, code pred = [{}], SDNodeXForm xform = NOOP_SDNodeXForm>
+///  : PatFrag<(ops), frag, pred, xform>;
+
 // Node immediate fits as 16-bit sign extended on target immediate.
 // e.g. addi, andi
 def immSExt16  : PatLeaf<(imm), [{ return isInt<16>(N->getSExtValue()); }]>;
