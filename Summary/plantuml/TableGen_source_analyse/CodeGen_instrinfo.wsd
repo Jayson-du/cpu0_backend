@@ -1,0 +1,55 @@
+@startuml
+
+!include ../../plantuml-style/sketchy-outline.puml
+!include ../../plantuml-style/core.puml
+!include ../../plantuml-style/class-relation.puml
+
+title InstrInfoEmitter分析
+
+' 类声明
+
+class InstrInfoEmitter {
+  - Records
+  - CDP
+  - SchedModels
+  -- func --
+  + run()
+  - emitEnums()
+  - emitTIIHelperMethod()
+  - emitMCIIHelperMethods()
+  - emitFeatureVerifier()
+  - emitRecord()
+  - emitOperandTypeMappings()
+  - initOperandMapData()
+  - emitLogicalOperandSizeMappings()
+  - EmitOperandInfo()
+  - GetOperandInfo()
+}
+
+class CodeGenDAGPatterns {
+
+}
+
+class CodeGenSchedModels {
+
+}
+
+class CodeGenTarget {
+
+}
+
+' 类关系
+
+' ---- InstrInfoEmitter关系 ----
+Composition(RecordKeeper,       InstrInfoEmitter, up)
+Composition(CodeGenDAGPatterns, InstrInfoEmitter, up)
+Composition(CodeGenSchedModels, InstrInfoEmitter, up)
+
+
+' ---- CodeGenTarget关系 ----
+Composition(CodeGenTarget, CodeGenSchedModels, up)
+
+
+' ----* CodeGenTarget关系 *----
+Composition(CodeGenInstruction, CodeGenTarget, up)
+@enduml

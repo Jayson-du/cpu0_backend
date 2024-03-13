@@ -1,0 +1,71 @@
+@startuml
+
+!include ../../plantuml-style/sketchy-outline.puml
+!include ../../plantuml-style/core.puml
+!include ../../plantuml-style/class-relation.puml
+
+title CodeGenTarget分析
+
+' 类声明
+class CodeGenTarget {
+  - TargetRec
+  - Instructions
+  - RegBank
+  - RegAltNameIndices
+  - LegalValueTypes
+  - CGH
+  - SchedModels
+  -- func --
+  - ReadRegAltNameIndices()
+  - ReadInstructions()
+  - ReadLegaValueTypes()
+  + getInstructionSet()
+  + getAllowRegisterRenaming()
+  + getAsmParser()
+  + getAsmParserVariant()
+  + getAsmParserVariantCount()
+  + getAsmWriter()
+  + getRegBank()
+  + getSuperRegForSubReg()
+  + getRegisterByName()
+  + getRegAltNameIndices()
+  + getRegisterClass()
+  + getRegisterVTs()
+  + getLegalValueTypes()
+  + getSchedModels()
+  + getHwModes()
+  - getInstructions()
+  + getInstruction()
+  + getNumPseudoInstructions()
+  + getInstructionsByEnumValue()
+  + inst_begin()
+  + inst_end()
+  + isLittleEndianEncoding()
+  + reverseBitsForLittleEndianEncoding()
+  + guessInstructionProperties()
+  - ComputeInstrsByEnum()
+}
+
+class CodeGenInstruction {
+
+}
+
+class CodeGenRegBank {
+
+}
+
+struct ValueTypeByHwMode {
+
+}
+
+
+' 类关系
+
+' ----* CodeGenTarget关系 *----
+Composition(CodeGenInstruction, CodeGenTarget, up)
+Composition(CodeGenRegBank, CodeGenTarget, up)
+Composition(ValueTypeByHwMode, CodeGenTarget, up)
+Composition(CodeGenSchedModels, CodeGenTarget, up)
+
+
+@enduml
