@@ -537,12 +537,40 @@ def store_a         : AlignedStore<store>;
 //===----------------------------------------------------------------------===//
 
 let Predicates = [Ch3_5] in {
-// Arithmetic and logical instructions with 3 register operands.
-class ArithLogicR<bits<8> op, string instr_asm, SDNode OpNode,
-                  InstrItinClass itin, RegisterClass RC, bit isComm = 0>:
-  FA<op, (outs GPROut:$ra), (ins RC:$rb, RC:$rc),
-     !strconcat(instr_asm, "\t$ra, $rb, $rc"),
-     [(set GPROut:$ra, (OpNode RC:$rb, RC:$rc))], itin> {
+
+/// class FA<bits<8> op, dag outs, dag ins, string asmstr,
+///          list<dag> pattern, InstrItinClass itin>:
+///       Cpu0Inst<outs, ins, asmstr, pattern, itin, FrmA>
+/// {
+///   /// FA类型指令如果ra, rb, rc, shamt没有赋值, 则[23 - 0]位为0,
+///   /// 如果bits<4> ra = {1, 0, 1, 1}, 则[23 - 20]位为[1011]
+///   /// 指令编码最终会显示在Cpu0GenMCCodeEmitter.inc的static const uint64_t InstBits[]中
+///   bits<4>  ra;
+///   /// bits<4> ra = {1, 0, 1, 1};
+///   bits<4>  rb;
+///   bits<4>  rc;
+///   bits<12> shamt;
+///
+///   let Opcode = op;
+///
+///   let Inst{23-20} = ra;
+///   let Inst{19-16} = rb;
+///   let Inst{15-12} = rc;
+///   let Inst{11-0}  = shamt;
+/// }
+///
+/// Arithmetic and logical instructions with 3 register operands.
+class ArithLogicR<bits<8> op,
+                  string instr_asm,
+                  SDNode OpNode,
+                  InstrItinClass itin,
+                  RegisterClass RC,
+                  bit isComm = 0> : FA<op,
+                                      (outs GPROut:$ra),
+                                      (ins RC:$rb, RC:$rc),
+                                      !strconcat(instr_asm, "\t$ra, $rb, $rc"),
+                                      [(set GPROut:$ra, (OpNode RC:$rb, RC:$rc))],
+                                      itin> {
   let shamt = 0;
   let isCommutable = isComm;  // e.g. add rb rc =  add rc rb
   let isReMaterializable = 1;
@@ -1068,6 +1096,9 @@ let Predicates = [DisableOverflow] in {
 def SUBu    : ArithLogicR<0x12, "subu", sub, IIAlu, CPURegs>;
 }
 let Predicates = [EnableOverflow] in {
+
+/// 定义一条ADD指令, [31 - 24]位编码为0x13,
+/// 指令编码最终会显示在Cpu0GenMCCodeEmitter.inc的static const uint64_t InstBits[]中
 def ADD     : ArithLogicR<0x13, "add", add, IIAlu, CPURegs, 1>;
 def SUB     : ArithLogicR<0x14, "sub", sub, IIAlu, CPURegs>;
 }

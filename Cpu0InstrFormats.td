@@ -63,6 +63,7 @@ class Cpu0Inst<dag outs, dag ins, string asmstr, list<dag> pattern,
 {
   // Inst and Size: for tablegen(... -gen-emitter) and
   // tablegen(... -gen-disassembler) in CMakeLists.txt
+  // 该字段表示指令的编码位, Inst表示Cpu0的指令编码总计32位宽
   field bits<32> Inst;
   Format Form = f;
 
@@ -125,7 +126,11 @@ class FA<bits<8> op, dag outs, dag ins, string asmstr,
          list<dag> pattern, InstrItinClass itin>:
       Cpu0Inst<outs, ins, asmstr, pattern, itin, FrmA>
 {
+  /// FA类型指令如果ra, rb, rc, shamt没有赋值, 则[23 - 0]位为0,
+  /// 如果bits<4> ra = {1, 0, 1, 1}, 则[23 - 20]位为[1011]
+  /// 指令编码最终会显示在Cpu0GenMCCodeEmitter.inc的static const uint64_t InstBits[]中
   bits<4>  ra;
+  /// bits<4> ra = {1, 0, 1, 1};
   bits<4>  rb;
   bits<4>  rc;
   bits<12> shamt;
