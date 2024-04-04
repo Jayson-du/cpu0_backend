@@ -11,10 +11,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "InstPrinter/Cpu0InstPrinter.h"
+#include "Cpu0TargetStreamer.h"
 #include "Cpu0MCTargetDesc.h"
 #include "Cpu0TargetObjectFile.h"
-#include "Cpu0TargetStreamer.h"
+#include "InstPrinter/Cpu0InstPrinter.h"
 #include "llvm/BinaryFormat/ELF.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCSectionELF.h"
@@ -26,11 +26,8 @@
 
 using namespace llvm;
 
-Cpu0TargetStreamer::Cpu0TargetStreamer(MCStreamer &S)
-    : MCTargetStreamer(S) {
-}
+Cpu0TargetStreamer::Cpu0TargetStreamer(MCStreamer &S) : MCTargetStreamer(S) {}
 
 Cpu0TargetAsmStreamer::Cpu0TargetAsmStreamer(MCStreamer &S,
                                              formatted_raw_ostream &OS)
     : Cpu0TargetStreamer(S), OS(OS) {}
-

@@ -31,7 +31,6 @@ public:
   Cpu0TargetAsmStreamer(MCStreamer &S, formatted_raw_ostream &OS);
 };
 
-}
+} // namespace llvm
 
 #endif
-

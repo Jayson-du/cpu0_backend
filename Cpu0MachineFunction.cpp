@@ -9,12 +9,12 @@
 
 #include "Cpu0MachineFunction.h"
 
-#include "MCTargetDesc/Cpu0BaseInfo.h"
 #include "Cpu0InstrInfo.h"
 #include "Cpu0Subtarget.h"
-#include "llvm/IR/Function.h"
+#include "MCTargetDesc/Cpu0BaseInfo.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
+#include "llvm/IR/Function.h"
 
 using namespace llvm;
 
@@ -22,13 +22,9 @@ bool FixGlobalBaseReg;
 
 Cpu0FunctionInfo::~Cpu0FunctionInfo() {}
 
-bool Cpu0FunctionInfo::globalBaseRegFixed() const {
-  return FixGlobalBaseReg;
-}
+bool Cpu0FunctionInfo::globalBaseRegFixed() const { return FixGlobalBaseReg; }
 
-bool Cpu0FunctionInfo::globalBaseRegSet() const {
-  return GlobalBaseReg;
-}
+bool Cpu0FunctionInfo::globalBaseRegSet() const { return GlobalBaseReg; }
 
 unsigned Cpu0FunctionInfo::getGlobalBaseReg() {
   return GlobalBaseReg = Cpu0::GP;
@@ -52,5 +48,4 @@ MachinePointerInfo Cpu0FunctionInfo::callPtrInfo(const GlobalValue *GV) {
   return MachinePointerInfo(MF.getPSVManager().getGlobalValueCallEntry(GV));
 }
 
-void Cpu0FunctionInfo::anchor() { }
-
+void Cpu0FunctionInfo::anchor() {}

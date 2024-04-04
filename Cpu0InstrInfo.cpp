@@ -13,8 +13,8 @@
 
 #include "Cpu0InstrInfo.h"
 
-#include "Cpu0TargetMachine.h"
 #include "Cpu0MachineFunction.h"
+#include "Cpu0TargetMachine.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/Support/ErrorHandling.h"
@@ -30,8 +30,7 @@ void Cpu0InstrInfo::anchor() {}
 
 //@Cpu0InstrInfo {
 Cpu0InstrInfo::Cpu0InstrInfo(const Cpu0Subtarget &STI)
-    :
-      Cpu0GenInstrInfo(Cpu0::ADJCALLSTACKDOWN, Cpu0::ADJCALLSTACKUP),
+    : Cpu0GenInstrInfo(Cpu0::ADJCALLSTACKDOWN, Cpu0::ADJCALLSTACKUP),
       Subtarget(STI) {}
 
 const Cpu0InstrInfo *Cpu0InstrInfo::create(Cpu0Subtarget &STI) {
@@ -53,15 +52,14 @@ Cpu0InstrInfo::GetMemOperand(MachineBasicBlock &MBB, int FI,
 //@GetInstSizeInBytes {
 /// Return the number of bytes of code the specified instruction may be.
 unsigned Cpu0InstrInfo::GetInstSizeInBytes(const MachineInstr &MI) const {
-//@GetInstSizeInBytes - body
+  //@GetInstSizeInBytes - body
   switch (MI.getOpcode()) {
   default:
     return MI.getDesc().getSize();
-  case  TargetOpcode::INLINEASM: {       // Inline Asm: Variable size.
+  case TargetOpcode::INLINEASM: { // Inline Asm: Variable size.
     const MachineFunction *MF = MI.getParent()->getParent();
     const char *AsmStr = MI.getOperand(0).getSymbolName();
     return getInlineAsmLength(AsmStr, *MF->getTarget().getMCAsmInfo());
   }
   }
 }
-

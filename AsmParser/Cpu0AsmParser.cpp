@@ -9,9 +9,9 @@
 
 #include "Cpu0.h"
 
+#include "Cpu0RegisterInfo.h"
 #include "MCTargetDesc/Cpu0MCExpr.h"
 #include "MCTargetDesc/Cpu0MCTargetDesc.h"
-#include "Cpu0RegisterInfo.h"
 #include "llvm/ADT/APInt.h"
 #include "llvm/ADT/StringSwitch.h"
 #include "llvm/MC/MCContext.h"
@@ -24,8 +24,6 @@
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/MCSymbol.h"
-#include "llvm/MC/MCParser/MCAsmLexer.h"
-#include "llvm/MC/MCParser/MCParsedAsmOperand.h"
 #include "llvm/MC/MCValue.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/MathExtras.h"
@@ -38,23 +36,21 @@ using namespace llvm;
 namespace {
 class Cpu0AssemblerOptions {
 public:
-  Cpu0AssemblerOptions():
-    reorder(true), macro(true) {
-  }
+  Cpu0AssemblerOptions() : reorder(true), macro(true) {}
 
-  bool isReorder() {return reorder;}
-  void setReorder() {reorder = true;}
-  void setNoreorder() {reorder = false;}
+  bool isReorder() { return reorder; }
+  void setReorder() { reorder = true; }
+  void setNoreorder() { reorder = false; }
 
-  bool isMacro() {return macro;}
-  void setMacro() {macro = true;}
-  void setNomacro() {macro = false;}
+  bool isMacro() { return macro; }
+  void setMacro() { macro = true; }
+  void setNomacro() { macro = false; }
 
 private:
   bool reorder;
   bool macro;
 };
-}
+} // namespace
 
 namespace {
 class Cpu0AsmParser : public MCTargetAsmParser {
@@ -85,8 +81,7 @@ class Cpu0AsmParser : public MCTargetAsmParser {
 
   int tryParseRegister(StringRef Mnemonic);
 
-  bool tryParseRegisterOperand(OperandVector &Operands,
-                               StringRef Mnemonic);
+  bool tryParseRegisterOperand(OperandVector &Operands, StringRef Mnemonic);
 
   bool needsExpansion(MCInst &Inst);
 
@@ -118,21 +113,20 @@ class Cpu0AsmParser : public MCTargetAsmParser {
 
   int matchRegisterByNumber(unsigned RegNum, StringRef Mnemonic);
 
-  unsigned getReg(int RC,int RegNo);
+  unsigned getReg(int RC, int RegNo);
 
 public:
   Cpu0AsmParser(const MCSubtargetInfo &sti, MCAsmParser &parser,
                 const MCInstrInfo &MII, const MCTargetOptions &Options)
-    : MCTargetAsmParser(Options, sti, MII), Parser(parser) {
+      : MCTargetAsmParser(Options, sti, MII), Parser(parser) {
     // Initialize the set of available features.
     setAvailableFeatures(ComputeAvailableFeatures(getSTI().getFeatureBits()));
   }
 
   MCAsmParser &getParser() const { return Parser; }
   MCAsmLexer &getLexer() const { return Parser.getLexer(); }
-
 };
-}
+} // namespace
 
 namespace {
 
@@ -140,12 +134,7 @@ namespace {
 /// instruction.
 class Cpu0Operand : public MCParsedAsmOperand {
 
-  enum KindTy {
-    k_Immediate,
-    k_Memory,
-    k_Register,
-    k_Token
-  } Kind;
+  enum KindTy { k_Immediate, k_Memory, k_Register, k_Token } Kind;
 
 public:
   Cpu0Operand(KindTy K) : MCParsedAsmOperand(), Kind(K) {}
@@ -180,7 +169,7 @@ public:
     Inst.addOperand(MCOperand::createReg(getReg()));
   }
 
-  void addExpr(MCInst &Inst, const MCExpr *Expr) const{
+  void addExpr(MCInst &Inst, const MCExpr *Expr) const {
     // Add as immediate when possible.  Null MCExpr = 0.
     if (Expr == 0)
       Inst.addOperand(MCOperand::createImm(0));
@@ -193,7 +182,7 @@ public:
   void addImmOperands(MCInst &Inst, unsigned N) const {
     assert(N == 1 && "Invalid number of operands!");
     const MCExpr *Expr = getImm();
-    addExpr(Inst,Expr);
+    addExpr(Inst, Expr);
   }
 
   void addMemOperands(MCInst &Inst, unsigned N) const {
@@ -202,7 +191,7 @@ public:
     Inst.addOperand(MCOperand::createReg(getMemBase()));
 
     const MCExpr *Expr = getMemOff();
-    addExpr(Inst,Expr);
+    addExpr(Inst, Expr);
   }
 
   bool isReg() const override { return Kind == k_Register; }
@@ -254,7 +243,8 @@ public:
     return Op;
   }
 
-  static std::unique_ptr<Cpu0Operand> CreateImm(const MCExpr *Val, SMLoc S, SMLoc E) {
+  static std::unique_ptr<Cpu0Operand> CreateImm(const MCExpr *Val, SMLoc S,
+                                                SMLoc E) {
     auto Op = std::make_unique<Cpu0Operand>(k_Immediate);
     Op->Imm.Val = Val;
     Op->StartLoc = S;
@@ -262,8 +252,8 @@ public:
     return Op;
   }
 
-  static std::unique_ptr<Cpu0Operand> CreateMem(unsigned Base, const MCExpr *Off,
-                                 SMLoc S, SMLoc E) {
+  static std::unique_ptr<Cpu0Operand>
+  CreateMem(unsigned Base, const MCExpr *Off, SMLoc S, SMLoc E) {
     auto Op = std::make_unique<Cpu0Operand>(k_Memory);
     Op->Mem.Base = Base;
     Op->Mem.Off = Off;
@@ -300,11 +290,11 @@ public:
     }
   }
 };
-}
+} // namespace
 
 void printCpu0Operands(OperandVector &Operands) {
   for (size_t i = 0; i < Operands.size(); i++) {
-    Cpu0Operand* op = static_cast<Cpu0Operand*>(&*Operands[i]);
+    Cpu0Operand *op = static_cast<Cpu0Operand *>(&*Operands[i]);
     assert(op != nullptr);
     LLVM_DEBUG(dbgs() << "<" << *op << ">");
   }
@@ -314,31 +304,31 @@ void printCpu0Operands(OperandVector &Operands) {
 //@1 {
 bool Cpu0AsmParser::needsExpansion(MCInst &Inst) {
 
-  switch(Inst.getOpcode()) {
-    case Cpu0::LoadImm32Reg:
-    case Cpu0::LoadAddr32Imm:
-    case Cpu0::LoadAddr32Reg:
-      return true;
-    default:
-      return false;
+  switch (Inst.getOpcode()) {
+  case Cpu0::LoadImm32Reg:
+  case Cpu0::LoadAddr32Imm:
+  case Cpu0::LoadAddr32Reg:
+    return true;
+  default:
+    return false;
   }
 }
 
 void Cpu0AsmParser::expandInstruction(MCInst &Inst, SMLoc IDLoc,
-                        SmallVectorImpl<MCInst> &Instructions){
-  switch(Inst.getOpcode()) {
-    case Cpu0::LoadImm32Reg:
-      return expandLoadImm(Inst, IDLoc, Instructions);
-    case Cpu0::LoadAddr32Imm:
-      return expandLoadAddressImm(Inst,IDLoc,Instructions);
-    case Cpu0::LoadAddr32Reg:
-      return expandLoadAddressReg(Inst,IDLoc,Instructions);
-    }
+                                      SmallVectorImpl<MCInst> &Instructions) {
+  switch (Inst.getOpcode()) {
+  case Cpu0::LoadImm32Reg:
+    return expandLoadImm(Inst, IDLoc, Instructions);
+  case Cpu0::LoadAddr32Imm:
+    return expandLoadAddressImm(Inst, IDLoc, Instructions);
+  case Cpu0::LoadAddr32Reg:
+    return expandLoadAddressReg(Inst, IDLoc, Instructions);
+  }
 }
 //@1 }
 
 void Cpu0AsmParser::expandLoadImm(MCInst &Inst, SMLoc IDLoc,
-                                  SmallVectorImpl<MCInst> &Instructions){
+                                  SmallVectorImpl<MCInst> &Instructions) {
   MCInst tmpInst;
   const MCOperand &ImmOp = Inst.getOperand(1);
   assert(ImmOp.isImm() && "expected immediate operand kind");
@@ -347,22 +337,20 @@ void Cpu0AsmParser::expandLoadImm(MCInst &Inst, SMLoc IDLoc,
 
   int ImmValue = ImmOp.getImm();
   tmpInst.setLoc(IDLoc);
-  if ( 0 <= ImmValue && ImmValue <= 65535) {
+  if (0 <= ImmValue && ImmValue <= 65535) {
     // for 0 <= j <= 65535.
     // li d,j => ori d,$zero,j
     tmpInst.setOpcode(Cpu0::ORi);
     tmpInst.addOperand(MCOperand::createReg(RegOp.getReg()));
-    tmpInst.addOperand(
-              MCOperand::createReg(Cpu0::ZERO));
+    tmpInst.addOperand(MCOperand::createReg(Cpu0::ZERO));
     tmpInst.addOperand(MCOperand::createImm(ImmValue));
     Instructions.push_back(tmpInst);
-  } else if ( ImmValue < 0 && ImmValue >= -32768) {
+  } else if (ImmValue < 0 && ImmValue >= -32768) {
     // for -32768 <= j < 0.
     // li d,j => addiu d,$zero,j
-    tmpInst.setOpcode(Cpu0::ADDiu); //TODO:no ADDiu64 in td files?
+    tmpInst.setOpcode(Cpu0::ADDiu); // TODO:no ADDiu64 in td files?
     tmpInst.addOperand(MCOperand::createReg(RegOp.getReg()));
-    tmpInst.addOperand(
-              MCOperand::createReg(Cpu0::ZERO));
+    tmpInst.addOperand(MCOperand::createReg(Cpu0::ZERO));
     tmpInst.addOperand(MCOperand::createImm(ImmValue));
     Instructions.push_back(tmpInst);
   } else {
@@ -383,8 +371,8 @@ void Cpu0AsmParser::expandLoadImm(MCInst &Inst, SMLoc IDLoc,
   }
 }
 
-void Cpu0AsmParser::expandLoadAddressReg(MCInst &Inst, SMLoc IDLoc,
-                                         SmallVectorImpl<MCInst> &Instructions){
+void Cpu0AsmParser::expandLoadAddressReg(
+    MCInst &Inst, SMLoc IDLoc, SmallVectorImpl<MCInst> &Instructions) {
   MCInst tmpInst;
   const MCOperand &ImmOp = Inst.getOperand(2);
   assert(ImmOp.isImm() && "expected immediate operand kind");
@@ -393,10 +381,10 @@ void Cpu0AsmParser::expandLoadAddressReg(MCInst &Inst, SMLoc IDLoc,
   const MCOperand &DstRegOp = Inst.getOperand(0);
   assert(DstRegOp.isReg() && "expected register operand kind");
   int ImmValue = ImmOp.getImm();
-  if ( -32768 <= ImmValue && ImmValue <= 32767) {
+  if (-32768 <= ImmValue && ImmValue <= 32767) {
     // for -32768 <= j < 32767.
-    //la d,j(s) => addiu d,s,j
-    tmpInst.setOpcode(Cpu0::ADDiu); //TODO:no ADDiu64 in td files?
+    // la d,j(s) => addiu d,s,j
+    tmpInst.setOpcode(Cpu0::ADDiu); // TODO:no ADDiu64 in td files?
     tmpInst.addOperand(MCOperand::createReg(DstRegOp.getReg()));
     tmpInst.addOperand(MCOperand::createReg(SrcRegOp.getReg()));
     tmpInst.addOperand(MCOperand::createImm(ImmValue));
@@ -425,21 +413,20 @@ void Cpu0AsmParser::expandLoadAddressReg(MCInst &Inst, SMLoc IDLoc,
   }
 }
 
-void Cpu0AsmParser::expandLoadAddressImm(MCInst &Inst, SMLoc IDLoc,
-                                         SmallVectorImpl<MCInst> &Instructions){
+void Cpu0AsmParser::expandLoadAddressImm(
+    MCInst &Inst, SMLoc IDLoc, SmallVectorImpl<MCInst> &Instructions) {
   MCInst tmpInst;
   const MCOperand &ImmOp = Inst.getOperand(1);
   assert(ImmOp.isImm() && "expected immediate operand kind");
   const MCOperand &RegOp = Inst.getOperand(0);
   assert(RegOp.isReg() && "expected register operand kind");
   int ImmValue = ImmOp.getImm();
-  if ( -32768 <= ImmValue && ImmValue <= 32767) {
+  if (-32768 <= ImmValue && ImmValue <= 32767) {
     // for -32768 <= j < 32767.
-    //la d,j => addiu d,$zero,j
+    // la d,j => addiu d,$zero,j
     tmpInst.setOpcode(Cpu0::ADDiu);
     tmpInst.addOperand(MCOperand::createReg(RegOp.getReg()));
-    tmpInst.addOperand(
-              MCOperand::createReg(Cpu0::ZERO));
+    tmpInst.addOperand(MCOperand::createReg(Cpu0::ZERO));
     tmpInst.addOperand(MCOperand::createImm(ImmValue));
     Instructions.push_back(tmpInst);
   } else {
@@ -467,24 +454,25 @@ bool Cpu0AsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
                                             bool MatchingInlineAsm) {
   printCpu0Operands(Operands);
   MCInst Inst;
-  unsigned MatchResult = MatchInstructionImpl(Operands, Inst, ErrorInfo,
-                                              MatchingInlineAsm);
+  unsigned MatchResult =
+      MatchInstructionImpl(Operands, Inst, ErrorInfo, MatchingInlineAsm);
   switch (MatchResult) {
-  default: break;
+  default:
+    break;
   case Match_Success: {
     if (needsExpansion(Inst)) {
       SmallVector<MCInst, 4> Instructions;
       expandInstruction(Inst, IDLoc, Instructions);
-      for(unsigned i =0; i < Instructions.size(); i++){
+      for (unsigned i = 0; i < Instructions.size(); i++) {
         Out.emitInstruction(Instructions[i], getSTI());
       }
     } else {
-        Inst.setLoc(IDLoc);
-        Out.emitInstruction(Inst, getSTI());
-      }
+      Inst.setLoc(IDLoc);
+      Out.emitInstruction(Inst, getSTI());
+    }
     return false;
   }
-//@2 }
+    //@2 }
   case Match_MissingFeature:
     Error(IDLoc, "instruction requires a CPU feature not currently enabled");
     return true;
@@ -495,7 +483,8 @@ bool Cpu0AsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
         return Error(IDLoc, "too few operands for instruction");
 
       ErrorLoc = ((Cpu0Operand &)*Operands[ErrorInfo]).getStartLoc();
-      if (ErrorLoc == SMLoc()) ErrorLoc = IDLoc;
+      if (ErrorLoc == SMLoc())
+        ErrorLoc = IDLoc;
     }
 
     return Error(ErrorLoc, "invalid operand for instruction");
@@ -508,29 +497,29 @@ bool Cpu0AsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
 
 int Cpu0AsmParser::matchRegisterName(StringRef Name) {
 
-   int CC;
-    CC = StringSwitch<unsigned>(Name)
-      .Case("zero",  Cpu0::ZERO)
-      .Case("at",  Cpu0::AT)
-      .Case("v0",  Cpu0::V0)
-      .Case("v1",  Cpu0::V1)
-      .Case("a0",  Cpu0::A0)
-      .Case("a1",  Cpu0::A1)
-      .Case("t9",  Cpu0::T9)
-      .Case("t0",  Cpu0::T0)
-      .Case("t1",  Cpu0::T1)
-      .Case("s0",  Cpu0::S0)
-      .Case("s1",  Cpu0::S1)
-      .Case("sw",  Cpu0::SW)
-      .Case("gp",  Cpu0::GP)
-      .Case("fp",  Cpu0::FP)
-      .Case("sp",  Cpu0::SP)
-      .Case("lr",  Cpu0::LR)
-      .Case("pc",  Cpu0::PC)
-      .Case("hi",  Cpu0::HI)
-      .Case("lo",  Cpu0::LO)
-      .Case("epc", Cpu0::EPC)
-      .Default(-1);
+  int CC;
+  CC = StringSwitch<unsigned>(Name)
+           .Case("zero", Cpu0::ZERO)
+           .Case("at", Cpu0::AT)
+           .Case("v0", Cpu0::V0)
+           .Case("v1", Cpu0::V1)
+           .Case("a0", Cpu0::A0)
+           .Case("a1", Cpu0::A1)
+           .Case("t9", Cpu0::T9)
+           .Case("t0", Cpu0::T0)
+           .Case("t1", Cpu0::T1)
+           .Case("s0", Cpu0::S0)
+           .Case("s1", Cpu0::S1)
+           .Case("sw", Cpu0::SW)
+           .Case("gp", Cpu0::GP)
+           .Case("fp", Cpu0::FP)
+           .Case("sp", Cpu0::SP)
+           .Case("lr", Cpu0::LR)
+           .Case("pc", Cpu0::PC)
+           .Case("hi", Cpu0::HI)
+           .Case("lo", Cpu0::LO)
+           .Case("epc", Cpu0::EPC)
+           .Default(-1);
 
   if (CC != -1)
     return CC;
@@ -538,7 +527,7 @@ int Cpu0AsmParser::matchRegisterName(StringRef Name) {
   return -1;
 }
 
-unsigned Cpu0AsmParser::getReg(int RC,int RegNo) {
+unsigned Cpu0AsmParser::getReg(int RC, int RegNo) {
   return *(getContext().getRegisterInfo()->getRegClass(RC).begin() + RegNo);
 }
 
@@ -559,30 +548,28 @@ int Cpu0AsmParser::tryParseRegister(StringRef Mnemonic) {
   } else if (Tok.is(AsmToken::Integer))
     RegNum = matchRegisterByNumber(static_cast<unsigned>(Tok.getIntVal()),
                                    Mnemonic.lower());
-    else
-      return RegNum;  //error
+  else
+    return RegNum; // error
   return RegNum;
 }
 
-bool Cpu0AsmParser::
-  tryParseRegisterOperand(OperandVector &Operands,
-                          StringRef Mnemonic){
+bool Cpu0AsmParser::tryParseRegisterOperand(OperandVector &Operands,
+                                            StringRef Mnemonic) {
 
   SMLoc S = Parser.getTok().getLoc();
   int RegNo = -1;
 
-    RegNo = tryParseRegister(Mnemonic);
+  RegNo = tryParseRegister(Mnemonic);
   if (RegNo == -1)
     return true;
 
-  Operands.push_back(Cpu0Operand::CreateReg(RegNo, S,
-      Parser.getTok().getLoc()));
+  Operands.push_back(
+      Cpu0Operand::CreateReg(RegNo, S, Parser.getTok().getLoc()));
   Parser.Lex(); // Eat register token.
   return false;
 }
 
-bool Cpu0AsmParser::ParseOperand(OperandVector &Operands,
-                                 StringRef Mnemonic) {
+bool Cpu0AsmParser::ParseOperand(OperandVector &Operands, StringRef Mnemonic) {
   LLVM_DEBUG(dbgs() << "ParseOperand\n");
   // Check if the current operand has a custom associated parser, if so, try to
   // custom parse the operand, or fallback to the general approach.
@@ -637,8 +624,8 @@ bool Cpu0AsmParser::ParseOperand(OperandVector &Operands,
     MCSymbol *Sym = getContext().getOrCreateSymbol("$" + Identifier);
 
     // Otherwise create a symbol ref.
-    const MCExpr *Res = MCSymbolRefExpr::create(Sym, MCSymbolRefExpr::VK_None,
-                                                getContext());
+    const MCExpr *Res =
+        MCSymbolRefExpr::create(Sym, MCSymbolRefExpr::VK_None, getContext());
 
     Operands.push_back(Cpu0Operand::CreateImm(Res, S, E));
     return false;
@@ -649,7 +636,7 @@ bool Cpu0AsmParser::ParseOperand(OperandVector &Operands,
   case AsmToken::Plus:
   case AsmToken::Integer:
   case AsmToken::String: {
-     // quoted label names
+    // quoted label names
     const MCExpr *IdVal;
     SMLoc S = Parser.getTok().getLoc();
     if (getParser().parseExpression(IdVal))
@@ -702,7 +689,7 @@ const MCExpr *Cpu0AsmParser::evaluateRelocExpr(const MCExpr *Expr,
 
 bool Cpu0AsmParser::parseRelocOperand(const MCExpr *&Res) {
 
-  Parser.Lex(); // eat % token
+  Parser.Lex();                          // eat % token
   const AsmToken &Tok = Parser.getTok(); // get next token, operation
   if (Tok.isNot(AsmToken::Identifier))
     return true;
@@ -730,7 +717,7 @@ bool Cpu0AsmParser::parseRelocOperand(const MCExpr *&Res) {
       } else
         break;
     }
-    if (getParser().parseParenExpression(IdVal,EndLoc))
+    if (getParser().parseParenExpression(IdVal, EndLoc))
       return true;
 
     while (getLexer().getKind() == AsmToken::RParen)
@@ -758,12 +745,11 @@ OperandMatchResultTy Cpu0AsmParser::tryParseRegister(unsigned &RegNo,
   StartLoc = Parser.getTok().getLoc();
   RegNo = tryParseRegister("");
   EndLoc = Parser.getTok().getLoc();
-  return (RegNo == (unsigned)-1) ? MatchOperand_NoMatch
-                                 : MatchOperand_Success;
+  return (RegNo == (unsigned)-1) ? MatchOperand_NoMatch : MatchOperand_Success;
 }
 
 bool Cpu0AsmParser::parseMemOffset(const MCExpr *&Res) {
-  switch(getLexer().getKind()) {
+  switch (getLexer().getKind()) {
   default:
     return true;
   case AsmToken::Integer:
@@ -773,14 +759,13 @@ bool Cpu0AsmParser::parseMemOffset(const MCExpr *&Res) {
   case AsmToken::Percent:
     return parseRelocOperand(Res);
   case AsmToken::LParen:
-    return false;  // it's probably assuming 0
+    return false; // it's probably assuming 0
   }
   return true;
 }
 
 // eg, 12($sp) or 12(la)
-OperandMatchResultTy Cpu0AsmParser::parseMemOperand(
-               OperandVector &Operands) {
+OperandMatchResultTy Cpu0AsmParser::parseMemOperand(OperandVector &Operands) {
 
   const MCExpr *IdVal = 0;
   SMLoc S;
@@ -794,7 +779,8 @@ OperandMatchResultTy Cpu0AsmParser::parseMemOperand(
   if (Tok.isNot(AsmToken::LParen)) {
     Cpu0Operand &Mnemonic = static_cast<Cpu0Operand &>(*Operands[0]);
     if (Mnemonic.getToken() == "la") {
-      SMLoc E = SMLoc::getFromPointer(Parser.getTok().getLoc().getPointer()-1);
+      SMLoc E =
+          SMLoc::getFromPointer(Parser.getTok().getLoc().getPointer() - 1);
       Operands.push_back(Cpu0Operand::CreateImm(IdVal, S, E));
       return MatchOperand_Success;
     }
@@ -807,7 +793,7 @@ OperandMatchResultTy Cpu0AsmParser::parseMemOperand(
   const AsmToken &Tok1 = Parser.getTok(); // get next token
   if (Tok1.is(AsmToken::Dollar)) {
     Parser.Lex(); // Eat '$' token.
-    if (tryParseRegisterOperand(Operands,"")) {
+    if (tryParseRegisterOperand(Operands, "")) {
       Error(Parser.getTok().getLoc(), "unexpected token in operand");
       return MatchOperand_ParseFail;
     }
@@ -841,9 +827,8 @@ OperandMatchResultTy Cpu0AsmParser::parseMemOperand(
   return MatchOperand_Success;
 }
 
-bool Cpu0AsmParser::
-ParseInstruction(ParseInstructionInfo &Info, StringRef Name, SMLoc NameLoc,
-                 OperandVector &Operands) {
+bool Cpu0AsmParser::ParseInstruction(ParseInstructionInfo &Info, StringRef Name,
+                                     SMLoc NameLoc, OperandVector &Operands) {
 
   // Create the leading tokens for the mnemonic, split by '.' characters.
   size_t Start = 0, Next = Name.find('.');
@@ -864,8 +849,8 @@ ParseInstruction(ParseInstructionInfo &Info, StringRef Name, SMLoc NameLoc,
       return Error(Loc, "unexpected token in argument list");
     }
 
-    while (getLexer().is(AsmToken::Comma) ) {
-      Parser.Lex();  // Eat the comma.
+    while (getLexer().is(AsmToken::Comma)) {
+      Parser.Lex(); // Eat the comma.
 
       // Parse and remember the operand.
       if (ParseOperand(Operands, Name)) {
@@ -887,9 +872,9 @@ ParseInstruction(ParseInstructionInfo &Info, StringRef Name, SMLoc NameLoc,
 }
 
 bool Cpu0AsmParser::reportParseError(StringRef ErrorMsg) {
-   SMLoc Loc = getLexer().getLoc();
-   Parser.eatToEndOfStatement();
-   return Error(Loc, ErrorMsg);
+  SMLoc Loc = getLexer().getLoc();
+  Parser.eatToEndOfStatement();
+  return Error(Loc, ErrorMsg);
 }
 
 bool Cpu0AsmParser::parseSetReorderDirective() {
@@ -905,15 +890,15 @@ bool Cpu0AsmParser::parseSetReorderDirective() {
 }
 
 bool Cpu0AsmParser::parseSetNoReorderDirective() {
-    Parser.Lex();
-    // if this is not the end of the statement, report error
-    if (getLexer().isNot(AsmToken::EndOfStatement)) {
-      reportParseError("unexpected token in statement");
-      return false;
-    }
-    Options.setNoreorder();
-    Parser.Lex(); // Consume the EndOfStatement
+  Parser.Lex();
+  // if this is not the end of the statement, report error
+  if (getLexer().isNot(AsmToken::EndOfStatement)) {
+    reportParseError("unexpected token in statement");
     return false;
+  }
+  Options.setNoreorder();
+  Parser.Lex(); // Consume the EndOfStatement
+  return false;
 }
 
 bool Cpu0AsmParser::parseSetMacroDirective() {
@@ -1013,4 +998,3 @@ extern "C" void LLVMInitializeCpu0AsmParser() {
 #define GET_REGISTER_MATCHER
 #define GET_MATCHER_IMPLEMENTATION
 #include "./GenInc/Cpu0GenAsmMatcher.inc"
-

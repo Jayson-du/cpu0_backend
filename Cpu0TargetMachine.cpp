@@ -17,11 +17,11 @@
 #include "Cpu0SEISelDAGToDAG.h"
 #include "Cpu0Subtarget.h"
 #include "Cpu0TargetObjectFile.h"
+#include "llvm/CodeGen/Passes.h"
+#include "llvm/CodeGen/TargetPassConfig.h"
 #include "llvm/IR/Attributes.h"
 #include "llvm/IR/Function.h"
 #include "llvm/Support/CodeGen.h"
-#include "llvm/CodeGen/Passes.h"
-#include "llvm/CodeGen/TargetPassConfig.h"
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Target/TargetOptions.h"
 
@@ -85,7 +85,7 @@ Cpu0TargetMachine::Cpu0TargetMachine(const Target &T, const Triple &TT,
                                      Optional<CodeModel::Model> CM,
                                      CodeGenOpt::Level OL, bool JIT,
                                      bool isLittle)
-  //- Default is big endian
+    //- Default is big endian
     : LLVMTargetMachine(T, computeDataLayout(TT, CPU, Options, isLittle), TT,
                         CPU, FS, Options, getEffectiveRelocModel(JIT, RM),
                         getEffectiveCodeModel(CM, CodeModel::Small), OL),
@@ -99,7 +99,7 @@ Cpu0TargetMachine::Cpu0TargetMachine(const Target &T, const Triple &TT,
 
 Cpu0TargetMachine::~Cpu0TargetMachine() {}
 
-void Cpu0ebTargetMachine::anchor() { }
+void Cpu0ebTargetMachine::anchor() {}
 
 Cpu0ebTargetMachine::Cpu0ebTargetMachine(const Target &T, const Triple &TT,
                                          StringRef CPU, StringRef FS,
@@ -109,7 +109,7 @@ Cpu0ebTargetMachine::Cpu0ebTargetMachine(const Target &T, const Triple &TT,
                                          CodeGenOpt::Level OL, bool JIT)
     : Cpu0TargetMachine(T, TT, CPU, FS, Options, RM, CM, OL, JIT, false) {}
 
-void Cpu0elTargetMachine::anchor() { }
+void Cpu0elTargetMachine::anchor() {}
 
 Cpu0elTargetMachine::Cpu0elTargetMachine(const Target &T, const Triple &TT,
                                          StringRef CPU, StringRef FS,
@@ -130,8 +130,7 @@ Cpu0TargetMachine::getSubtargetImpl(const Function &F) const {
     // creation will depend on the TM and the code generation flags on the
     // function that reside in TargetOptions.
     resetTargetOptions(F);
-    I = std::make_unique<Cpu0Subtarget>(TargetTriple, CPU, FS, isLittle,
-                                         *this);
+    I = std::make_unique<Cpu0Subtarget>(TargetTriple, CPU, FS, isLittle, *this);
   }
   return I.get();
 }
@@ -142,7 +141,7 @@ namespace {
 class Cpu0PassConfig : public TargetPassConfig {
 public:
   Cpu0PassConfig(Cpu0TargetMachine &TM, PassManagerBase &PM)
-    : TargetPassConfig(TM, PM) {}
+      : TargetPassConfig(TM, PM) {}
 
   Cpu0TargetMachine &getCpu0TargetMachine() const {
     return getTM<Cpu0TargetMachine>();
@@ -191,12 +190,11 @@ void Cpu0PassConfig::addPreRegAlloc() {
 // print out the code after the passes.
 void Cpu0PassConfig::addPreEmitPass() {
   Cpu0TargetMachine &TM = getCpu0TargetMachine();
-//@8_2 1{
+  //@8_2 1{
   addPass(createCpu0DelJmpPass(TM));
-//@8_2 1}
+  //@8_2 1}
   addPass(createCpu0DelaySlotFillerPass(TM));
-//@8_2 2}
+  //@8_2 2}
   addPass(createCpu0LongBranchPass(TM));
   return;
 }
-

@@ -57,23 +57,24 @@ bool Cpu0DAGToDAGISel::runOnMachineFunction(MachineFunction &MF) {
 /// GOT address into a register.
 SDNode *Cpu0DAGToDAGISel::getGlobalBaseReg() {
   unsigned GlobalBaseReg = MF->getInfo<Cpu0FunctionInfo>()->getGlobalBaseReg();
-  return CurDAG->getRegister(GlobalBaseReg, getTargetLowering()->getPointerTy(
-                                                CurDAG->getDataLayout()))
+  return CurDAG
+      ->getRegister(GlobalBaseReg,
+                    getTargetLowering()->getPointerTy(CurDAG->getDataLayout()))
       .getNode();
 }
 
 //@SelectAddr {
 /// ComplexPattern used on Cpu0InstrInfo
 /// Used on Cpu0 Load/Store instructions
-bool Cpu0DAGToDAGISel::
-SelectAddr(SDNode *Parent, SDValue Addr, SDValue &Base, SDValue &Offset) {
-//@SelectAddr }
+bool Cpu0DAGToDAGISel::SelectAddr(SDNode *Parent, SDValue Addr, SDValue &Base,
+                                  SDValue &Offset) {
+  //@SelectAddr }
   EVT ValTy = Addr.getValueType();
   SDLoc DL(Addr);
 
   // If Parent is an unaligned f32 load or store, select a (base + index)
   // floating point load/store instruction (luxc1 or suxc1).
-  const LSBaseSDNode* LS = 0;
+  const LSBaseSDNode *LS = 0;
 
   if (Parent && (LS = dyn_cast<LSBaseSDNode>(Parent))) {
     EVT VT = LS->getMemoryVT();
@@ -87,14 +88,14 @@ SelectAddr(SDNode *Parent, SDValue Addr, SDValue &Base, SDValue &Offset) {
 
   // if Address is FI, get the TargetFrameIndex.
   if (FrameIndexSDNode *FIN = dyn_cast<FrameIndexSDNode>(Addr)) {
-    Base   = CurDAG->getTargetFrameIndex(FIN->getIndex(), ValTy);
+    Base = CurDAG->getTargetFrameIndex(FIN->getIndex(), ValTy);
     Offset = CurDAG->getTargetConstant(0, DL, ValTy);
     return true;
   }
 
   // on PIC code Load GA
   if (Addr.getOpcode() == Cpu0ISD::Wrapper) {
-    Base   = Addr.getOperand(0);
+    Base = Addr.getOperand(0);
     Offset = Addr.getOperand(1);
     return true;
   }
@@ -102,7 +103,7 @@ SelectAddr(SDNode *Parent, SDValue Addr, SDValue &Base, SDValue &Offset) {
   //@static
   if (TM.getRelocationModel() != Reloc::PIC_) {
     if ((Addr.getOpcode() == ISD::TargetExternalSymbol ||
-        Addr.getOpcode() == ISD::TargetGlobalAddress))
+         Addr.getOpcode() == ISD::TargetGlobalAddress))
       return false;
   }
 
@@ -112,8 +113,8 @@ SelectAddr(SDNode *Parent, SDValue Addr, SDValue &Base, SDValue &Offset) {
     if (isInt<16>(CN->getSExtValue())) {
 
       // If the first operand is a FI, get the TargetFI Node
-      if (FrameIndexSDNode *FIN = dyn_cast<FrameIndexSDNode>
-                                  (Addr.getOperand(0)))
+      if (FrameIndexSDNode *FIN =
+              dyn_cast<FrameIndexSDNode>(Addr.getOperand(0)))
         Base = CurDAG->getTargetFrameIndex(FIN->getIndex(), ValTy);
       else
         Base = Addr.getOperand(0);
@@ -123,7 +124,7 @@ SelectAddr(SDNode *Parent, SDValue Addr, SDValue &Base, SDValue &Offset) {
     }
   }
 
-  Base   = Addr;
+  Base = Addr;
   Offset = CurDAG->getTargetConstant(0, DL, ValTy);
   return true;
 }
@@ -132,7 +133,7 @@ SelectAddr(SDNode *Parent, SDValue Addr, SDValue &Base, SDValue &Offset) {
 /// Select instructions not customized! Used for
 /// expanded, promoted and normal instructions
 void Cpu0DAGToDAGISel::Select(SDNode *Node) {
-//@Select }
+  //@Select }
   unsigned Opcode = Node->getOpcode();
 
   // If we have a custom node, we already have selected!
@@ -146,8 +147,9 @@ void Cpu0DAGToDAGISel::Select(SDNode *Node) {
   if (trySelect(Node))
     return;
 
-  switch(Opcode) {
-  default: break;
+  switch (Opcode) {
+  default:
+    break;
 
   // Get target GOT address.
   case ISD::GLOBAL_OFFSET_TABLE:
@@ -160,11 +162,10 @@ void Cpu0DAGToDAGISel::Select(SDNode *Node) {
 }
 
 // inlineasm begin
-bool Cpu0DAGToDAGISel::
-SelectInlineAsmMemoryOperand(const SDValue &Op, unsigned ConstraintID,
-                             std::vector<SDValue> &OutOps) {
+bool Cpu0DAGToDAGISel::SelectInlineAsmMemoryOperand(
+    const SDValue &Op, unsigned ConstraintID, std::vector<SDValue> &OutOps) {
   // All memory constraints can at least accept raw pointers.
-  switch(ConstraintID) {
+  switch (ConstraintID) {
   default:
     llvm_unreachable("Unexpected asm memory constraint");
   case InlineAsm::Constraint_m:
@@ -174,4 +175,3 @@ SelectInlineAsmMemoryOperand(const SDValue &Op, unsigned ConstraintID,
   return true;
 }
 // inlineasm end
-

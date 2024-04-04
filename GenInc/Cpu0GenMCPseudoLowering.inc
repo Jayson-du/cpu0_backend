@@ -6,11 +6,11 @@
 |*                                                                            *|
 \*===----------------------------------------------------------------------===*/
 
-bool Cpu0AsmPrinter::
-emitPseudoExpansionLowering(MCStreamer &OutStreamer,
-                            const MachineInstr *MI) {
+bool Cpu0AsmPrinter::emitPseudoExpansionLowering(MCStreamer &OutStreamer,
+                                                 const MachineInstr *MI) {
   switch (MI->getOpcode()) {
-  default: return false;
+  default:
+    return false;
   case Cpu0::TAILCALL: {
     MCInst TmpInst;
     MCOperand MCOp;
@@ -34,4 +34,3 @@ emitPseudoExpansionLowering(MCStreamer &OutStreamer,
   }
   return true;
 }
-

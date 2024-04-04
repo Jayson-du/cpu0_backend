@@ -29,8 +29,10 @@ namespace llvm {
 
 class Cpu0InstrInfo : public Cpu0GenInstrInfo {
   virtual void anchor();
+
 protected:
   const Cpu0Subtarget &Subtarget;
+
 public:
   explicit Cpu0InstrInfo(const Cpu0Subtarget &STI);
 
@@ -48,24 +50,23 @@ public:
   virtual unsigned getOppositeBranchOpc(unsigned Opc) const = 0;
 
   void storeRegToStackSlot(MachineBasicBlock &MBB,
-                           MachineBasicBlock::iterator MBBI,
-                           Register SrcReg, bool isKill, int FrameIndex,
+                           MachineBasicBlock::iterator MBBI, Register SrcReg,
+                           bool isKill, int FrameIndex,
                            const TargetRegisterClass *RC,
                            const TargetRegisterInfo *TRI) const override {
     storeRegToStack(MBB, MBBI, SrcReg, isKill, FrameIndex, RC, TRI, 0);
   }
 
   void loadRegFromStackSlot(MachineBasicBlock &MBB,
-                            MachineBasicBlock::iterator MBBI,
-                            Register DestReg, int FrameIndex,
-                            const TargetRegisterClass *RC,
+                            MachineBasicBlock::iterator MBBI, Register DestReg,
+                            int FrameIndex, const TargetRegisterClass *RC,
                             const TargetRegisterInfo *TRI) const override {
     loadRegFromStack(MBB, MBBI, DestReg, FrameIndex, RC, TRI, 0);
   }
 
   virtual void storeRegToStack(MachineBasicBlock &MBB,
-                               MachineBasicBlock::iterator MI,
-                               Register SrcReg, bool isKill, int FrameIndex,
+                               MachineBasicBlock::iterator MI, Register SrcReg,
+                               bool isKill, int FrameIndex,
                                const TargetRegisterClass *RC,
                                const TargetRegisterInfo *TRI,
                                int64_t Offset) const = 0;
@@ -86,7 +87,6 @@ protected:
                                    MachineMemOperand::Flags Flags) const;
 };
 const Cpu0InstrInfo *createCpu0SEInstrInfo(const Cpu0Subtarget &STI);
-}
+} // namespace llvm
 
 #endif
-

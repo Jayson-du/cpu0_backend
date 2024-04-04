@@ -13,11 +13,11 @@
 
 #include "Cpu0SEISelDAGToDAG.h"
 
-#include "MCTargetDesc/Cpu0BaseInfo.h"
 #include "Cpu0.h"
 #include "Cpu0AnalyzeImmediate.h"
 #include "Cpu0MachineFunction.h"
 #include "Cpu0RegisterInfo.h"
+#include "MCTargetDesc/Cpu0BaseInfo.h"
 #include "llvm/CodeGen/MachineConstantPool.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineFunction.h"
@@ -45,36 +45,34 @@ bool Cpu0SEDAGToDAGISel::runOnMachineFunction(MachineFunction &MF) {
 /// Select multiply instructions.
 std::pair<SDNode *, SDNode *>
 Cpu0SEDAGToDAGISel::selectMULT(SDNode *N, unsigned Opc, const SDLoc &DL, EVT Ty,
-                             bool HasLo, bool HasHi) {
+                               bool HasLo, bool HasHi) {
   SDNode *Lo = 0, *Hi = 0;
   SDNode *Mul = CurDAG->getMachineNode(Opc, DL, MVT::Glue, N->getOperand(0),
                                        N->getOperand(1));
   SDValue InFlag = SDValue(Mul, 0);
 
   if (HasLo) {
-    Lo = CurDAG->getMachineNode(Cpu0::MFLO, DL,
-                                Ty, MVT::Glue, InFlag);
+    Lo = CurDAG->getMachineNode(Cpu0::MFLO, DL, Ty, MVT::Glue, InFlag);
     InFlag = SDValue(Lo, 1);
   }
   if (HasHi)
-    Hi = CurDAG->getMachineNode(Cpu0::MFHI, DL,
-                                Ty, InFlag);
+    Hi = CurDAG->getMachineNode(Cpu0::MFHI, DL, Ty, InFlag);
 
   return std::make_pair(Lo, Hi);
 }
 
-void Cpu0SEDAGToDAGISel::processFunctionAfterISel(MachineFunction &MF) {
-}
+void Cpu0SEDAGToDAGISel::processFunctionAfterISel(MachineFunction &MF) {}
 
 void Cpu0SEDAGToDAGISel::selectAddESubE(unsigned MOp, SDValue InFlag,
-                                           SDValue CmpLHS, const SDLoc &DL,
-                                           SDNode *Node) const {
-  unsigned Opc = InFlag.getOpcode(); (void)Opc;
+                                        SDValue CmpLHS, const SDLoc &DL,
+                                        SDNode *Node) const {
+  unsigned Opc = InFlag.getOpcode();
+  (void)Opc;
   assert(((Opc == ISD::ADDC || Opc == ISD::ADDE) ||
           (Opc == ISD::SUBC || Opc == ISD::SUBE)) &&
          "(ADD|SUB)E flag operand must come from (ADD|SUB)C/E insn");
 
-  SDValue Ops[] = { CmpLHS, InFlag.getOperand(1) };
+  SDValue Ops[] = {CmpLHS, InFlag.getOperand(1)};
   SDValue LHS = Node->getOperand(0), RHS = Node->getOperand(1);
   EVT VT = LHS.getValueType();
 
@@ -84,13 +82,13 @@ void Cpu0SEDAGToDAGISel::selectAddESubE(unsigned MOp, SDValue InFlag,
   else {
     SDNode *StatusWord = CurDAG->getMachineNode(Cpu0::CMP, DL, VT, Ops);
     SDValue Constant1 = CurDAG->getTargetConstant(1, DL, VT);
-    Carry = CurDAG->getMachineNode(Cpu0::ANDi, DL, VT, 
-                                           SDValue(StatusWord,0), Constant1);
+    Carry = CurDAG->getMachineNode(Cpu0::ANDi, DL, VT, SDValue(StatusWord, 0),
+                                   Constant1);
   }
-  SDNode *AddCarry = CurDAG->getMachineNode(Cpu0::ADDu, DL, VT,
-                                            SDValue(Carry,0), RHS);
+  SDNode *AddCarry =
+      CurDAG->getMachineNode(Cpu0::ADDu, DL, VT, SDValue(Carry, 0), RHS);
 
-  CurDAG->SelectNodeTo(Node, MOp, VT, MVT::Glue, LHS, SDValue(AddCarry,0));
+  CurDAG->SelectNodeTo(Node, MOp, VT, MVT::Glue, LHS, SDValue(AddCarry, 0));
 }
 
 //@selectNode
@@ -110,8 +108,9 @@ bool Cpu0SEDAGToDAGISel::trySelect(SDNode *Node) {
   EVT NodeTy = Node->getValueType(0);
   unsigned MultOpc;
 
-  switch(Opcode) {
-  default: break;
+  switch (Opcode) {
+  default:
+    break;
 
   case ISD::SUBE: {
     SDValue InFlag = Node->getOperand(2);
@@ -130,7 +129,7 @@ bool Cpu0SEDAGToDAGISel::trySelect(SDNode *Node) {
   case ISD::UMUL_LOHI: {
     MultOpc = (Opcode == ISD::UMUL_LOHI ? Cpu0::MULTu : Cpu0::MULT);
 
-    std::pair<SDNode*, SDNode*> LoHi =
+    std::pair<SDNode *, SDNode *> LoHi =
         selectMULT(Node, MultOpc, DL, NodeTy, true, true);
 
     if (!SDValue(Node, 0).use_empty())
@@ -160,7 +159,6 @@ bool Cpu0SEDAGToDAGISel::trySelect(SDNode *Node) {
 
     return true;
   }
-
   }
 
   return false;
@@ -170,4 +168,3 @@ FunctionPass *llvm::createCpu0SEISelDag(Cpu0TargetMachine &TM,
                                         CodeGenOpt::Level OptLevel) {
   return new Cpu0SEDAGToDAGISel(TM, OptLevel);
 }
-

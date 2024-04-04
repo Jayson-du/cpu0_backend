@@ -28,11 +28,9 @@
 using namespace llvm;
 
 Cpu0MCInstLower::Cpu0MCInstLower(Cpu0AsmPrinter &asmprinter)
-  : AsmPrinter(asmprinter) {}
+    : AsmPrinter(asmprinter) {}
 
-void Cpu0MCInstLower::Initialize(MCContext* C) {
-  Ctx = C;
-}
+void Cpu0MCInstLower::Initialize(MCContext *C) { Ctx = C; }
 
 //@LowerSymbolOperand {
 MCOperand Cpu0MCInstLower::LowerSymbolOperand(const MachineOperand &MO,
@@ -42,13 +40,14 @@ MCOperand Cpu0MCInstLower::LowerSymbolOperand(const MachineOperand &MO,
   Cpu0MCExpr::Cpu0ExprKind TargetKind = Cpu0MCExpr::CEK_None;
   const MCSymbol *Symbol;
 
-  switch(MO.getTargetFlags()) {
-  default:                   llvm_unreachable("Invalid target flag!");
+  switch (MO.getTargetFlags()) {
+  default:
+    llvm_unreachable("Invalid target flag!");
   case Cpu0II::MO_NO_FLAG:
     break;
 
-// Cpu0_GPREL is for llc -march=cpu0 -relocation-model=static -cpu0-islinux-
-//  format=false (global var in .sdata).
+    // Cpu0_GPREL is for llc -march=cpu0 -relocation-model=static -cpu0-islinux-
+    //  format=false (global var in .sdata).
   case Cpu0II::MO_GPREL:
     TargetKind = Cpu0MCExpr::CEK_GPREL;
     break;
@@ -59,8 +58,8 @@ MCOperand Cpu0MCInstLower::LowerSymbolOperand(const MachineOperand &MO,
   case Cpu0II::MO_GOT:
     TargetKind = Cpu0MCExpr::CEK_GOT;
     break;
-// ABS_HI and ABS_LO is for llc -march=cpu0 -relocation-model=static (global 
-//  var in .data).
+    // ABS_HI and ABS_LO is for llc -march=cpu0 -relocation-model=static (global
+    //  var in .data).
   case Cpu0II::MO_ABS_HI:
     TargetKind = Cpu0MCExpr::CEK_ABS_HI;
     break;
@@ -137,13 +136,12 @@ MCOperand Cpu0MCInstLower::LowerSymbolOperand(const MachineOperand &MO,
     Expr = Cpu0MCExpr::create(TargetKind, Expr, *Ctx);
 
   return MCOperand::createExpr(Expr);
-
 }
 //@LowerSymbolOperand }
 
-static void CreateMCInst(MCInst& Inst, unsigned Opc, const MCOperand& Opnd0,
-                         const MCOperand& Opnd1,
-                         const MCOperand& Opnd2 = MCOperand()) {
+static void CreateMCInst(MCInst &Inst, unsigned Opc, const MCOperand &Opnd0,
+                         const MCOperand &Opnd1,
+                         const MCOperand &Opnd2 = MCOperand()) {
   Inst.setOpcode(Opc);
   Inst.addOperand(Opnd0);
   Inst.addOperand(Opnd1);
@@ -155,7 +153,7 @@ static void CreateMCInst(MCInst& Inst, unsigned Opc, const MCOperand& Opnd0,
 //  "lui   $gp, %hi(_gp_disp)"
 //  "addiu $gp, $gp, %lo(_gp_disp)"
 //  "addu  $gp, $gp, $t9"
-void Cpu0MCInstLower::LowerCPLOAD(SmallVector<MCInst, 4>& MCInsts) {
+void Cpu0MCInstLower::LowerCPLOAD(SmallVector<MCInst, 4> &MCInsts) {
   MCOperand GPReg = MCOperand::createReg(Cpu0::GP);
   MCOperand T9Reg = MCOperand::createReg(Cpu0::T9);
   StringRef SymName("_gp_disp");
@@ -177,7 +175,7 @@ void Cpu0MCInstLower::LowerCPLOAD(SmallVector<MCInst, 4>& MCInsts) {
 #ifdef ENABLE_GPRESTORE
 // Lower ".cprestore offset" to "st $gp, offset($sp)".
 void Cpu0MCInstLower::LowerCPRESTORE(int64_t Offset,
-                                     SmallVector<MCInst, 4>& MCInsts) {
+                                     SmallVector<MCInst, 4> &MCInsts) {
   assert(isInt<32>(Offset) && (Offset >= 0) &&
          "Imm operand of .cprestore must be a non-negative 32-bit value.");
 
@@ -194,7 +192,8 @@ void Cpu0MCInstLower::LowerCPRESTORE(int64_t Offset,
     // lui   at,hi
     // add   at,at,sp
     MCInsts.resize(2);
-    CreateMCInst(MCInsts[0], Cpu0::LUi, ATReg, ZEROReg, MCOperand::createImm(Hi));
+    CreateMCInst(MCInsts[0], Cpu0::LUi, ATReg, ZEROReg,
+                 MCOperand::createImm(Hi));
     CreateMCInst(MCInsts[1], Cpu0::ADD, ATReg, ATReg, SPReg);
   }
 
@@ -205,16 +204,18 @@ void Cpu0MCInstLower::LowerCPRESTORE(int64_t Offset,
 #endif
 
 //@LowerOperand {
-MCOperand Cpu0MCInstLower::LowerOperand(const MachineOperand& MO,
+MCOperand Cpu0MCInstLower::LowerOperand(const MachineOperand &MO,
                                         unsigned offset) const {
   MachineOperandType MOTy = MO.getType();
 
   switch (MOTy) {
   //@2
-  default: llvm_unreachable("unknown operand type");
+  default:
+    llvm_unreachable("unknown operand type");
   case MachineOperand::MO_Register:
     // Ignore all implicit register operands.
-    if (MO.isImplicit()) break;
+    if (MO.isImplicit())
+      break;
     return MCOperand::createReg(MO.getReg());
   case MachineOperand::MO_Immediate:
     return MCOperand::createImm(MO.getImm() + offset);
@@ -223,11 +224,11 @@ MCOperand Cpu0MCInstLower::LowerOperand(const MachineOperand& MO,
   case MachineOperand::MO_JumpTableIndex:
   case MachineOperand::MO_BlockAddress:
   case MachineOperand::MO_GlobalAddress:
-//@1
+    //@1
     return LowerSymbolOperand(MO, MOTy, offset);
   case MachineOperand::MO_RegisterMask:
     break;
- }
+  }
 
   return MCOperand();
 }
@@ -242,8 +243,8 @@ MCOperand Cpu0MCInstLower::createSub(MachineBasicBlock *BB1,
   return MCOperand::createExpr(Cpu0MCExpr::create(Kind, Sub, *Ctx));
 }
 
-void Cpu0MCInstLower::
-lowerLongBranchLUi(const MachineInstr *MI, MCInst &OutMI) const {
+void Cpu0MCInstLower::lowerLongBranchLUi(const MachineInstr *MI,
+                                         MCInst &OutMI) const {
   OutMI.setOpcode(Cpu0::LUi);
 
   // Lower register operand.
@@ -255,9 +256,9 @@ lowerLongBranchLUi(const MachineInstr *MI, MCInst &OutMI) const {
                              Cpu0MCExpr::CEK_ABS_HI));
 }
 
-void Cpu0MCInstLower::
-lowerLongBranchADDiu(const MachineInstr *MI, MCInst &OutMI, int Opcode,
-                     Cpu0MCExpr::Cpu0ExprKind Kind) const {
+void Cpu0MCInstLower::lowerLongBranchADDiu(
+    const MachineInstr *MI, MCInst &OutMI, int Opcode,
+    Cpu0MCExpr::Cpu0ExprKind Kind) const {
   OutMI.setOpcode(Opcode);
 
   // Lower two register operands.
@@ -267,8 +268,8 @@ lowerLongBranchADDiu(const MachineInstr *MI, MCInst &OutMI, int Opcode,
   }
 
   // Create %lo($tgt-$baltgt) or %hi($tgt-$baltgt).
-  OutMI.addOperand(createSub(MI->getOperand(2).getMBB(),
-                             MI->getOperand(3).getMBB(), Kind));
+  OutMI.addOperand(
+      createSub(MI->getOperand(2).getMBB(), MI->getOperand(3).getMBB(), Kind));
 }
 
 bool Cpu0MCInstLower::lowerLongBranch(const MachineInstr *MI,
@@ -280,8 +281,7 @@ bool Cpu0MCInstLower::lowerLongBranch(const MachineInstr *MI,
     lowerLongBranchLUi(MI, OutMI);
     return true;
   case Cpu0::LONG_BRANCH_ADDiu:
-    lowerLongBranchADDiu(MI, OutMI, Cpu0::ADDiu,
-                         Cpu0MCExpr::CEK_ABS_LO);
+    lowerLongBranchADDiu(MI, OutMI, Cpu0::ADDiu, Cpu0MCExpr::CEK_ABS_LO);
     return true;
   }
 }
@@ -299,4 +299,3 @@ void Cpu0MCInstLower::Lower(const MachineInstr *MI, MCInst &OutMI) const {
       OutMI.addOperand(MCOp);
   }
 }
-

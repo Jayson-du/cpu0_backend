@@ -27,7 +27,6 @@ public:
       : Cpu0DAGToDAGISel(TM, OL) {}
 
 private:
-
   bool runOnMachineFunction(MachineFunction &MF) override;
 
   bool trySelect(SDNode *Node) override;
@@ -36,7 +35,7 @@ private:
 
   // Insert instructions to initialize the global base register in the
   // first MBB of the function.
-//  void initGlobalBaseReg(MachineFunction &MF);
+  //  void initGlobalBaseReg(MachineFunction &MF);
 
   std::pair<SDNode *, SDNode *> selectMULT(SDNode *N, unsigned Opc,
                                            const SDLoc &DL, EVT Ty, bool HasLo,
@@ -49,7 +48,6 @@ private:
 FunctionPass *createCpu0SEISelDag(Cpu0TargetMachine &TM,
                                   CodeGenOpt::Level OptLevel);
 
-}
+} // namespace llvm
 
 #endif
-

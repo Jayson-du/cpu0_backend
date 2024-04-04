@@ -13,8 +13,8 @@
 
 #include "Cpu0Subtarget.h"
 
-#include "Cpu0MachineFunction.h"
 #include "Cpu0.h"
+#include "Cpu0MachineFunction.h"
 #include "Cpu0RegisterInfo.h"
 
 #include "Cpu0TargetMachine.h"
@@ -32,39 +32,38 @@ using namespace llvm;
 #define GET_SUBTARGETINFO_CTOR
 #include "./GenInc/Cpu0GenSubtargetInfo.inc"
 
-static cl::opt<bool> EnableOverflowOpt
-                ("cpu0-enable-overflow", cl::Hidden, cl::init(false),
-                 cl::desc("Use trigger overflow instructions add and sub \
+static cl::opt<bool>
+    EnableOverflowOpt("cpu0-enable-overflow", cl::Hidden, cl::init(false),
+                      cl::desc("Use trigger overflow instructions add and sub \
                  instead of non-overflow instructions addu and subu"));
 
-static cl::opt<bool> UseSmallSectionOpt
-                ("cpu0-use-small-section", cl::Hidden, cl::init(false),
-                 cl::desc("Use small section. Only work when -relocation-model="
-                 "static. pic always not use small section."));
+static cl::opt<bool> UseSmallSectionOpt(
+    "cpu0-use-small-section", cl::Hidden, cl::init(false),
+    cl::desc("Use small section. Only work when -relocation-model="
+             "static. pic always not use small section."));
 
-static cl::opt<bool> ReserveGPOpt
-                ("cpu0-reserve-gp", cl::Hidden, cl::init(false),
-                 cl::desc("Never allocate $gp to variable"));
+static cl::opt<bool> ReserveGPOpt("cpu0-reserve-gp", cl::Hidden,
+                                  cl::init(false),
+                                  cl::desc("Never allocate $gp to variable"));
 
-static cl::opt<bool> NoCploadOpt
-                ("cpu0-no-cpload", cl::Hidden, cl::init(false),
-                 cl::desc("No issue .cpload"));
+static cl::opt<bool> NoCploadOpt("cpu0-no-cpload", cl::Hidden, cl::init(false),
+                                 cl::desc("No issue .cpload"));
 
 bool Cpu0ReserveGP;
 bool Cpu0NoCpload;
 
 extern bool FixGlobalBaseReg;
 
-void Cpu0Subtarget::anchor() { }
+void Cpu0Subtarget::anchor() {}
 
 //@1 {
-Cpu0Subtarget::Cpu0Subtarget(const Triple &TT, StringRef CPU,
-                             StringRef FS, bool little,
-                             const Cpu0TargetMachine &_TM) :
-//@1 }
-  // Cpu0GenSubtargetInfo will display features by llc -march=cpu0 -mcpu=help
-  Cpu0GenSubtargetInfo(TT, CPU, /*TuneCPU*/ CPU, FS),
-  IsLittle(little), TM(_TM), TargetTriple(TT), TSInfo(),
+Cpu0Subtarget::Cpu0Subtarget(const Triple &TT, StringRef CPU, StringRef FS,
+                             bool little, const Cpu0TargetMachine &_TM)
+    : //@1 }
+      // Cpu0GenSubtargetInfo will display features by llc -march=cpu0
+      // -mcpu=help
+      Cpu0GenSubtargetInfo(TT, CPU, /*TuneCPU*/ CPU, FS), IsLittle(little),
+      TM(_TM), TargetTriple(TT), TSInfo(),
       InstrInfo(
           Cpu0InstrInfo::create(initializeSubtargetDependencies(CPU, FS, TM))),
       FrameLowering(Cpu0FrameLowering::create(*this)),
@@ -90,21 +89,19 @@ bool Cpu0Subtarget::isPositionIndependent() const {
 Cpu0Subtarget &
 Cpu0Subtarget::initializeSubtargetDependencies(StringRef CPU, StringRef FS,
                                                const TargetMachine &TM) {
-  if (TargetTriple.getArch() == Triple::cpu0 || TargetTriple.getArch() == Triple::cpu0el) {
+  if (TargetTriple.getArch() == Triple::cpu0 ||
+      TargetTriple.getArch() == Triple::cpu0el) {
     if (CPU.empty() || CPU == "generic") {
       CPU = "cpu032II";
-    }
-    else if (CPU == "help") {
+    } else if (CPU == "help") {
       CPU = "";
       return *this;
-    }
-    else if (CPU != "cpu032I" && CPU != "cpu032II") {
+    } else if (CPU != "cpu032I" && CPU != "cpu032II") {
       CPU = "cpu032II";
     }
-  }
-  else {
+  } else {
     errs() << "!!!Error, TargetTriple.getArch() = " << TargetTriple.getArch()
-           <<  "CPU = " << CPU << "\n";
+           << "CPU = " << CPU << "\n";
     exit(0);
   }
 
@@ -116,13 +113,12 @@ Cpu0Subtarget::initializeSubtargetDependencies(StringRef CPU, StringRef FS,
   if (isCpu032I()) {
     HasCmp = true;
     HasSlt = false;
-  }
-  else if (isCpu032II()) {
+  } else if (isCpu032II()) {
     HasCmp = false;
     HasSlt = true;
-  }
-  else {
-    errs() << "-mcpu must be empty(default:cpu032II), cpu032I or cpu032II" << "\n";
+  } else {
+    errs() << "-mcpu must be empty(default:cpu032II), cpu032I or cpu032II"
+           << "\n";
   }
 
   // Parse features string.
@@ -134,9 +130,8 @@ Cpu0Subtarget::initializeSubtargetDependencies(StringRef CPU, StringRef FS,
 }
 
 bool Cpu0Subtarget::abiUsesSoftFloat() const {
-//  return TM->Options.UseSoftFloat;
+  //  return TM->Options.UseSoftFloat;
   return true;
 }
 
 const Cpu0ABIInfo &Cpu0Subtarget::getABI() const { return TM.getABI(); }
-

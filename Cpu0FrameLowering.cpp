@@ -29,7 +29,7 @@
 
 using namespace llvm;
 
-//- emitPrologue() and emitEpilogue must exist for main(). 
+//- emitPrologue() and emitEpilogue must exist for main().
 
 //===----------------------------------------------------------------------===//
 //
@@ -96,14 +96,14 @@ bool Cpu0FrameLowering::hasFP(const MachineFunction &MF) const {
   const TargetRegisterInfo *TRI = STI.getRegisterInfo();
 
   return MF.getTarget().Options.DisableFramePointerElim(MF) ||
-      MFI.hasVarSizedObjects() || MFI.isFrameAddressTaken() ||
-      TRI->needsStackRealignment(MF);
+         MFI.hasVarSizedObjects() || MFI.isFrameAddressTaken() ||
+         TRI->needsStackRealignment(MF);
 }
 
 // Eliminate ADJCALLSTACKDOWN, ADJCALLSTACKUP pseudo instructions
-MachineBasicBlock::iterator Cpu0FrameLowering::
-eliminateCallFramePseudoInstr(MachineFunction &MF, MachineBasicBlock &MBB,
-                              MachineBasicBlock::iterator I) const {
+MachineBasicBlock::iterator Cpu0FrameLowering::eliminateCallFramePseudoInstr(
+    MachineFunction &MF, MachineBasicBlock &MBB,
+    MachineBasicBlock::iterator I) const {
   unsigned SP = Cpu0::SP;
 
   if (!hasReservedCallFrame(MF)) {
@@ -116,4 +116,3 @@ eliminateCallFramePseudoInstr(MachineFunction &MF, MachineBasicBlock &MBB,
 
   return MBB.erase(I);
 }
-

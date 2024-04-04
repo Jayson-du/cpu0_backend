@@ -12,17 +12,17 @@
 //===----------------------------------------------------------------------===//
 
 #include "Cpu0MCTargetDesc.h"
-#include "InstPrinter/Cpu0InstPrinter.h"
 #include "Cpu0MCAsmInfo.h"
 #include "Cpu0TargetStreamer.h"
-#include "llvm/MC/MachineLocation.h"
+#include "InstPrinter/Cpu0InstPrinter.h"
 #include "llvm/MC/MCELFStreamer.h"
-#include "llvm/MC/MCInstrAnalysis.h"
 #include "llvm/MC/MCInstPrinter.h"
+#include "llvm/MC/MCInstrAnalysis.h"
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCRegisterInfo.h"
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/MCSymbol.h"
+#include "llvm/MC/MachineLocation.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/FormattedStream.h"
@@ -48,8 +48,7 @@ static std::string selectCpu0ArchFeature(const Triple &TT, StringRef CPU) {
     if (TT.getArch() == Triple::cpu0 || TT.getArch() == Triple::cpu0el) {
       if (CPU.empty() || CPU == "cpu032II") {
         Cpu0ArchFeature = "+cpu032II";
-      }
-      else {
+      } else {
         if (CPU == "cpu032I") {
           Cpu0ArchFeature = "+cpu032I";
         }
@@ -74,7 +73,7 @@ static MCRegisterInfo *createCpu0MCRegisterInfo(const Triple &TT) {
 
 static MCSubtargetInfo *createCpu0MCSubtargetInfo(const Triple &TT,
                                                   StringRef CPU, StringRef FS) {
-  std::string ArchFS = selectCpu0ArchFeature(TT,CPU);
+  std::string ArchFS = selectCpu0ArchFeature(TT, CPU);
   if (!FS.empty()) {
     if (!ArchFS.empty())
       ArchFS = ArchFS + "," + FS.str();
@@ -82,7 +81,7 @@ static MCSubtargetInfo *createCpu0MCSubtargetInfo(const Triple &TT,
       ArchFS = FS.str();
   }
   return createCpu0MCSubtargetInfoImpl(TT, CPU, /*TuneCPU*/ CPU, ArchFS);
-// createCpu0MCSubtargetInfoImpl defined in Cpu0GenSubtargetInfo.inc
+  // createCpu0MCSubtargetInfoImpl defined in Cpu0GenSubtargetInfo.inc
 }
 
 static MCAsmInfo *createCpu0MCAsmInfo(const MCRegisterInfo &MRI,
@@ -111,7 +110,7 @@ class Cpu0MCInstrAnalysis : public MCInstrAnalysis {
 public:
   Cpu0MCInstrAnalysis(const MCInstrInfo *Info) : MCInstrAnalysis(Info) {}
 };
-}
+} // namespace
 
 static MCInstrAnalysis *createCpu0MCInstrAnalysis(const MCInstrInfo *Info) {
   return new Cpu0MCInstrAnalysis(Info);
@@ -123,7 +122,8 @@ static MCStreamer *createMCStreamer(const Triple &TT, MCContext &Context,
                                     std::unique_ptr<MCCodeEmitter> &&Emitter,
                                     bool RelaxAll) {
   return createELFStreamer(Context, std::move(MAB), std::move(OW),
-                           std::move(Emitter), RelaxAll);;
+                           std::move(Emitter), RelaxAll);
+  ;
 }
 
 static MCTargetStreamer *createCpu0AsmTargetStreamer(MCStreamer &S,
@@ -145,7 +145,7 @@ extern "C" void LLVMInitializeCpu0TargetMC() {
     // Register the MC register info.
     TargetRegistry::RegisterMCRegInfo(*T, createCpu0MCRegisterInfo);
 
-     // Register the elf streamer.
+    // Register the elf streamer.
     TargetRegistry::RegisterELFStreamer(*T, createMCStreamer);
 
     // Register the asm target streamer.
@@ -155,13 +155,11 @@ extern "C" void LLVMInitializeCpu0TargetMC() {
     TargetRegistry::RegisterMCAsmBackend(*T, createCpu0AsmBackend);
 
     // Register the MC subtarget info.
-    TargetRegistry::RegisterMCSubtargetInfo(*T,
-	                                        createCpu0MCSubtargetInfo);
+    TargetRegistry::RegisterMCSubtargetInfo(*T, createCpu0MCSubtargetInfo);
     // Register the MC instruction analyzer.
     TargetRegistry::RegisterMCInstrAnalysis(*T, createCpu0MCInstrAnalysis);
     // Register the MCInstPrinter.
-    TargetRegistry::RegisterMCInstPrinter(*T,
-	                                      createCpu0MCInstPrinter);
+    TargetRegistry::RegisterMCInstPrinter(*T, createCpu0MCInstPrinter);
   }
 
   // Register the MC Code Emitter
@@ -169,7 +167,5 @@ extern "C" void LLVMInitializeCpu0TargetMC() {
                                         createCpu0MCCodeEmitterEB);
   TargetRegistry::RegisterMCCodeEmitter(TheCpu0elTarget,
                                         createCpu0MCCodeEmitterEL);
-
 }
 //@2 }
-

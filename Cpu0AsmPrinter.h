@@ -16,8 +16,8 @@
 
 #include "Cpu0Config.h"
 
-#include "Cpu0MachineFunction.h"
 #include "Cpu0MCInstLower.h"
+#include "Cpu0MachineFunction.h"
 #include "Cpu0Subtarget.h"
 #include "Cpu0TargetMachine.h"
 #include "llvm/CodeGen/AsmPrinter.h"
@@ -42,8 +42,7 @@ private:
                                    const MachineInstr *MI);
 
 #ifdef ENABLE_GPRESTORE
-  void emitPseudoCPRestore(MCStreamer &OutStreamer,
-                           const MachineInstr *MI);
+  void emitPseudoCPRestore(MCStreamer &OutStreamer, const MachineInstr *MI);
 #endif
 
   // lowerOperand - Convert a MachineOperand into the equivalent MCOperand.
@@ -52,25 +51,21 @@ private:
   bool isLongBranchPseudo(int Opcode) const;
 
 public:
-
   const Cpu0Subtarget *Subtarget;
   const Cpu0FunctionInfo *Cpu0FI;
   Cpu0MCInstLower MCInstLowering;
 
   explicit Cpu0AsmPrinter(TargetMachine &TM,
                           std::unique_ptr<MCStreamer> Streamer)
-    : AsmPrinter(TM, std::move(Streamer)), 
-      MCInstLowering(*this) {
+      : AsmPrinter(TM, std::move(Streamer)), MCInstLowering(*this) {
     Subtarget = static_cast<Cpu0TargetMachine &>(TM).getSubtargetImpl();
   }
 
-  StringRef getPassName() const override {
-    return "Cpu0 Assembly Printer";
-  }
+  StringRef getPassName() const override { return "Cpu0 Assembly Printer"; }
 
   virtual bool runOnMachineFunction(MachineFunction &MF) override;
 
-//- emitInstruction() must exists or will have run time error.
+  //- emitInstruction() must exists or will have run time error.
   void emitInstruction(const MachineInstr *MI) override;
   void printSavedRegsBitmask(raw_ostream &O);
   void printHex32(unsigned int Value, raw_ostream &O);
@@ -87,7 +82,6 @@ public:
   void emitStartOfAsmFile(Module &M) override;
   void PrintDebugValueComment(const MachineInstr *MI, raw_ostream &OS);
 };
-}
+} // namespace llvm
 
 #endif
-

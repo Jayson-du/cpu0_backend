@@ -6,7 +6,6 @@
 |*                                                                            *|
 \*===----------------------------------------------------------------------===*/
 
-
 #ifdef GET_REGINFO_ENUM
 #undef GET_REGINFO_ENUM
 
@@ -20,9 +19,10 @@ class MCRegisterClass;
 extern const MCRegisterClass Cpu0MCRegisterClasses[];
 
 namespace Cpu0 {
-// 这里 "1 ~ 20" 是根据插入到CodeGenRegister先后顺序产生的(函数位置: CodeGenRegBank::getReg)
+// 这里 "1 ~ 20" 是根据插入到CodeGenRegister先后顺序产生的(函数位置:
+// CodeGenRegBank::getReg)
 enum {
-  NoRegister,   // 这个是TableGen自己产生的
+  NoRegister, // 这个是TableGen自己产生的
   AT = 1,
   EPC = 2,
   FP = 3,
@@ -49,7 +49,8 @@ enum {
 
 // Register classes
 // 定义通过TableGen文件(Cpu0RegisterInfo.td: 130 ~ 150)定义寄存器分类情况,
-// 其中"CPU0Regs", "GPRout", "C0", "SR"是通过TableGen文件定义的, "RegClassID"是TableGen补充的
+// 其中"CPU0Regs", "GPRout", "C0", "SR"是通过TableGen文件定义的,
+// "RegClassID"是TableGen补充的
 namespace Cpu0 {
 enum {
   CPURegsRegClassID = 0,
@@ -83,57 +84,59 @@ enum RegisterPressureSets {
 |*                                                                            *|
 \*===----------------------------------------------------------------------===*/
 
-
 #ifdef GET_REGINFO_MC_DESC
 #undef GET_REGINFO_MC_DESC
 
 namespace llvm {
 
 extern const MCPhysReg Cpu0RegDiffLists[] = {
-  /* 0 */ 65535, 0,
+    /* 0 */ 65535,
+    0,
 };
 
 extern const LaneBitmask Cpu0LaneMaskLists[] = {
-  /* 0 */ LaneBitmask(0x0000000000000000), LaneBitmask::getAll(),
+    /* 0 */ LaneBitmask(0x0000000000000000),
+    LaneBitmask::getAll(),
 };
 
 extern const uint16_t Cpu0SubRegIdxLists[] = {
-  /* 0 */ 0,
+    /* 0 */ 0,
 };
 
 // 65535是TableGen自己生成的与td文件无关
 extern const MCRegisterInfo::SubRegCoveredBits Cpu0SubRegIdxRanges[] = {
-  { 65535, 65535 },
+    {65535, 65535},
 };
 
-/// 前面的注释/* 0 */, /* 3 */, /* 6 */, 是这样计算的, 起始位置为0, pre_location = 0, 计算第二个位置
-/// pre_location + sizeof("A0") + 1 => 2 + 1 => 3
+/// 前面的注释/* 0 */, /* 3 */, /* 6 */, 是这样计算的, 起始位置为0, pre_location
+/// = 0, 计算第二个位置 pre_location + sizeof("A0") + 1 => 2 + 1 => 3
 /// pre_location + sizeof("S0") + 1 => 3 + 2 + 1 = 6
 /// 其他位置依次类推, 后面的0是TableGen自己加的
 /// "A0", "S0", "EPC"是"Cpu0RegisterInfo.td"文件定义的寄存器名称
-/// 这里只有"A0", "S0", "T0", "V0", "A1", "S1", "T1", "V1", "T9", "EPC", "HI", "LO", "ZERO"
+/// 这里只有"A0", "S0", "T0", "V0", "A1", "S1", "T1", "V1", "T9", "EPC", "HI",
+/// "LO", "ZERO"
 ///        "FP", "GP", "SP", "LR", "AT", "SW", 这19中寄存器,
 /// 由于寄存器"PC"的名字是寄存器"EPC"的子串, 所以这里没有计算"PC"的 *
 extern const char Cpu0RegStrings[] = {
-  /* 0 */ 'A', '0', 0,
-  /* 3 */ 'S', '0', 0,
-  /* 6 */ 'T', '0', 0,
-  /* 9 */ 'V', '0', 0,
-  /* 12 */ 'A', '1', 0,
-  /* 15 */ 'S', '1', 0,
-  /* 18 */ 'T', '1', 0,
-  /* 21 */ 'V', '1', 0,
-  /* 24 */ 'T', '9', 0,
-  /* 27 */ 'E', 'P', 'C', 0,
-  /* 31 */ 'H', 'I', 0,
-  /* 34 */ 'L', 'O', 0,
-  /* 37 */ 'Z', 'E', 'R', 'O', 0,
-  /* 42 */ 'F', 'P', 0,
-  /* 45 */ 'G', 'P', 0,
-  /* 48 */ 'S', 'P', 0,
-  /* 51 */ 'L', 'R', 0,
-  /* 54 */ 'A', 'T', 0,
-  /* 57 */ 'S', 'W', 0,
+    /* 0 */ 'A',  '0', 0,
+    /* 3 */ 'S',  '0', 0,
+    /* 6 */ 'T',  '0', 0,
+    /* 9 */ 'V',  '0', 0,
+    /* 12 */ 'A', '1', 0,
+    /* 15 */ 'S', '1', 0,
+    /* 18 */ 'T', '1', 0,
+    /* 21 */ 'V', '1', 0,
+    /* 24 */ 'T', '9', 0,
+    /* 27 */ 'E', 'P', 'C', 0,
+    /* 31 */ 'H', 'I', 0,
+    /* 34 */ 'L', 'O', 0,
+    /* 37 */ 'Z', 'E', 'R', 'O', 0,
+    /* 42 */ 'F', 'P', 0,
+    /* 45 */ 'G', 'P', 0,
+    /* 48 */ 'S', 'P', 0,
+    /* 51 */ 'L', 'R', 0,
+    /* 54 */ 'A', 'T', 0,
+    /* 57 */ 'S', 'W', 0,
 
 };
 
@@ -147,128 +150,116 @@ extern const char Cpu0RegStrings[] = {
 ///   uint32_t  Name;             printable name for the reg (for debugging)
 ///   uint32_t  SubRegs;          Sub-register set, described above
 ///   uint32_t  SuperRegs;        Super-register set, described above
-///   uint32_t  SubRegIndices;    Offset into MCRI::SubRegIndices of a list of sub-register
+///   uint32_t  SubRegIndices;    Offset into MCRI::SubRegIndices of a list of
+///   sub-register
 ///                               indices for each sub-register in SubRegs
-///   uint32_t  RegUnits;         Point to the list of register units. The low 4 bits holds
-///                               the Scale, the high bits hold an offset into DiffLists.
-///                               See MCRegUnitIterator.
-///   uint32_t  RegUnitLaneMasks; Index into list with lane mask sequences. The sequence
+///   uint32_t  RegUnits;         Point to the list of register units. The low 4
+///   bits holds
+///                               the Scale, the high bits hold an offset into
+///                               DiffLists. See MCRegUnitIterator.
+///   uint32_t  RegUnitLaneMasks; Index into list with lane mask sequences. The
+///   sequence
 ///                               contains a lanemask for every register unit.
 /// }
 /// Cpu0RegisterInfo.td文件没有定义子寄存器信息或者超父寄存器信息, 所以
 /// 第一个字段填写的都是寄存器名称, 在"Cpu0RegStrings"中定义
 /// 第二个字段填写的是寄存器是否有子寄存器, 没有就是1
 /// 第三个字段填写的是寄存器是否有父寄存器, 没有就是1
-/// 第四~第六个字段, 暂时不确定用处 (在"RegisterInfoEmitter.cpp"的RegisterInfoEmitter::runMCDesc
+/// 第四~第六个字段, 暂时不确定用处
+/// (在"RegisterInfoEmitter.cpp"的RegisterInfoEmitter::runMCDesc
 ///                             计算)
-extern const MCRegisterDesc Cpu0RegDesc[] = { // Descriptors
-  { 2,  0, 0, 0, 0, 0 },           /// TableGen初始化生成的
-  { 54, 1, 1, 0, 1, 0 },
-  { 27, 1, 1, 0, 1, 0 },
-  { 42, 1, 1, 0, 1, 0 },
-  { 45, 1, 1, 0, 1, 0 },
-  { 31, 1, 1, 0, 1, 0 },
-  { 34, 1, 1, 0, 1, 0 },
-  { 51, 1, 1, 0, 1, 0 },
-  { 28, 1, 1, 0, 1, 0 },
-  { 48, 1, 1, 0, 1, 0 },
-  { 57, 1, 1, 0, 1, 0 },
-  { 37, 1, 1, 0, 1, 0 },
-  { 0,  1, 1, 0, 1, 0 },
-  { 12, 1, 1, 0, 1, 0 },
-  { 3,  1, 1, 0, 1, 0 },
-  { 15, 1, 1, 0, 1, 0 },
-  { 6,  1, 1, 0, 1, 0 },
-  { 18, 1, 1, 0, 1, 0 },
-  { 24, 1, 1, 0, 1, 0 },
-  { 9,  1, 1, 0, 1, 0 },
-  { 21, 1, 1, 0, 1, 0 },
+extern const MCRegisterDesc Cpu0RegDesc[] = {
+    // Descriptors
+    {2, 0, 0, 0, 0, 0}, /// TableGen初始化生成的
+    {54, 1, 1, 0, 1, 0}, {27, 1, 1, 0, 1, 0}, {42, 1, 1, 0, 1, 0},
+    {45, 1, 1, 0, 1, 0}, {31, 1, 1, 0, 1, 0}, {34, 1, 1, 0, 1, 0},
+    {51, 1, 1, 0, 1, 0}, {28, 1, 1, 0, 1, 0}, {48, 1, 1, 0, 1, 0},
+    {57, 1, 1, 0, 1, 0}, {37, 1, 1, 0, 1, 0}, {0, 1, 1, 0, 1, 0},
+    {12, 1, 1, 0, 1, 0}, {3, 1, 1, 0, 1, 0},  {15, 1, 1, 0, 1, 0},
+    {6, 1, 1, 0, 1, 0},  {18, 1, 1, 0, 1, 0}, {24, 1, 1, 0, 1, 0},
+    {9, 1, 1, 0, 1, 0},  {21, 1, 1, 0, 1, 0},
 };
 
 extern const MCPhysReg Cpu0RegUnitRoots[][2] = {
-  { Cpu0::AT },
-  { Cpu0::EPC },
-  { Cpu0::FP },
-  { Cpu0::GP },
-  { Cpu0::HI },
-  { Cpu0::LO },
-  { Cpu0::LR },
-  { Cpu0::PC },
-  { Cpu0::SP },
-  { Cpu0::SW },
-  { Cpu0::ZERO },
-  { Cpu0::A0 },
-  { Cpu0::A1 },
-  { Cpu0::S0 },
-  { Cpu0::S1 },
-  { Cpu0::T0 },
-  { Cpu0::T1 },
-  { Cpu0::T9 },
-  { Cpu0::V0 },
-  { Cpu0::V1 },
+    {Cpu0::AT},   {Cpu0::EPC}, {Cpu0::FP}, {Cpu0::GP}, {Cpu0::HI},
+    {Cpu0::LO},   {Cpu0::LR},  {Cpu0::PC}, {Cpu0::SP}, {Cpu0::SW},
+    {Cpu0::ZERO}, {Cpu0::A0},  {Cpu0::A1}, {Cpu0::S0}, {Cpu0::S1},
+    {Cpu0::T0},   {Cpu0::T1},  {Cpu0::T9}, {Cpu0::V0}, {Cpu0::V1},
 };
 
 /// using MCPhyReg = uint16_T
-namespace {     // Register classes...
-  // CPURegs Register Class...
-  /// "CPURegs" 比 "GPROut" 多了一个 "SW" 寄存器
-  const MCPhysReg CPURegs[] = {
-    Cpu0::ZERO, Cpu0::AT, Cpu0::V0, Cpu0::V1, Cpu0::A0, Cpu0::A1, Cpu0::T9, Cpu0::T0, Cpu0::T1, Cpu0::S0, Cpu0::S1, Cpu0::GP, Cpu0::FP, Cpu0::SP, Cpu0::LR, Cpu0::SW,
-  };
+namespace { // Register classes...
+// CPURegs Register Class...
+/// "CPURegs" 比 "GPROut" 多了一个 "SW" 寄存器
+const MCPhysReg CPURegs[] = {
+    Cpu0::ZERO, Cpu0::AT, Cpu0::V0, Cpu0::V1, Cpu0::A0, Cpu0::A1,
+    Cpu0::T9,   Cpu0::T0, Cpu0::T1, Cpu0::S0, Cpu0::S1, Cpu0::GP,
+    Cpu0::FP,   Cpu0::SP, Cpu0::LR, Cpu0::SW,
+};
 
-  // CPURegs Bit set.
-  const uint8_t CPURegsBits[] = {
-    0x9a, 0xfe, 0x1f,
-  };
+// CPURegs Bit set.
+const uint8_t CPURegsBits[] = {
+    0x9a,
+    0xfe,
+    0x1f,
+};
 
-  // GPROut Register Class...
-  const MCPhysReg GPROut[] = {
-    Cpu0::ZERO, Cpu0::AT, Cpu0::V0, Cpu0::V1, Cpu0::A0, Cpu0::A1, Cpu0::T9, Cpu0::T0, Cpu0::T1, Cpu0::S0, Cpu0::S1, Cpu0::GP, Cpu0::FP, Cpu0::SP, Cpu0::LR,
-  };
+// GPROut Register Class...
+const MCPhysReg GPROut[] = {
+    Cpu0::ZERO, Cpu0::AT, Cpu0::V0, Cpu0::V1, Cpu0::A0,
+    Cpu0::A1,   Cpu0::T9, Cpu0::T0, Cpu0::T1, Cpu0::S0,
+    Cpu0::S1,   Cpu0::GP, Cpu0::FP, Cpu0::SP, Cpu0::LR,
+};
 
-  // GPROut Bit set.
-  const uint8_t GPROutBits[] = {
-    0x9a, 0xfa, 0x1f,
-  };
+// GPROut Bit set.
+const uint8_t GPROutBits[] = {
+    0x9a,
+    0xfa,
+    0x1f,
+};
 
-  // C0Regs Register Class...
-  const MCPhysReg C0Regs[] = {
-    Cpu0::PC, Cpu0::EPC,
-  };
+// C0Regs Register Class...
+const MCPhysReg C0Regs[] = {
+    Cpu0::PC,
+    Cpu0::EPC,
+};
 
-  // C0Regs Bit set.
-  const uint8_t C0RegsBits[] = {
-    0x04, 0x01,
-  };
+// C0Regs Bit set.
+const uint8_t C0RegsBits[] = {
+    0x04,
+    0x01,
+};
 
-  // HILO Register Class...
-  const MCPhysReg HILO[] = {
-    Cpu0::HI, Cpu0::LO,
-  };
+// HILO Register Class...
+const MCPhysReg HILO[] = {
+    Cpu0::HI,
+    Cpu0::LO,
+};
 
-  // HILO Bit set.
-  const uint8_t HILOBits[] = {
+// HILO Bit set.
+const uint8_t HILOBits[] = {
     0x60,
-  };
+};
 
-  // SR Register Class...
-  const MCPhysReg SR[] = {
+// SR Register Class...
+const MCPhysReg SR[] = {
     Cpu0::SW,
-  };
+};
 
-  // SR Bit set.
-  const uint8_t SRBits[] = {
-    0x00, 0x04,
-  };
+// SR Bit set.
+const uint8_t SRBits[] = {
+    0x00,
+    0x04,
+};
 
 } // end anonymous namespace
 
 extern const char Cpu0RegClassStrings[] = {
-  /* 0 */ 'H', 'I', 'L', 'O', 0,
-  /* 5 */ 'S', 'R', 0,
-  /* 8 */ 'C', '0', 'R', 'e', 'g', 's', 0,
-  /* 15 */ 'C', 'P', 'U', 'R', 'e', 'g', 's', 0,
-  /* 23 */ 'G', 'P', 'R', 'O', 'u', 't', 0,
+    /* 0 */ 'H',  'I', 'L', 'O', 0,
+    /* 5 */ 'S',  'R', 0,
+    /* 8 */ 'C',  '0', 'R', 'e', 'g', 's', 0,
+    /* 15 */ 'C', 'P', 'U', 'R', 'e', 'g', 's', 0,
+    /* 23 */ 'G', 'P', 'R', 'O', 'u', 't', 0,
 
 };
 
@@ -318,19 +309,25 @@ extern const char Cpu0RegClassStrings[] = {
 ///     return contains(Reg1) && contains(Reg2);
 ///   }
 ///
-///   /// getCopyCost - Return the cost of copying a value between two registers in
-///   /// this class. A negative number means the register class is very expensive
+///   /// getCopyCost - Return the cost of copying a value between two registers
+///   in
+///   /// this class. A negative number means the register class is very
+///   expensive
 ///   /// to copy e.g. status flag register classes.
 ///   int getCopyCost() const { return CopyCost; }
 ///
-///   /// isAllocatable - Return true if this register class may be used to create
+///   /// isAllocatable - Return true if this register class may be used to
+///   create
 ///   /// virtual registers.
 ///   bool isAllocatable() const { return Allocatable; }
 /// };
 extern const MCRegisterClass Cpu0MCRegisterClasses[] = {
-    {CPURegs, CPURegsBits, 15, 16, sizeof(CPURegsBits), Cpu0::CPURegsRegClassID, 1, true},
-    {GPROut, GPROutBits, 23, 15, sizeof(GPROutBits), Cpu0::GPROutRegClassID, 1, true},
-    {C0Regs, C0RegsBits, 8, 2, sizeof(C0RegsBits), Cpu0::C0RegsRegClassID, 1, true},
+    {CPURegs, CPURegsBits, 15, 16, sizeof(CPURegsBits), Cpu0::CPURegsRegClassID,
+     1, true},
+    {GPROut, GPROutBits, 23, 15, sizeof(GPROutBits), Cpu0::GPROutRegClassID, 1,
+     true},
+    {C0Regs, C0RegsBits, 8, 2, sizeof(C0RegsBits), Cpu0::C0RegsRegClassID, 1,
+     true},
     {HILO, HILOBits, 0, 2, sizeof(HILOBits), Cpu0::HILORegClassID, 1, true},
     {SR, SRBits, 5, 1, sizeof(SRBits), Cpu0::SRRegClassID, 1, true},
 };
@@ -344,156 +341,89 @@ extern const MCRegisterClass Cpu0MCRegisterClasses[] = {
 ///   unsigned ToReg;
 /// };
 extern const MCRegisterInfo::DwarfLLVMRegPair Cpu0DwarfFlavour0Dwarf2L[] = {
-    {0U, Cpu0::ZERO},
-    {1U, Cpu0::AT},
-    {2U, Cpu0::V0},
-    {3U, Cpu0::V1},
-    {4U, Cpu0::A0},
-    {5U, Cpu0::A1},
-    {6U, Cpu0::T9},
-    {7U, Cpu0::T0},
-    {8U, Cpu0::T1},
-    {9U, Cpu0::S0},
-    {10U, Cpu0::S1},
-    {11U, Cpu0::GP},
-    {12U, Cpu0::FP},
-    {13U, Cpu0::SP},
-    {14U, Cpu0::LR},
-    {15U, Cpu0::SW},
-    {18U, Cpu0::HI},
-    {19U, Cpu0::LO},
-    {20U, Cpu0::PC},
-    {21U, Cpu0::EPC},
+    {0U, Cpu0::ZERO}, {1U, Cpu0::AT},  {2U, Cpu0::V0},  {3U, Cpu0::V1},
+    {4U, Cpu0::A0},   {5U, Cpu0::A1},  {6U, Cpu0::T9},  {7U, Cpu0::T0},
+    {8U, Cpu0::T1},   {9U, Cpu0::S0},  {10U, Cpu0::S1}, {11U, Cpu0::GP},
+    {12U, Cpu0::FP},  {13U, Cpu0::SP}, {14U, Cpu0::LR}, {15U, Cpu0::SW},
+    {18U, Cpu0::HI},  {19U, Cpu0::LO}, {20U, Cpu0::PC}, {21U, Cpu0::EPC},
 };
-extern const unsigned Cpu0DwarfFlavour0Dwarf2LSize = array_lengthof(Cpu0DwarfFlavour0Dwarf2L);
+extern const unsigned Cpu0DwarfFlavour0Dwarf2LSize =
+    array_lengthof(Cpu0DwarfFlavour0Dwarf2L);
 
 extern const MCRegisterInfo::DwarfLLVMRegPair Cpu0EHFlavour0Dwarf2L[] = {
-  { 0U, Cpu0::ZERO },
-  { 1U, Cpu0::AT },
-  { 2U, Cpu0::V0 },
-  { 3U, Cpu0::V1 },
-  { 4U, Cpu0::A0 },
-  { 5U, Cpu0::A1 },
-  { 6U, Cpu0::T9 },
-  { 7U, Cpu0::T0 },
-  { 8U, Cpu0::T1 },
-  { 9U, Cpu0::S0 },
-  { 10U, Cpu0::S1 },
-  { 11U, Cpu0::GP },
-  { 12U, Cpu0::FP },
-  { 13U, Cpu0::SP },
-  { 14U, Cpu0::LR },
-  { 15U, Cpu0::SW },
-  { 18U, Cpu0::HI },
-  { 19U, Cpu0::LO },
-  { 20U, Cpu0::PC },
-  { 21U, Cpu0::EPC },
+    {0U, Cpu0::ZERO}, {1U, Cpu0::AT},  {2U, Cpu0::V0},  {3U, Cpu0::V1},
+    {4U, Cpu0::A0},   {5U, Cpu0::A1},  {6U, Cpu0::T9},  {7U, Cpu0::T0},
+    {8U, Cpu0::T1},   {9U, Cpu0::S0},  {10U, Cpu0::S1}, {11U, Cpu0::GP},
+    {12U, Cpu0::FP},  {13U, Cpu0::SP}, {14U, Cpu0::LR}, {15U, Cpu0::SW},
+    {18U, Cpu0::HI},  {19U, Cpu0::LO}, {20U, Cpu0::PC}, {21U, Cpu0::EPC},
 };
-extern const unsigned Cpu0EHFlavour0Dwarf2LSize = array_lengthof(Cpu0EHFlavour0Dwarf2L);
+extern const unsigned Cpu0EHFlavour0Dwarf2LSize =
+    array_lengthof(Cpu0EHFlavour0Dwarf2L);
 
 extern const MCRegisterInfo::DwarfLLVMRegPair Cpu0DwarfFlavour0L2Dwarf[] = {
-  { Cpu0::AT, 1U },
-  { Cpu0::EPC, 21U },
-  { Cpu0::FP, 12U },
-  { Cpu0::GP, 11U },
-  { Cpu0::HI, 18U },
-  { Cpu0::LO, 19U },
-  { Cpu0::LR, 14U },
-  { Cpu0::PC, 20U },
-  { Cpu0::SP, 13U },
-  { Cpu0::SW, 15U },
-  { Cpu0::ZERO, 0U },
-  { Cpu0::A0, 4U },
-  { Cpu0::A1, 5U },
-  { Cpu0::S0, 9U },
-  { Cpu0::S1, 10U },
-  { Cpu0::T0, 7U },
-  { Cpu0::T1, 8U },
-  { Cpu0::T9, 6U },
-  { Cpu0::V0, 2U },
-  { Cpu0::V1, 3U },
+    {Cpu0::AT, 1U},  {Cpu0::EPC, 21U}, {Cpu0::FP, 12U},  {Cpu0::GP, 11U},
+    {Cpu0::HI, 18U}, {Cpu0::LO, 19U},  {Cpu0::LR, 14U},  {Cpu0::PC, 20U},
+    {Cpu0::SP, 13U}, {Cpu0::SW, 15U},  {Cpu0::ZERO, 0U}, {Cpu0::A0, 4U},
+    {Cpu0::A1, 5U},  {Cpu0::S0, 9U},   {Cpu0::S1, 10U},  {Cpu0::T0, 7U},
+    {Cpu0::T1, 8U},  {Cpu0::T9, 6U},   {Cpu0::V0, 2U},   {Cpu0::V1, 3U},
 };
-extern const unsigned Cpu0DwarfFlavour0L2DwarfSize = array_lengthof(Cpu0DwarfFlavour0L2Dwarf);
+extern const unsigned Cpu0DwarfFlavour0L2DwarfSize =
+    array_lengthof(Cpu0DwarfFlavour0L2Dwarf);
 
 extern const MCRegisterInfo::DwarfLLVMRegPair Cpu0EHFlavour0L2Dwarf[] = {
-  { Cpu0::AT, 1U },
-  { Cpu0::EPC, 21U },
-  { Cpu0::FP, 12U },
-  { Cpu0::GP, 11U },
-  { Cpu0::HI, 18U },
-  { Cpu0::LO, 19U },
-  { Cpu0::LR, 14U },
-  { Cpu0::PC, 20U },
-  { Cpu0::SP, 13U },
-  { Cpu0::SW, 15U },
-  { Cpu0::ZERO, 0U },
-  { Cpu0::A0, 4U },
-  { Cpu0::A1, 5U },
-  { Cpu0::S0, 9U },
-  { Cpu0::S1, 10U },
-  { Cpu0::T0, 7U },
-  { Cpu0::T1, 8U },
-  { Cpu0::T9, 6U },
-  { Cpu0::V0, 2U },
-  { Cpu0::V1, 3U },
+    {Cpu0::AT, 1U},  {Cpu0::EPC, 21U}, {Cpu0::FP, 12U},  {Cpu0::GP, 11U},
+    {Cpu0::HI, 18U}, {Cpu0::LO, 19U},  {Cpu0::LR, 14U},  {Cpu0::PC, 20U},
+    {Cpu0::SP, 13U}, {Cpu0::SW, 15U},  {Cpu0::ZERO, 0U}, {Cpu0::A0, 4U},
+    {Cpu0::A1, 5U},  {Cpu0::S0, 9U},   {Cpu0::S1, 10U},  {Cpu0::T0, 7U},
+    {Cpu0::T1, 8U},  {Cpu0::T9, 6U},   {Cpu0::V0, 2U},   {Cpu0::V1, 3U},
 };
-extern const unsigned Cpu0EHFlavour0L2DwarfSize = array_lengthof(Cpu0EHFlavour0L2Dwarf);
+extern const unsigned Cpu0EHFlavour0L2DwarfSize =
+    array_lengthof(Cpu0EHFlavour0L2Dwarf);
 
 extern const uint16_t Cpu0RegEncodingTable[] = {
-  0,
-  1,
-  1,
-  12,
-  11,
-  0,
-  0,
-  14,
-  0,
-  13,
-  15,
-  0,
-  4,
-  5,
-  9,
-  10,
-  7,
-  8,
-  6,
-  2,
-  3,
+    0, 1, 1, 12, 11, 0, 0, 14, 0, 13, 15, 0, 4, 5, 9, 10, 7, 8, 6, 2, 3,
 };
-static inline void InitCpu0MCRegisterInfo(MCRegisterInfo *RI, unsigned RA, unsigned DwarfFlavour = 0, unsigned EHFlavour = 0, unsigned PC = 0) {
+static inline void InitCpu0MCRegisterInfo(MCRegisterInfo *RI, unsigned RA,
+                                          unsigned DwarfFlavour = 0,
+                                          unsigned EHFlavour = 0,
+                                          unsigned PC = 0) {
   /// Initialize MCRegisterInfo, called by TableGen
   /// auto-generated routines,
-  RI->InitMCRegisterInfo(Cpu0RegDesc, 21, RA, PC, Cpu0MCRegisterClasses, 5, Cpu0RegUnitRoots, 20, Cpu0RegDiffLists, Cpu0LaneMaskLists, Cpu0RegStrings, Cpu0RegClassStrings, Cpu0SubRegIdxLists, 1,
-Cpu0SubRegIdxRanges, Cpu0RegEncodingTable);
+  RI->InitMCRegisterInfo(
+      Cpu0RegDesc, 21, RA, PC, Cpu0MCRegisterClasses, 5, Cpu0RegUnitRoots, 20,
+      Cpu0RegDiffLists, Cpu0LaneMaskLists, Cpu0RegStrings, Cpu0RegClassStrings,
+      Cpu0SubRegIdxLists, 1, Cpu0SubRegIdxRanges, Cpu0RegEncodingTable);
 
   switch (DwarfFlavour) {
   default:
     llvm_unreachable("Unknown DWARF flavour");
   case 0:
-    RI->mapDwarfRegsToLLVMRegs(Cpu0DwarfFlavour0Dwarf2L, Cpu0DwarfFlavour0Dwarf2LSize, false);
+    RI->mapDwarfRegsToLLVMRegs(Cpu0DwarfFlavour0Dwarf2L,
+                               Cpu0DwarfFlavour0Dwarf2LSize, false);
     break;
   }
   switch (EHFlavour) {
   default:
     llvm_unreachable("Unknown DWARF flavour");
   case 0:
-    RI->mapDwarfRegsToLLVMRegs(Cpu0EHFlavour0Dwarf2L, Cpu0EHFlavour0Dwarf2LSize, true);
+    RI->mapDwarfRegsToLLVMRegs(Cpu0EHFlavour0Dwarf2L, Cpu0EHFlavour0Dwarf2LSize,
+                               true);
     break;
   }
   switch (DwarfFlavour) {
   default:
     llvm_unreachable("Unknown DWARF flavour");
   case 0:
-    RI->mapLLVMRegsToDwarfRegs(Cpu0DwarfFlavour0L2Dwarf, Cpu0DwarfFlavour0L2DwarfSize, false);
+    RI->mapLLVMRegsToDwarfRegs(Cpu0DwarfFlavour0L2Dwarf,
+                               Cpu0DwarfFlavour0L2DwarfSize, false);
     break;
   }
   switch (EHFlavour) {
   default:
     llvm_unreachable("Unknown DWARF flavour");
   case 0:
-    RI->mapLLVMRegsToDwarfRegs(Cpu0EHFlavour0L2Dwarf, Cpu0EHFlavour0L2DwarfSize, true);
+    RI->mapLLVMRegsToDwarfRegs(Cpu0EHFlavour0L2Dwarf, Cpu0EHFlavour0L2DwarfSize,
+                               true);
     break;
   }
 }
@@ -510,7 +440,6 @@ Cpu0SubRegIdxRanges, Cpu0RegEncodingTable);
 |*                                                                            *|
 \*===----------------------------------------------------------------------===*/
 
-
 #ifdef GET_REGINFO_HEADER
 #undef GET_REGINFO_HEADER
 
@@ -520,26 +449,29 @@ namespace llvm {
 
 class Cpu0FrameLowering;
 
-struct Cpu0GenRegisterInfo : public TargetRegisterInfo
-{
+struct Cpu0GenRegisterInfo : public TargetRegisterInfo {
   explicit Cpu0GenRegisterInfo(unsigned RA, unsigned D = 0, unsigned E = 0,
                                unsigned PC = 0, unsigned HwMode = 0);
 
-  const RegClassWeight &getRegClassWeight(const TargetRegisterClass *RC) const override;
+  const RegClassWeight &
+  getRegClassWeight(const TargetRegisterClass *RC) const override;
 
   // 获取寄存器的权重
   unsigned getRegUnitWeight(unsigned RegUnit) const override;
 
-  // 在LLVM中， "register pressure"(寄存器压力)是指在编译器优化过程中, 由于寄存器数量有限,
-  // 需要将变量存储到寄存器中的需求超过了可用寄存器数量, 从而导致需要频繁地将变两冲寄存器中保存
-  // 到内存中或者从内存中加载到寄存器中; 这种频繁的数据传输会降低程序性能
+  // 在LLVM中， "register pressure"(寄存器压力)是指在编译器优化过程中,
+  // 由于寄存器数量有限, 需要将变量存储到寄存器中的需求超过了可用寄存器数量,
+  // 从而导致需要频繁地将变两冲寄存器中保存 到内存中或者从内存中加载到寄存器中;
+  // 这种频繁的数据传输会降低程序性能
   unsigned getNumRegPressureSets() const override;
 
   const char *getRegPressureSetName(unsigned Idx) const override;
 
-  unsigned getRegPressureSetLimit(const MachineFunction &MF, unsigned Idx) const override;
+  unsigned getRegPressureSetLimit(const MachineFunction &MF,
+                                  unsigned Idx) const override;
 
-  const int *getRegClassPressureSets(const TargetRegisterClass *RC) const override;
+  const int *
+  getRegClassPressureSets(const TargetRegisterClass *RC) const override;
 
   const int *getRegUnitPressureSets(unsigned RegUnit) const override;
 
@@ -552,11 +484,11 @@ struct Cpu0GenRegisterInfo : public TargetRegisterInfo
 };
 
 namespace Cpu0 { // Register classes
-  extern const TargetRegisterClass CPURegsRegClass;
-  extern const TargetRegisterClass GPROutRegClass;
-  extern const TargetRegisterClass C0RegsRegClass;
-  extern const TargetRegisterClass HILORegClass;
-  extern const TargetRegisterClass SRRegClass;
+extern const TargetRegisterClass CPURegsRegClass;
+extern const TargetRegisterClass GPROutRegClass;
+extern const TargetRegisterClass C0RegsRegClass;
+extern const TargetRegisterClass HILORegClass;
+extern const TargetRegisterClass SRRegClass;
 } // end namespace Cpu0
 
 } // end namespace llvm
@@ -571,7 +503,6 @@ namespace Cpu0 { // Register classes
 |*                                                                            *|
 \*===----------------------------------------------------------------------===*/
 
-
 #ifdef GET_REGINFO_TARGET_DESC
 #undef GET_REGINFO_TARGET_DESC
 
@@ -580,66 +511,59 @@ namespace llvm {
 extern const MCRegisterClass Cpu0MCRegisterClasses[];
 
 static const MVT::SimpleValueType VTLists[] = {
-  /* 0 */ MVT::i32, MVT::Other,
+    /* 0 */ MVT::i32,
+    MVT::Other,
 };
 
-static const char *const SubRegIndexNameTable[] = { "" };
-
+static const char *const SubRegIndexNameTable[] = {""};
 
 static const LaneBitmask SubRegIndexLaneMaskTable[] = {
-  LaneBitmask::getAll(),
- };
-
-
-
-static const TargetRegisterInfo::RegClassInfo RegClassInfos[] = {
-  // Mode = 0 (Default)
-  { 32, 32, 32, VTLists+0 },    // CPURegs
-  { 32, 32, 32, VTLists+0 },    // GPROut
-  { 32, 32, 32, VTLists+0 },    // C0Regs
-  { 32, 32, 32, VTLists+0 },    // HILO
-  { 32, 32, 32, VTLists+0 },    // SR
+    LaneBitmask::getAll(),
 };
 
-static const TargetRegisterClass *const NullRegClasses[] = { nullptr };
+static const TargetRegisterInfo::RegClassInfo RegClassInfos[] = {
+    // Mode = 0 (Default)
+    {32, 32, 32, VTLists + 0}, // CPURegs
+    {32, 32, 32, VTLists + 0}, // GPROut
+    {32, 32, 32, VTLists + 0}, // C0Regs
+    {32, 32, 32, VTLists + 0}, // HILO
+    {32, 32, 32, VTLists + 0}, // SR
+};
+
+static const TargetRegisterClass *const NullRegClasses[] = {nullptr};
 
 static const uint32_t CPURegsSubClassMask[] = {
-  0x00000013,
+    0x00000013,
 };
 
 static const uint32_t GPROutSubClassMask[] = {
-  0x00000002,
+    0x00000002,
 };
 
 static const uint32_t C0RegsSubClassMask[] = {
-  0x00000004,
+    0x00000004,
 };
 
 static const uint32_t HILOSubClassMask[] = {
-  0x00000008,
+    0x00000008,
 };
 
 static const uint32_t SRSubClassMask[] = {
-  0x00000010,
+    0x00000010,
 };
 
 static const uint16_t SuperRegIdxSeqs[] = {
-  /* 0 */ 0,
+    /* 0 */ 0,
 };
 
 static const TargetRegisterClass *const GPROutSuperclasses[] = {
-  &Cpu0::CPURegsRegClass,
-  nullptr
-};
+    &Cpu0::CPURegsRegClass, nullptr};
 
 static const TargetRegisterClass *const SRSuperclasses[] = {
-  &Cpu0::CPURegsRegClass,
-  nullptr
-};
+    &Cpu0::CPURegsRegClass, nullptr};
 
-
-namespace Cpu0 {   // Register class instances
-  extern const TargetRegisterClass CPURegsRegClass = {
+namespace Cpu0 { // Register class instances
+extern const TargetRegisterClass CPURegsRegClass = {
     &Cpu0MCRegisterClasses[CPURegsRegClassID],
     CPURegsSubClassMask,
     SuperRegIdxSeqs + 0,
@@ -648,10 +572,9 @@ namespace Cpu0 {   // Register class instances
     false, /* HasDisjunctSubRegs */
     false, /* CoveredBySubRegs */
     NullRegClasses,
-    nullptr
-  };
+    nullptr};
 
-  extern const TargetRegisterClass GPROutRegClass = {
+extern const TargetRegisterClass GPROutRegClass = {
     &Cpu0MCRegisterClasses[GPROutRegClassID],
     GPROutSubClassMask,
     SuperRegIdxSeqs + 0,
@@ -660,10 +583,9 @@ namespace Cpu0 {   // Register class instances
     false, /* HasDisjunctSubRegs */
     false, /* CoveredBySubRegs */
     GPROutSuperclasses,
-    nullptr
-  };
+    nullptr};
 
-  extern const TargetRegisterClass C0RegsRegClass = {
+extern const TargetRegisterClass C0RegsRegClass = {
     &Cpu0MCRegisterClasses[C0RegsRegClassID],
     C0RegsSubClassMask,
     SuperRegIdxSeqs + 0,
@@ -672,10 +594,9 @@ namespace Cpu0 {   // Register class instances
     false, /* HasDisjunctSubRegs */
     false, /* CoveredBySubRegs */
     NullRegClasses,
-    nullptr
-  };
+    nullptr};
 
-  extern const TargetRegisterClass HILORegClass = {
+extern const TargetRegisterClass HILORegClass = {
     &Cpu0MCRegisterClasses[HILORegClassID],
     HILOSubClassMask,
     SuperRegIdxSeqs + 0,
@@ -684,10 +605,9 @@ namespace Cpu0 {   // Register class instances
     false, /* HasDisjunctSubRegs */
     false, /* CoveredBySubRegs */
     NullRegClasses,
-    nullptr
-  };
+    nullptr};
 
-  extern const TargetRegisterClass SRRegClass = {
+extern const TargetRegisterClass SRRegClass = {
     &Cpu0MCRegisterClasses[SRRegClassID],
     SRSubClassMask,
     SuperRegIdxSeqs + 0,
@@ -696,119 +616,95 @@ namespace Cpu0 {   // Register class instances
     false, /* HasDisjunctSubRegs */
     false, /* CoveredBySubRegs */
     SRSuperclasses,
-    nullptr
-  };
+    nullptr};
 
 } // end namespace Cpu0
 
 namespace {
-  const TargetRegisterClass *const RegisterClasses[] = {
-    &Cpu0::CPURegsRegClass,
-    &Cpu0::GPROutRegClass,
-    &Cpu0::C0RegsRegClass,
-    &Cpu0::HILORegClass,
-    &Cpu0::SRRegClass,
-  };
+const TargetRegisterClass *const RegisterClasses[] = {
+    &Cpu0::CPURegsRegClass, &Cpu0::GPROutRegClass, &Cpu0::C0RegsRegClass,
+    &Cpu0::HILORegClass,    &Cpu0::SRRegClass,
+};
 } // end anonymous namespace
 
-static const TargetRegisterInfoDesc Cpu0RegInfoDesc[] = { // Extra Descriptors
-  { 0, false },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
-  { 0, true },
+static const TargetRegisterInfoDesc Cpu0RegInfoDesc[] = {
+    // Extra Descriptors
+    {0, false}, {0, true}, {0, true}, {0, true}, {0, true}, {0, true},
+    {0, true},  {0, true}, {0, true}, {0, true}, {0, true}, {0, true},
+    {0, true},  {0, true}, {0, true}, {0, true}, {0, true}, {0, true},
+    {0, true},  {0, true}, {0, true},
 };
 /// Get the weight in units of pressure for this register class.
-const RegClassWeight &Cpu0GenRegisterInfo::
-getRegClassWeight(const TargetRegisterClass *RC) const {
+const RegClassWeight &
+Cpu0GenRegisterInfo::getRegClassWeight(const TargetRegisterClass *RC) const {
   static const RegClassWeight RCWeightTable[] = {
-    {1, 16},  	// CPURegs
-    {1, 15},  	// GPROut
-    {1, 2},  	// C0Regs
-    {1, 2},  	// HILO
-    {1, 1},  	// SR
+      {1, 16}, // CPURegs
+      {1, 15}, // GPROut
+      {1, 2},  // C0Regs
+      {1, 2},  // HILO
+      {1, 1},  // SR
   };
   return RCWeightTable[RC->getID()];
 }
 
 /// Get the weight in units of pressure for this register unit.
-unsigned Cpu0GenRegisterInfo::
-getRegUnitWeight(unsigned RegUnit) const {
+unsigned Cpu0GenRegisterInfo::getRegUnitWeight(unsigned RegUnit) const {
   assert(RegUnit < 20 && "invalid register unit");
   // All register units have unit weight.
   return 1;
 }
 
-
 // Get the number of dimensions of register pressure.
-unsigned Cpu0GenRegisterInfo::getNumRegPressureSets() const {
-  return 4;
-}
+unsigned Cpu0GenRegisterInfo::getNumRegPressureSets() const { return 4; }
 
 // Get the name of this register unit pressure set.
-const char *Cpu0GenRegisterInfo::
-getRegPressureSetName(unsigned Idx) const {
+const char *Cpu0GenRegisterInfo::getRegPressureSetName(unsigned Idx) const {
   static const char *const PressureNameTable[] = {
-    "SR",
-    "C0Regs",
-    "HILO",
-    "GPROut",
+      "SR",
+      "C0Regs",
+      "HILO",
+      "GPROut",
   };
   return PressureNameTable[Idx];
 }
 
 // Get the register unit pressure limit for this dimension.
 // This limit must be adjusted dynamically for reserved registers.
-unsigned Cpu0GenRegisterInfo::
-getRegPressureSetLimit(const MachineFunction &MF, unsigned Idx) const {
+unsigned Cpu0GenRegisterInfo::getRegPressureSetLimit(const MachineFunction &MF,
+                                                     unsigned Idx) const {
   static const uint8_t PressureLimitTable[] = {
-    1,  	// 0: SR
-    2,  	// 1: C0Regs
-    2,  	// 2: HILO
-    16,  	// 3: GPROut
+      1,  // 0: SR
+      2,  // 1: C0Regs
+      2,  // 2: HILO
+      16, // 3: GPROut
   };
   return PressureLimitTable[Idx];
 }
 
 /// Table of pressure sets per register class or unit.
 static const int RCSetsTable[] = {
-  /* 0 */ 1, -1,
-  /* 2 */ 2, -1,
-  /* 4 */ 0, 3, -1,
+    /* 0 */ 1, -1,
+    /* 2 */ 2, -1,
+    /* 4 */ 0, 3,  -1,
 };
 
 /// Get the dimensions of register pressure impacted by this register class.
 /// Returns a -1 terminated array of pressure set IDs
-const int *Cpu0GenRegisterInfo::
-getRegClassPressureSets(const TargetRegisterClass *RC) const {
+const int *Cpu0GenRegisterInfo::getRegClassPressureSets(
+    const TargetRegisterClass *RC) const {
   static const uint8_t RCSetStartTable[] = {
-    5,5,0,2,4,};
+      5, 5, 0, 2, 4,
+  };
   return &RCSetsTable[RCSetStartTable[RC->getID()]];
 }
 
 /// Get the dimensions of register pressure impacted by this register unit.
 /// Returns a -1 terminated array of pressure set IDs
-const int *Cpu0GenRegisterInfo::
-getRegUnitPressureSets(unsigned RegUnit) const {
+const int *Cpu0GenRegisterInfo::getRegUnitPressureSets(unsigned RegUnit) const {
   assert(RegUnit < 20 && "invalid register unit");
   static const uint8_t RUSetStartTable[] = {
-    5,0,5,5,2,2,5,0,5,4,5,5,5,5,5,5,5,5,5,5,};
+      5, 0, 5, 5, 2, 2, 5, 0, 5, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+  };
   return &RCSetsTable[RUSetStartTable[RegUnit]];
 }
 
@@ -834,69 +730,68 @@ extern const unsigned Cpu0DwarfFlavour0L2DwarfSize;
 extern const MCRegisterInfo::DwarfLLVMRegPair Cpu0EHFlavour0L2Dwarf[];
 extern const unsigned Cpu0EHFlavour0L2DwarfSize;
 
-Cpu0GenRegisterInfo::
-Cpu0GenRegisterInfo(unsigned RA, unsigned DwarfFlavour, unsigned EHFlavour,
-      unsigned PC, unsigned HwMode)
-  : TargetRegisterInfo(Cpu0RegInfoDesc, RegisterClasses, RegisterClasses+5,
-             SubRegIndexNameTable, SubRegIndexLaneMaskTable,
-             LaneBitmask(0xFFFFFFFFFFFFFFFF), RegClassInfos, HwMode) {
-  InitMCRegisterInfo(Cpu0RegDesc, 21, RA, PC,
-                     Cpu0MCRegisterClasses, 5,
-                     Cpu0RegUnitRoots,
-                     20,
-                     Cpu0RegDiffLists,
-                     Cpu0LaneMaskLists,
-                     Cpu0RegStrings,
-                     Cpu0RegClassStrings,
-                     Cpu0SubRegIdxLists,
-                     1,
-                     Cpu0SubRegIdxRanges,
-                     Cpu0RegEncodingTable);
+Cpu0GenRegisterInfo::Cpu0GenRegisterInfo(unsigned RA, unsigned DwarfFlavour,
+                                         unsigned EHFlavour, unsigned PC,
+                                         unsigned HwMode)
+    : TargetRegisterInfo(Cpu0RegInfoDesc, RegisterClasses, RegisterClasses + 5,
+                         SubRegIndexNameTable, SubRegIndexLaneMaskTable,
+                         LaneBitmask(0xFFFFFFFFFFFFFFFF), RegClassInfos,
+                         HwMode) {
+  InitMCRegisterInfo(Cpu0RegDesc, 21, RA, PC, Cpu0MCRegisterClasses, 5,
+                     Cpu0RegUnitRoots, 20, Cpu0RegDiffLists, Cpu0LaneMaskLists,
+                     Cpu0RegStrings, Cpu0RegClassStrings, Cpu0SubRegIdxLists, 1,
+                     Cpu0SubRegIdxRanges, Cpu0RegEncodingTable);
 
   switch (DwarfFlavour) {
   default:
     llvm_unreachable("Unknown DWARF flavour");
   case 0:
-    mapDwarfRegsToLLVMRegs(Cpu0DwarfFlavour0Dwarf2L, Cpu0DwarfFlavour0Dwarf2LSize, false);
+    mapDwarfRegsToLLVMRegs(Cpu0DwarfFlavour0Dwarf2L,
+                           Cpu0DwarfFlavour0Dwarf2LSize, false);
     break;
   }
   switch (EHFlavour) {
   default:
     llvm_unreachable("Unknown DWARF flavour");
   case 0:
-    mapDwarfRegsToLLVMRegs(Cpu0EHFlavour0Dwarf2L, Cpu0EHFlavour0Dwarf2LSize, true);
+    mapDwarfRegsToLLVMRegs(Cpu0EHFlavour0Dwarf2L, Cpu0EHFlavour0Dwarf2LSize,
+                           true);
     break;
   }
   switch (DwarfFlavour) {
   default:
     llvm_unreachable("Unknown DWARF flavour");
   case 0:
-    mapLLVMRegsToDwarfRegs(Cpu0DwarfFlavour0L2Dwarf, Cpu0DwarfFlavour0L2DwarfSize, false);
+    mapLLVMRegsToDwarfRegs(Cpu0DwarfFlavour0L2Dwarf,
+                           Cpu0DwarfFlavour0L2DwarfSize, false);
     break;
   }
   switch (EHFlavour) {
   default:
     llvm_unreachable("Unknown DWARF flavour");
   case 0:
-    mapLLVMRegsToDwarfRegs(Cpu0EHFlavour0L2Dwarf, Cpu0EHFlavour0L2DwarfSize, true);
+    mapLLVMRegsToDwarfRegs(Cpu0EHFlavour0L2Dwarf, Cpu0EHFlavour0L2DwarfSize,
+                           true);
     break;
   }
 }
 
-static const MCPhysReg CSR_O32_SaveList[] = { Cpu0::LR, Cpu0::FP, Cpu0::S1, Cpu0::S0, 0 };
-static const uint32_t CSR_O32_RegMask[] = { 0x0000c088, };
-
+static const MCPhysReg CSR_O32_SaveList[] = {Cpu0::LR, Cpu0::FP, Cpu0::S1,
+                                             Cpu0::S0, 0};
+static const uint32_t CSR_O32_RegMask[] = {
+    0x0000c088,
+};
 
 ArrayRef<const uint32_t *> Cpu0GenRegisterInfo::getRegMasks() const {
   static const uint32_t *const Masks[] = {
-    CSR_O32_RegMask,
+      CSR_O32_RegMask,
   };
   return makeArrayRef(Masks);
 }
 
 ArrayRef<const char *> Cpu0GenRegisterInfo::getRegMaskNames() const {
   static const char *const Names[] = {
-    "CSR_O32",
+      "CSR_O32",
   };
   return makeArrayRef(Names);
 }
@@ -910,4 +805,3 @@ Cpu0GenRegisterInfo::getFrameLowering(const MachineFunction &MF) {
 } // end namespace llvm
 
 #endif // GET_REGINFO_TARGET_DESC
-

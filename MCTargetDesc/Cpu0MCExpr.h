@@ -47,13 +47,13 @@ private:
   const MCExpr *Expr;
 
   explicit Cpu0MCExpr(Cpu0ExprKind Kind, const MCExpr *Expr)
-    : Kind(Kind), Expr(Expr) {}
+      : Kind(Kind), Expr(Expr) {}
 
 public:
   static const Cpu0MCExpr *create(Cpu0ExprKind Kind, const MCExpr *Expr,
                                   MCContext &Ctx);
-  static const Cpu0MCExpr *create(const MCSymbol *Symbol, 
-                                  Cpu0MCExpr::Cpu0ExprKind Kind, MCContext &Ctx);
+  static const Cpu0MCExpr *
+  create(const MCSymbol *Symbol, Cpu0MCExpr::Cpu0ExprKind Kind, MCContext &Ctx);
   static const Cpu0MCExpr *createGpOff(Cpu0ExprKind Kind, const MCExpr *Expr,
                                        MCContext &Ctx);
 
@@ -86,4 +86,3 @@ public:
 } // end namespace llvm
 
 #endif
-

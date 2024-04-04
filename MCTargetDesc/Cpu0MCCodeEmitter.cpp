@@ -52,7 +52,8 @@ void Cpu0MCCodeEmitter::EmitByte(unsigned char C, raw_ostream &OS) const {
   OS << (char)C;
 }
 
-void Cpu0MCCodeEmitter::EmitInstruction(uint64_t Val, unsigned Size, raw_ostream &OS) const {
+void Cpu0MCCodeEmitter::EmitInstruction(uint64_t Val, unsigned Size,
+                                        raw_ostream &OS) const {
   // Output the instruction encoding in little endian byte order.
   for (unsigned i = 0; i < Size; ++i) {
     unsigned Shift = IsLittleEndian ? i * 8 : (Size - 1 - i) * 8;
@@ -62,11 +63,9 @@ void Cpu0MCCodeEmitter::EmitInstruction(uint64_t Val, unsigned Size, raw_ostream
 
 /// encodeInstruction - Emit the instruction.
 /// Size the instruction (currently only 4 bytes)
-void Cpu0MCCodeEmitter::
-encodeInstruction(const MCInst &MI, raw_ostream &OS,
-                  SmallVectorImpl<MCFixup> &Fixups,
-                  const MCSubtargetInfo &STI) const
-{
+void Cpu0MCCodeEmitter::encodeInstruction(const MCInst &MI, raw_ostream &OS,
+                                          SmallVectorImpl<MCFixup> &Fixups,
+                                          const MCSubtargetInfo &STI) const {
   uint32_t Binary = getBinaryCodeForInstr(MI, Fixups, STI);
 
   // Check for unimplemented opcodes.
@@ -94,38 +93,40 @@ encodeInstruction(const MCInst &MI, raw_ostream &OS,
 /// getBranch16TargetOpValue - Return binary encoding of the branch
 /// target operand. If the machine operand requires relocation,
 /// record the relocation and return zero.
-unsigned Cpu0MCCodeEmitter::
-getBranch16TargetOpValue(const MCInst &MI, unsigned OpNo,
-                         SmallVectorImpl<MCFixup> &Fixups,
-                         const MCSubtargetInfo &STI) const {
+unsigned
+Cpu0MCCodeEmitter::getBranch16TargetOpValue(const MCInst &MI, unsigned OpNo,
+                                            SmallVectorImpl<MCFixup> &Fixups,
+                                            const MCSubtargetInfo &STI) const {
   const MCOperand &MO = MI.getOperand(OpNo);
 
   // If the destination is an immediate, we have nothing to do.
-  if (MO.isImm()) return MO.getImm();
+  if (MO.isImm())
+    return MO.getImm();
   assert(MO.isExpr() && "getBranch16TargetOpValue expects only expressions");
 
   const MCExpr *Expr = MO.getExpr();
-  Fixups.push_back(MCFixup::create(0, Expr,
-                                   MCFixupKind(Cpu0::fixup_Cpu0_PC16)));
+  Fixups.push_back(
+      MCFixup::create(0, Expr, MCFixupKind(Cpu0::fixup_Cpu0_PC16)));
   return 0;
 }
 
 /// getBranch24TargetOpValue - Return binary encoding of the branch
 /// target operand. If the machine operand requires relocation,
 /// record the relocation and return zero.
-unsigned Cpu0MCCodeEmitter::
-getBranch24TargetOpValue(const MCInst &MI, unsigned OpNo,
-                       SmallVectorImpl<MCFixup> &Fixups,
-                       const MCSubtargetInfo &STI) const {
+unsigned
+Cpu0MCCodeEmitter::getBranch24TargetOpValue(const MCInst &MI, unsigned OpNo,
+                                            SmallVectorImpl<MCFixup> &Fixups,
+                                            const MCSubtargetInfo &STI) const {
   const MCOperand &MO = MI.getOperand(OpNo);
 
   // If the destination is an immediate, we have nothing to do.
-  if (MO.isImm()) return MO.getImm();
+  if (MO.isImm())
+    return MO.getImm();
   assert(MO.isExpr() && "getBranch24TargetOpValue expects only expressions");
 
   const MCExpr *Expr = MO.getExpr();
-  Fixups.push_back(MCFixup::create(0, Expr,
-                                   MCFixupKind(Cpu0::fixup_Cpu0_PC24)));
+  Fixups.push_back(
+      MCFixup::create(0, Expr, MCFixupKind(Cpu0::fixup_Cpu0_PC24)));
   return 0;
 }
 
@@ -134,20 +135,21 @@ getBranch24TargetOpValue(const MCInst &MI, unsigned OpNo,
 /// If the machine operand requires relocation,
 /// record the relocation and return zero.
 //@getJumpTargetOpValue {
-unsigned Cpu0MCCodeEmitter::
-getJumpTargetOpValue(const MCInst &MI, unsigned OpNo,
-                     SmallVectorImpl<MCFixup> &Fixups,
-                     const MCSubtargetInfo &STI) const {
+unsigned
+Cpu0MCCodeEmitter::getJumpTargetOpValue(const MCInst &MI, unsigned OpNo,
+                                        SmallVectorImpl<MCFixup> &Fixups,
+                                        const MCSubtargetInfo &STI) const {
   unsigned Opcode = MI.getOpcode();
   const MCOperand &MO = MI.getOperand(OpNo);
   // If the destination is an immediate, we have nothing to do.
-  if (MO.isImm()) return MO.getImm();
+  if (MO.isImm())
+    return MO.getImm();
   assert(MO.isExpr() && "getJumpTargetOpValue expects only expressions");
 
   const MCExpr *Expr = MO.getExpr();
   if (Opcode == Cpu0::JSUB || Opcode == Cpu0::JMP || Opcode == Cpu0::BAL)
-    Fixups.push_back(MCFixup::create(0, Expr,
-                                     MCFixupKind(Cpu0::fixup_Cpu0_PC24)));
+    Fixups.push_back(
+        MCFixup::create(0, Expr, MCFixupKind(Cpu0::fixup_Cpu0_PC24)));
   else
     llvm_unreachable("unexpect opcode in getJumpAbsoluteTargetOpValue()");
   return 0;
@@ -155,17 +157,18 @@ getJumpTargetOpValue(const MCInst &MI, unsigned OpNo,
 //@CH8_1 }
 
 //@getExprOpValue {
-unsigned Cpu0MCCodeEmitter::
-getExprOpValue(const MCExpr *Expr,SmallVectorImpl<MCFixup> &Fixups,
-               const MCSubtargetInfo &STI) const {
-//@getExprOpValue body {
+unsigned Cpu0MCCodeEmitter::getExprOpValue(const MCExpr *Expr,
+                                           SmallVectorImpl<MCFixup> &Fixups,
+                                           const MCSubtargetInfo &STI) const {
+  //@getExprOpValue body {
   MCExpr::ExprKind Kind = Expr->getKind();
   if (Kind == MCExpr::Constant) {
     return cast<MCConstantExpr>(Expr)->getValue();
   }
 
   if (Kind == MCExpr::Binary) {
-    unsigned Res = getExprOpValue(cast<MCBinaryExpr>(Expr)->getLHS(), Fixups, STI);
+    unsigned Res =
+        getExprOpValue(cast<MCBinaryExpr>(Expr)->getLHS(), Fixups, STI);
     Res += getExprOpValue(cast<MCBinaryExpr>(Expr)->getRHS(), Fixups, STI);
     return Res;
   }
@@ -175,10 +178,11 @@ getExprOpValue(const MCExpr *Expr,SmallVectorImpl<MCFixup> &Fixups,
 
     Cpu0::Fixups FixupKind = Cpu0::Fixups(0);
     switch (Cpu0Expr->getKind()) {
-    default: llvm_unreachable("Unsupported fixup kind for target expression!");
-  //@switch {
-//    switch(cast<MCSymbolRefExpr>(Expr)->getKind()) {
-  //@switch }
+    default:
+      llvm_unreachable("Unsupported fixup kind for target expression!");
+      //@switch {
+      //    switch(cast<MCSymbolRefExpr>(Expr)->getKind()) {
+      //@switch }
     case Cpu0MCExpr::CEK_GPREL:
       FixupKind = Cpu0::fixup_Cpu0_GPREL16;
       break;
@@ -232,10 +236,10 @@ getExprOpValue(const MCExpr *Expr,SmallVectorImpl<MCFixup> &Fixups,
 
 /// getMachineOpValue - Return binary encoding of operand. If the machine
 /// operand requires relocation, record the relocation and return zero.
-unsigned Cpu0MCCodeEmitter::
-getMachineOpValue(const MCInst &MI, const MCOperand &MO,
-                  SmallVectorImpl<MCFixup> &Fixups,
-                  const MCSubtargetInfo &STI) const {
+unsigned
+Cpu0MCCodeEmitter::getMachineOpValue(const MCInst &MI, const MCOperand &MO,
+                                     SmallVectorImpl<MCFixup> &Fixups,
+                                     const MCSubtargetInfo &STI) const {
   if (MO.isReg()) {
     unsigned Reg = MO.getReg();
     unsigned RegNo = Ctx.getRegisterInfo()->getEncodingValue(Reg);
@@ -244,26 +248,28 @@ getMachineOpValue(const MCInst &MI, const MCOperand &MO,
     return static_cast<unsigned>(MO.getImm());
   } else if (MO.isFPImm()) {
     return static_cast<unsigned>(APFloat(MO.getFPImm())
-        .bitcastToAPInt().getHiBits(32).getLimitedValue());
+                                     .bitcastToAPInt()
+                                     .getHiBits(32)
+                                     .getLimitedValue());
   }
   // MO must be an Expr.
   assert(MO.isExpr());
-  return getExprOpValue(MO.getExpr(),Fixups, STI);
+  return getExprOpValue(MO.getExpr(), Fixups, STI);
 }
 
 /// getMemEncoding - Return binary encoding of memory related operand.
 /// If the offset operand requires relocation, record the relocation.
-unsigned
-Cpu0MCCodeEmitter::getMemEncoding(const MCInst &MI, unsigned OpNo,
-                                  SmallVectorImpl<MCFixup> &Fixups,
-                                  const MCSubtargetInfo &STI) const {
+unsigned Cpu0MCCodeEmitter::getMemEncoding(const MCInst &MI, unsigned OpNo,
+                                           SmallVectorImpl<MCFixup> &Fixups,
+                                           const MCSubtargetInfo &STI) const {
   // Base register is encoded in bits 20-16, offset is encoded in bits 15-0.
   assert(MI.getOperand(OpNo).isReg());
-  unsigned RegBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI) << 16;
-  unsigned OffBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+  unsigned RegBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI)
+                     << 16;
+  unsigned OffBits =
+      getMachineOpValue(MI, MI.getOperand(OpNo + 1), Fixups, STI);
 
   return (OffBits & 0xFFFF) | RegBits;
 }
 
 #include "./GenInc/Cpu0GenMCCodeEmitter.inc"
-

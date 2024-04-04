@@ -17,9 +17,9 @@
 
 #include "Cpu0.h"
 
-#include "MCTargetDesc/Cpu0BaseInfo.h"
 #include "Cpu0MachineFunction.h"
 #include "Cpu0TargetMachine.h"
+#include "MCTargetDesc/Cpu0BaseInfo.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/CodeGen/MachineFunctionPass.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
@@ -38,55 +38,52 @@ using namespace llvm;
 
 STATISTIC(LongBranches, "Number of long branches.");
 
-static cl::opt<bool> ForceLongBranch(
-  "force-cpu0-long-branch",
-  cl::init(false),
-  cl::desc("CPU0: Expand all branches to long format."),
-  cl::Hidden);
+static cl::opt<bool>
+    ForceLongBranch("force-cpu0-long-branch", cl::init(false),
+                    cl::desc("CPU0: Expand all branches to long format."),
+                    cl::Hidden);
 
 namespace {
-  typedef MachineBasicBlock::iterator Iter;
-  typedef MachineBasicBlock::reverse_iterator ReverseIter;
+typedef MachineBasicBlock::iterator Iter;
+typedef MachineBasicBlock::reverse_iterator ReverseIter;
 
-  struct MBBInfo {
-    uint64_t Size, Address;
-    bool HasLongBranch;
-    MachineInstr *Br;
+struct MBBInfo {
+  uint64_t Size, Address;
+  bool HasLongBranch;
+  MachineInstr *Br;
 
-    MBBInfo() : Size(0), HasLongBranch(false), Br(nullptr) {}
-  };
+  MBBInfo() : Size(0), HasLongBranch(false), Br(nullptr) {}
+};
 
-  class Cpu0LongBranch : public MachineFunctionPass {
+class Cpu0LongBranch : public MachineFunctionPass {
 
-  public:
-    static char ID;
-    Cpu0LongBranch(TargetMachine &tm)
-        : MachineFunctionPass(ID), TM(tm), IsPIC(TM.isPositionIndependent()),
-          ABI(static_cast<const Cpu0TargetMachine &>(TM).getABI()) {}
+public:
+  static char ID;
+  Cpu0LongBranch(TargetMachine &tm)
+      : MachineFunctionPass(ID), TM(tm), IsPIC(TM.isPositionIndependent()),
+        ABI(static_cast<const Cpu0TargetMachine &>(TM).getABI()) {}
 
-    StringRef getPassName() const override {
-      return "Cpu0 Long Branch";
-    }
+  StringRef getPassName() const override { return "Cpu0 Long Branch"; }
 
-    bool runOnMachineFunction(MachineFunction &F) override;
+  bool runOnMachineFunction(MachineFunction &F) override;
 
-  private:
-    void splitMBB(MachineBasicBlock *MBB);
-    void initMBBInfo();
-    int64_t computeOffset(const MachineInstr *Br);
-    void replaceBranch(MachineBasicBlock &MBB, Iter Br, const DebugLoc &DL,
-                       MachineBasicBlock *MBBOpnd);
-    void expandToLongBranch(MBBInfo &Info);
+private:
+  void splitMBB(MachineBasicBlock *MBB);
+  void initMBBInfo();
+  int64_t computeOffset(const MachineInstr *Br);
+  void replaceBranch(MachineBasicBlock &MBB, Iter Br, const DebugLoc &DL,
+                     MachineBasicBlock *MBBOpnd);
+  void expandToLongBranch(MBBInfo &Info);
 
-    const TargetMachine &TM;
-    MachineFunction *MF;
-    SmallVector<MBBInfo, 16> MBBInfos;
-    bool IsPIC;
-    Cpu0ABIInfo ABI;
-    unsigned LongBranchSeqSize;
-  };
+  const TargetMachine &TM;
+  MachineFunction *MF;
+  SmallVector<MBBInfo, 16> MBBInfos;
+  bool IsPIC;
+  Cpu0ABIInfo ABI;
+  unsigned LongBranchSeqSize;
+};
 
-  char Cpu0LongBranch::ID = 0;
+char Cpu0LongBranch::ID = 0;
 } // end of anonymous namespace
 
 /// createCpu0LongBranchPass - Returns a pass that converts branches to long
@@ -139,8 +136,7 @@ void Cpu0LongBranch::splitMBB(MachineBasicBlock *MBB) {
   assert(!FirstBr->isIndirectBranch() && "Unexpected indirect branch found.");
 
   // Create a new MBB. Move instructions in MBB to the newly created MBB.
-  MachineBasicBlock *NewMBB =
-    MF->CreateMachineBasicBlock(MBB->getBasicBlock());
+  MachineBasicBlock *NewMBB = MF->CreateMachineBasicBlock(MBB->getBasicBlock());
 
   // Insert NewMBB and fix control flow.
   MachineBasicBlock *Tgt = getTargetMBB(*FirstBr);
@@ -288,9 +284,12 @@ void Cpu0LongBranch::expandToLongBranch(MBBInfo &I) {
     Pos = LongBrMBB->begin();
 
     BuildMI(*LongBrMBB, Pos, DL, TII->get(Cpu0::ADDiu), Cpu0::SP)
-      .addReg(Cpu0::SP).addImm(-8);
-    BuildMI(*LongBrMBB, Pos, DL, TII->get(Cpu0::ST)).addReg(Cpu0::LR)
-      .addReg(Cpu0::SP).addImm(0);
+        .addReg(Cpu0::SP)
+        .addImm(-8);
+    BuildMI(*LongBrMBB, Pos, DL, TII->get(Cpu0::ST))
+        .addReg(Cpu0::LR)
+        .addReg(Cpu0::SP)
+        .addImm(0);
 
     // LUi and ADDiu instructions create 32-bit offset of the target basic
     // block from the target of BAL instruction.  We cannot use immediate
@@ -309,24 +308,30 @@ void Cpu0LongBranch::expandToLongBranch(MBBInfo &I) {
     // operands to lowered instructions.
 
     BuildMI(*LongBrMBB, Pos, DL, TII->get(Cpu0::LONG_BRANCH_LUi), Cpu0::AT)
-      .addMBB(TgtMBB).addMBB(BalTgtMBB);
+        .addMBB(TgtMBB)
+        .addMBB(BalTgtMBB);
     BuildMI(*LongBrMBB, Pos, DL, TII->get(Cpu0::LONG_BRANCH_ADDiu), Cpu0::AT)
-      .addReg(Cpu0::AT).addMBB(TgtMBB).addMBB(BalTgtMBB);
+        .addReg(Cpu0::AT)
+        .addMBB(TgtMBB)
+        .addMBB(BalTgtMBB);
     MIBundleBuilder(*LongBrMBB, Pos)
         .append(BuildMI(*MF, DL, TII->get(BalOp)).addMBB(BalTgtMBB));
 
     Pos = BalTgtMBB->begin();
 
     BuildMI(*BalTgtMBB, Pos, DL, TII->get(Cpu0::ADDu), Cpu0::AT)
-      .addReg(Cpu0::LR).addReg(Cpu0::AT);
+        .addReg(Cpu0::LR)
+        .addReg(Cpu0::AT);
     BuildMI(*BalTgtMBB, Pos, DL, TII->get(Cpu0::LD), Cpu0::LR)
-      .addReg(Cpu0::SP).addImm(0);
+        .addReg(Cpu0::SP)
+        .addImm(0);
     BuildMI(*BalTgtMBB, Pos, DL, TII->get(Cpu0::ADDiu), Cpu0::SP)
-      .addReg(Cpu0::SP).addImm(8);
+        .addReg(Cpu0::SP)
+        .addImm(8);
 
     MIBundleBuilder(*BalTgtMBB, Pos)
-      .append(BuildMI(*MF, DL, TII->get(Cpu0::JR)).addReg(Cpu0::AT))
-      .append(BuildMI(*MF, DL, TII->get(Cpu0::NOP)));
+        .append(BuildMI(*MF, DL, TII->get(Cpu0::JR)).addReg(Cpu0::AT))
+        .append(BuildMI(*MF, DL, TII->get(Cpu0::NOP)));
 
     assert(LongBrMBB->size() + BalTgtMBB->size() == LongBranchSeqSize);
   } else {
@@ -338,8 +343,8 @@ void Cpu0LongBranch::expandToLongBranch(MBBInfo &I) {
     Pos = LongBrMBB->begin();
     LongBrMBB->addSuccessor(TgtMBB);
     MIBundleBuilder(*LongBrMBB, Pos)
-      .append(BuildMI(*MF, DL, TII->get(Cpu0::JMP)).addMBB(TgtMBB))
-      .append(BuildMI(*MF, DL, TII->get(Cpu0::NOP)));
+        .append(BuildMI(*MF, DL, TII->get(Cpu0::JMP)).addMBB(TgtMBB))
+        .append(BuildMI(*MF, DL, TII->get(Cpu0::NOP)));
 
     assert(LongBrMBB->size() == LongBranchSeqSize);
   }
@@ -359,9 +364,10 @@ static void emitGPDisp(MachineFunction &F, const Cpu0InstrInfo *TII) {
   MachineBasicBlock::iterator I = MBB.begin();
   DebugLoc DL = MBB.findDebugLoc(MBB.begin());
   BuildMI(MBB, I, DL, TII->get(Cpu0::LUi), Cpu0::V0)
-    .addExternalSymbol("_gp_disp", Cpu0II::MO_ABS_HI);
+      .addExternalSymbol("_gp_disp", Cpu0II::MO_ABS_HI);
   BuildMI(MBB, I, DL, TII->get(Cpu0::ADDiu), Cpu0::V0)
-    .addReg(Cpu0::V0).addExternalSymbol("_gp_disp", Cpu0II::MO_ABS_LO);
+      .addReg(Cpu0::V0)
+      .addExternalSymbol("_gp_disp", Cpu0II::MO_ABS_LO);
   MBB.removeLiveIn(Cpu0::V0);
 }
 
@@ -370,8 +376,7 @@ bool Cpu0LongBranch::runOnMachineFunction(MachineFunction &F) {
       static_cast<const Cpu0Subtarget &>(F.getSubtarget());
   const Cpu0InstrInfo *TII =
       static_cast<const Cpu0InstrInfo *>(STI.getInstrInfo());
-  LongBranchSeqSize =
-      !IsPIC ? 2 : 10;
+  LongBranchSeqSize = !IsPIC ? 2 : 10;
 
   if (!STI.enableLongBranchPass())
     return false;
@@ -428,4 +433,3 @@ bool Cpu0LongBranch::runOnMachineFunction(MachineFunction &F) {
 
   return true;
 }
-

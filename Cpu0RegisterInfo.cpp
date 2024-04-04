@@ -16,8 +16,8 @@
 #include "Cpu0RegisterInfo.h"
 
 #include "Cpu0.h"
-#include "Cpu0Subtarget.h"
 #include "Cpu0MachineFunction.h"
+#include "Cpu0Subtarget.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Type.h"
 #include "llvm/Support/CommandLine.h"
@@ -31,7 +31,7 @@
 using namespace llvm;
 
 Cpu0RegisterInfo::Cpu0RegisterInfo(const Cpu0Subtarget &ST)
-  : Cpu0GenRegisterInfo(Cpu0::LR), Subtarget(ST) {}
+    : Cpu0GenRegisterInfo(Cpu0::LR), Subtarget(ST) {}
 
 const TargetRegisterClass *
 Cpu0RegisterInfo::getPointerRegClass(const MachineFunction &MF,
@@ -60,12 +60,10 @@ Cpu0RegisterInfo::getCallPreservedMask(const MachineFunction &MF,
 
 // pure virtual method
 //@getReservedRegs {
-BitVector Cpu0RegisterInfo::
-getReservedRegs(const MachineFunction &MF) const {
-//@getReservedRegs body {
-  static const uint16_t ReservedCPURegs[] = {
-    Cpu0::ZERO, Cpu0::AT, Cpu0::SP, Cpu0::LR, /*Cpu0::SW, */Cpu0::PC
-  };
+BitVector Cpu0RegisterInfo::getReservedRegs(const MachineFunction &MF) const {
+  //@getReservedRegs body {
+  static const uint16_t ReservedCPURegs[] = {Cpu0::ZERO, Cpu0::AT, Cpu0::SP,
+                                             Cpu0::LR, /*Cpu0::SW, */ Cpu0::PC};
   BitVector Reserved(getNumRegs());
 
   for (unsigned I = 0; I < array_lengthof(ReservedCPURegs); ++I)
@@ -76,7 +74,7 @@ getReservedRegs(const MachineFunction &MF) const {
     Reserved.set(Cpu0::FP);
   }
 
-#ifdef ENABLE_GPRESTORE //1
+#ifdef ENABLE_GPRESTORE // 1
   const Cpu0FunctionInfo *Cpu0FI = MF.getInfo<Cpu0FunctionInfo>();
   // Reserve GP if globalBaseRegFixed()
   if (Cpu0FI->globalBaseRegFixed())
@@ -92,9 +90,9 @@ getReservedRegs(const MachineFunction &MF) const {
 // FrameIndex represent objects inside a abstract stack.
 // We must replace FrameIndex with an stack/frame pointer
 // direct reference.
-void Cpu0RegisterInfo::
-eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
-                    unsigned FIOperandNum, RegScavenger *RS) const {
+void Cpu0RegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
+                                           int SPAdj, unsigned FIOperandNum,
+                                           RegScavenger *RS) const {
   MachineInstr &MI = *II;
   MachineFunction &MF = *MI.getParent()->getParent();
   MachineFrameInfo &MFI = MF.getFrameInfo();
@@ -103,12 +101,12 @@ eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
   unsigned i = 0;
   while (!MI.getOperand(i).isFI()) {
     ++i;
-    assert(i < MI.getNumOperands() &&
-           "Instr doesn't have FrameIndex operand!");
+    assert(i < MI.getNumOperands() && "Instr doesn't have FrameIndex operand!");
   }
 
   LLVM_DEBUG(errs() << "\nFunction : " << MF.getFunction().getName() << "\n";
-             errs() << "<--------->\n" << MI);
+             errs() << "<--------->\n"
+                    << MI);
 
   int FrameIndex = MI.getOperand(i).getIndex();
   uint64_t stackSize = MF.getFrameInfo().getStackSize();
@@ -149,7 +147,7 @@ eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
   //   by adding the size of the stack:
   //   incoming argument, callee-saved register location or local variable.
   int64_t Offset;
-#ifdef ENABLE_GPRESTORE //2
+#ifdef ENABLE_GPRESTORE // 2
   if (Cpu0FI->isOutArgFI(FrameIndex) || Cpu0FI->isGPFI(FrameIndex) ||
       Cpu0FI->isDynAllocFI(FrameIndex))
     Offset = spOffset;
@@ -157,9 +155,10 @@ eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
 #endif
     Offset = spOffset + (int64_t)stackSize;
 
-  Offset    += MI.getOperand(i+1).getImm();
+  Offset += MI.getOperand(i + 1).getImm();
 
-  LLVM_DEBUG(errs() << "Offset     : " << Offset << "\n" << "<--------->\n");
+  LLVM_DEBUG(errs() << "Offset     : " << Offset << "\n"
+                    << "<--------->\n");
 
   // If MI is not a debug value, make sure Offset fits in the 16-bit immediate
   // field.
@@ -167,35 +166,36 @@ eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
     errs() << "!!!ERROR!!! Not support large frame over 16-bit at this point.\n"
            << "Though CH3_5 support it."
            << "Reference: "
-               "http://jonathan2251.github.io/lbd/backendstructure.html#large-stack\n"
-           << "However the CH9_3, dynamic-stack-allocation-support bring instruction "
-              "move $fp, $sp that make it complicated in coding against the tutoral "
+              "http://jonathan2251.github.io/lbd/"
+              "backendstructure.html#large-stack\n"
+           << "However the CH9_3, dynamic-stack-allocation-support bring "
+              "instruction "
+              "move $fp, $sp that make it complicated in coding against the "
+              "tutoral "
               "purpose of Cpu0.\n"
            << "Reference: "
-               "http://jonathan2251.github.io/lbd/funccall.html#dynamic-stack-allocation-support\n";
+              "http://jonathan2251.github.io/lbd/"
+              "funccall.html#dynamic-stack-allocation-support\n";
     assert(0 && "(!MI.isDebugValue() && !isInt<16>(Offset))");
   }
 
   MI.getOperand(i).ChangeToRegister(FrameReg, false);
-  MI.getOperand(i+1).ChangeToImmediate(Offset);
+  MI.getOperand(i + 1).ChangeToImmediate(Offset);
 }
 //}
 
-bool
-Cpu0RegisterInfo::requiresRegisterScavenging(const MachineFunction &MF) const {
+bool Cpu0RegisterInfo::requiresRegisterScavenging(
+    const MachineFunction &MF) const {
   return true;
 }
 
-bool
-Cpu0RegisterInfo::trackLivenessAfterRegAlloc(const MachineFunction &MF) const {
+bool Cpu0RegisterInfo::trackLivenessAfterRegAlloc(
+    const MachineFunction &MF) const {
   return true;
 }
 
 // pure virtual method
-Register Cpu0RegisterInfo::
-getFrameRegister(const MachineFunction &MF) const {
+Register Cpu0RegisterInfo::getFrameRegister(const MachineFunction &MF) const {
   const TargetFrameLowering *TFI = MF.getSubtarget().getFrameLowering();
-  return TFI->hasFP(MF) ? (Cpu0::FP) :
-                          (Cpu0::SP);
+  return TFI->hasFP(MF) ? (Cpu0::FP) : (Cpu0::SP);
 }
-

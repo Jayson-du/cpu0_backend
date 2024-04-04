@@ -13,9 +13,9 @@
 
 #include "Cpu0SEInstrInfo.h"
 
-#include "InstPrinter/Cpu0InstPrinter.h"
 #include "Cpu0MachineFunction.h"
 #include "Cpu0TargetMachine.h"
+#include "InstPrinter/Cpu0InstPrinter.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
@@ -26,12 +26,9 @@
 using namespace llvm;
 
 Cpu0SEInstrInfo::Cpu0SEInstrInfo(const Cpu0Subtarget &STI)
-    : Cpu0InstrInfo(STI),
-      RI(STI) {}
+    : Cpu0InstrInfo(STI), RI(STI) {}
 
-const Cpu0RegisterInfo &Cpu0SEInstrInfo::getRegisterInfo() const {
-  return RI;
-}
+const Cpu0RegisterInfo &Cpu0SEInstrInfo::getRegisterInfo() const { return RI; }
 
 void Cpu0SEInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
                                   MachineBasicBlock::iterator I,
@@ -46,8 +43,7 @@ void Cpu0SEInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
       Opc = Cpu0::MFHI, SrcReg = 0;
     else if (SrcReg == Cpu0::LO)
       Opc = Cpu0::MFLO, SrcReg = 0;
-  }
-  else if (Cpu0::CPURegsRegClass.contains(SrcReg)) { // Copy from CPU Reg.
+  } else if (Cpu0::CPURegsRegClass.contains(SrcReg)) { // Copy from CPU Reg.
     if (DestReg == Cpu0::HI)
       Opc = Cpu0::MTHI, DestReg = 0;
     else if (DestReg == Cpu0::LO)
@@ -68,11 +64,12 @@ void Cpu0SEInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
     MIB.addReg(SrcReg, getKillRegState(KillSrc));
 }
 
-void Cpu0SEInstrInfo::
-storeRegToStack(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
-                Register SrcReg, bool isKill, int FI,
-                const TargetRegisterClass *RC, const TargetRegisterInfo *TRI,
-                int64_t Offset) const {
+void Cpu0SEInstrInfo::storeRegToStack(MachineBasicBlock &MBB,
+                                      MachineBasicBlock::iterator I,
+                                      Register SrcReg, bool isKill, int FI,
+                                      const TargetRegisterClass *RC,
+                                      const TargetRegisterInfo *TRI,
+                                      int64_t Offset) const {
   DebugLoc DL;
   MachineMemOperand *MMO = GetMemOperand(MBB, FI, MachineMemOperand::MOStore);
 
@@ -80,29 +77,37 @@ storeRegToStack(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
 
   Opc = Cpu0::ST;
   assert(Opc && "Register class not handled!");
-  BuildMI(MBB, I, DL, get(Opc)).addReg(SrcReg, getKillRegState(isKill))
-    .addFrameIndex(FI).addImm(Offset).addMemOperand(MMO);
+  BuildMI(MBB, I, DL, get(Opc))
+      .addReg(SrcReg, getKillRegState(isKill))
+      .addFrameIndex(FI)
+      .addImm(Offset)
+      .addMemOperand(MMO);
 }
 
-void Cpu0SEInstrInfo::
-loadRegFromStack(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
-                 Register DestReg, int FI, const TargetRegisterClass *RC,
-                 const TargetRegisterInfo *TRI, int64_t Offset) const {
+void Cpu0SEInstrInfo::loadRegFromStack(MachineBasicBlock &MBB,
+                                       MachineBasicBlock::iterator I,
+                                       Register DestReg, int FI,
+                                       const TargetRegisterClass *RC,
+                                       const TargetRegisterInfo *TRI,
+                                       int64_t Offset) const {
   DebugLoc DL;
-  if (I != MBB.end()) DL = I->getDebugLoc();
+  if (I != MBB.end())
+    DL = I->getDebugLoc();
   MachineMemOperand *MMO = GetMemOperand(MBB, FI, MachineMemOperand::MOLoad);
   unsigned Opc = 0;
 
   Opc = Cpu0::LD;
   assert(Opc && "Register class not handled!");
-  BuildMI(MBB, I, DL, get(Opc), DestReg).addFrameIndex(FI).addImm(Offset)
-    .addMemOperand(MMO);
+  BuildMI(MBB, I, DL, get(Opc), DestReg)
+      .addFrameIndex(FI)
+      .addImm(Offset)
+      .addMemOperand(MMO);
 }
 
 //@expandPostRAPseudo
 /// Expand Pseudo instructions into real backend instructions
 bool Cpu0SEInstrInfo::expandPostRAPseudo(MachineInstr &MI) const {
-//@expandPostRAPseudo-body
+  //@expandPostRAPseudo-body
   MachineBasicBlock &MBB = *MI.getParent();
 
   switch (MI.getDesc().getOpcode()) {
@@ -131,8 +136,7 @@ void Cpu0SEInstrInfo::adjustStackPtr(unsigned SP, int64_t Amount,
   if (isInt<16>(Amount)) {
     // addiu sp, sp, amount
     BuildMI(MBB, I, DL, get(ADDiu), SP).addReg(SP).addImm(Amount);
-  }
-  else { // Expand immediate that doesn't fit in 16-bit.
+  } else { // Expand immediate that doesn't fit in 16-bit.
     unsigned Reg = loadImmediate(Amount, MBB, I, DL, nullptr);
     BuildMI(MBB, I, DL, get(ADDu), SP).addReg(SP).addReg(Reg, RegState::Kill);
   }
@@ -140,11 +144,10 @@ void Cpu0SEInstrInfo::adjustStackPtr(unsigned SP, int64_t Amount,
 
 /// This function generates the sequence of instructions needed to get the
 /// result of adding register REG and immediate IMM.
-unsigned
-Cpu0SEInstrInfo::loadImmediate(int64_t Imm, MachineBasicBlock &MBB,
-                               MachineBasicBlock::iterator II,
-                               const DebugLoc &DL,
-                               unsigned *NewImm) const {
+unsigned Cpu0SEInstrInfo::loadImmediate(int64_t Imm, MachineBasicBlock &MBB,
+                                        MachineBasicBlock::iterator II,
+                                        const DebugLoc &DL,
+                                        unsigned *NewImm) const {
   Cpu0AnalyzeImmediate AnalyzeImm;
   unsigned Size = 32;
   unsigned LUi = Cpu0::LUi;
@@ -153,7 +156,7 @@ Cpu0SEInstrInfo::loadImmediate(int64_t Imm, MachineBasicBlock &MBB,
   bool LastInstrIsADDiu = NewImm;
 
   const Cpu0AnalyzeImmediate::InstSeq &Seq =
-    AnalyzeImm.Analyze(Imm, Size, LastInstrIsADDiu);
+      AnalyzeImm.Analyze(Imm, Size, LastInstrIsADDiu);
   Cpu0AnalyzeImmediate::InstSeq::const_iterator Inst = Seq.begin();
 
   assert(Seq.size() && (!LastInstrIsADDiu || (Seq.size() > 1)));
@@ -162,15 +165,18 @@ Cpu0SEInstrInfo::loadImmediate(int64_t Imm, MachineBasicBlock &MBB,
   // instructions (ADDiu, ORI and SLL) in that it does not have a register
   // operand.
   if (Inst->Opc == LUi)
-    BuildMI(MBB, II, DL, get(LUi), ATReg).addImm(SignExtend64<16>(Inst->ImmOpnd));
+    BuildMI(MBB, II, DL, get(LUi), ATReg)
+        .addImm(SignExtend64<16>(Inst->ImmOpnd));
   else
-    BuildMI(MBB, II, DL, get(Inst->Opc), ATReg).addReg(ZEROReg)
-      .addImm(SignExtend64<16>(Inst->ImmOpnd));
+    BuildMI(MBB, II, DL, get(Inst->Opc), ATReg)
+        .addReg(ZEROReg)
+        .addImm(SignExtend64<16>(Inst->ImmOpnd));
 
   // Build the remaining instructions in Seq.
   for (++Inst; Inst != Seq.end() - LastInstrIsADDiu; ++Inst)
-    BuildMI(MBB, II, DL, get(Inst->Opc), ATReg).addReg(ATReg)
-      .addImm(SignExtend64<16>(Inst->ImmOpnd));
+    BuildMI(MBB, II, DL, get(Inst->Opc), ATReg)
+        .addReg(ATReg)
+        .addImm(SignExtend64<16>(Inst->ImmOpnd));
 
   if (LastInstrIsADDiu)
     *NewImm = Inst->ImmOpnd;
@@ -179,7 +185,7 @@ Cpu0SEInstrInfo::loadImmediate(int64_t Imm, MachineBasicBlock &MBB,
 }
 
 void Cpu0SEInstrInfo::expandRetLR(MachineBasicBlock &MBB,
-                                MachineBasicBlock::iterator I) const {
+                                  MachineBasicBlock::iterator I) const {
   BuildMI(MBB, I, I->getDebugLoc(), get(Cpu0::RET)).addReg(Cpu0::LR);
 }
 
@@ -187,9 +193,12 @@ void Cpu0SEInstrInfo::expandRetLR(MachineBasicBlock &MBB,
 /// opcode, e.g. turning BEQ to BNE.
 unsigned Cpu0SEInstrInfo::getOppositeBranchOpc(unsigned Opc) const {
   switch (Opc) {
-  default:           llvm_unreachable("Illegal opcode!");
-  case Cpu0::BEQ:    return Cpu0::BNE;
-  case Cpu0::BNE:    return Cpu0::BEQ;
+  default:
+    llvm_unreachable("Illegal opcode!");
+  case Cpu0::BEQ:
+    return Cpu0::BNE;
+  case Cpu0::BNE:
+    return Cpu0::BEQ;
   }
 }
 
@@ -224,4 +233,3 @@ void Cpu0SEInstrInfo::expandEhReturn(MachineBasicBlock &MBB,
 const Cpu0InstrInfo *llvm::createCpu0SEInstrInfo(const Cpu0Subtarget &STI) {
   return new Cpu0SEInstrInfo(STI);
 }
-

@@ -12,8 +12,8 @@
 //===----------------------------------------------------------------------===//
 //
 
-#include "MCTargetDesc/Cpu0FixupKinds.h"
 #include "MCTargetDesc/Cpu0AsmBackend.h"
+#include "MCTargetDesc/Cpu0FixupKinds.h"
 
 #include "MCTargetDesc/Cpu0MCTargetDesc.h"
 #include "llvm/MC/MCAsmBackend.h"
@@ -29,11 +29,9 @@
 
 using namespace llvm;
 
-static cl::opt<bool> HasLLD(
-  "has-lld",
-  cl::init(false),
-  cl::desc("CPU0: Has lld linker for Cpu0."),
-  cl::Hidden);
+static cl::opt<bool> HasLLD("has-lld", cl::init(false),
+                            cl::desc("CPU0: Has lld linker for Cpu0."),
+                            cl::Hidden);
 
 //@adjustFixupValue {
 // Prepare value for the target space for it
@@ -109,53 +107,50 @@ void Cpu0AsmBackend::applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,
 
   for (unsigned i = 0; i != NumBytes; ++i) {
     unsigned Idx = TheTriple.isLittleEndian() ? i : (FullSize - 1 - i);
-    CurVal |= (uint64_t)((uint8_t)Data[Offset + Idx]) << (i*8);
+    CurVal |= (uint64_t)((uint8_t)Data[Offset + Idx]) << (i * 8);
   }
 
-  uint64_t Mask = ((uint64_t)(-1) >>
-                    (64 - getFixupKindInfo(Kind).TargetSize));
+  uint64_t Mask = ((uint64_t)(-1) >> (64 - getFixupKindInfo(Kind).TargetSize));
   CurVal |= Value & Mask;
 
   // Write out the fixed up bytes back to the code/data bits.
   for (unsigned i = 0; i != NumBytes; ++i) {
     unsigned Idx = TheTriple.isLittleEndian() ? i : (FullSize - 1 - i);
-    Data[Offset + Idx] = (uint8_t)((CurVal >> (i*8)) & 0xff);
+    Data[Offset + Idx] = (uint8_t)((CurVal >> (i * 8)) & 0xff);
   }
 }
 
 //@getFixupKindInfo {
-const MCFixupKindInfo &Cpu0AsmBackend::
-getFixupKindInfo(MCFixupKind Kind) const {
+const MCFixupKindInfo &
+Cpu0AsmBackend::getFixupKindInfo(MCFixupKind Kind) const {
   unsigned JSUBReloRec = 0;
   if (HasLLD) {
     JSUBReloRec = MCFixupKindInfo::FKF_IsPCRel;
-  }
-  else {
+  } else {
     JSUBReloRec = MCFixupKindInfo::FKF_IsPCRel | MCFixupKindInfo::FKF_Constant;
   }
   const static MCFixupKindInfo Infos[Cpu0::NumTargetFixupKinds] = {
-    // This table *must* be in same the order of fixup_* kinds in
-    // Cpu0FixupKinds.h.
-    //
-    // name                        offset  bits  flags
-    { "fixup_Cpu0_32",             0,     32,   0 },
-    { "fixup_Cpu0_HI16",           0,     16,   0 },
-    { "fixup_Cpu0_LO16",           0,     16,   0 },
-    { "fixup_Cpu0_GPREL16",        0,     16,   0 },
-    { "fixup_Cpu0_GOT",            0,     16,   0 },
-    { "fixup_Cpu0_PC16",           0,     16,  MCFixupKindInfo::FKF_IsPCRel },
-    { "fixup_Cpu0_PC24",           0,     24,  JSUBReloRec },
-    { "fixup_Cpu0_CALL16",         0,     16,   0 },
-    { "fixup_Cpu0_TLSGD",          0,     16,   0 },
-    { "fixup_Cpu0_GOTTP",          0,     16,   0 },
-    { "fixup_Cpu0_TP_HI",          0,     16,   0 },
-    { "fixup_Cpu0_TP_LO",          0,     16,   0 },
-    { "fixup_Cpu0_TLSLDM",         0,     16,   0 },
-    { "fixup_Cpu0_DTP_HI",         0,     16,   0 },
-    { "fixup_Cpu0_DTP_LO",         0,     16,   0 },
-    { "fixup_Cpu0_GOT_HI16",       0,     16,   0 },
-    { "fixup_Cpu0_GOT_LO16",       0,     16,   0 }
-  };
+      // This table *must* be in same the order of fixup_* kinds in
+      // Cpu0FixupKinds.h.
+      //
+      // name                        offset  bits  flags
+      {"fixup_Cpu0_32", 0, 32, 0},
+      {"fixup_Cpu0_HI16", 0, 16, 0},
+      {"fixup_Cpu0_LO16", 0, 16, 0},
+      {"fixup_Cpu0_GPREL16", 0, 16, 0},
+      {"fixup_Cpu0_GOT", 0, 16, 0},
+      {"fixup_Cpu0_PC16", 0, 16, MCFixupKindInfo::FKF_IsPCRel},
+      {"fixup_Cpu0_PC24", 0, 24, JSUBReloRec},
+      {"fixup_Cpu0_CALL16", 0, 16, 0},
+      {"fixup_Cpu0_TLSGD", 0, 16, 0},
+      {"fixup_Cpu0_GOTTP", 0, 16, 0},
+      {"fixup_Cpu0_TP_HI", 0, 16, 0},
+      {"fixup_Cpu0_TP_LO", 0, 16, 0},
+      {"fixup_Cpu0_TLSLDM", 0, 16, 0},
+      {"fixup_Cpu0_DTP_HI", 0, 16, 0},
+      {"fixup_Cpu0_DTP_LO", 0, 16, 0},
+      {"fixup_Cpu0_GOT_HI16", 0, 16, 0},
+      {"fixup_Cpu0_GOT_LO16", 0, 16, 0}};
 
   if (Kind < FirstTargetFixupKind)
     return MCAsmBackend::getFixupKindInfo(Kind);
@@ -182,4 +177,3 @@ MCAsmBackend *llvm::createCpu0AsmBackend(const Target &T,
                                          const MCTargetOptions &Options) {
   return new Cpu0AsmBackend(T, STI.getTargetTriple());
 }
-

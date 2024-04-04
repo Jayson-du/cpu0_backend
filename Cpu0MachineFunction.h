@@ -30,16 +30,12 @@ namespace llvm {
 /// Cpu0 target-specific information for each MachineFunction.
 class Cpu0FunctionInfo : public MachineFunctionInfo {
 public:
-  Cpu0FunctionInfo(MachineFunction& MF)
-  : MF(MF), 
-    VarArgsFrameIndex(0), 
-    SRetReturnReg(0), CallsEhReturn(false), CallsEhDwarf(false),
-    GlobalBaseReg(0),
-    InArgFIRange(std::make_pair(-1, 0)),
-    OutArgFIRange(std::make_pair(-1, 0)), GPFI(0), DynAllocFI(0),
-    EmitNOAT(false),
-    MaxCallFrameSize(0)
-    {}
+  Cpu0FunctionInfo(MachineFunction &MF)
+      : MF(MF), VarArgsFrameIndex(0), SRetReturnReg(0), CallsEhReturn(false),
+        CallsEhDwarf(false), GlobalBaseReg(0),
+        InArgFIRange(std::make_pair(-1, 0)),
+        OutArgFIRange(std::make_pair(-1, 0)), GPFI(0), DynAllocFI(0),
+        EmitNOAT(false), MaxCallFrameSize(0) {}
 
   ~Cpu0FunctionInfo();
 
@@ -103,9 +99,9 @@ public:
 private:
   virtual void anchor();
 
-  MachineFunction& MF;
+  MachineFunction &MF;
 
-    /// VarArgsFrameIndex - FrameIndex for start of varargs area.
+  /// VarArgsFrameIndex - FrameIndex for start of varargs area.
   int VarArgsFrameIndex;
 
   /// SRetReturnReg - Some subtargets require that sret lowering includes
@@ -140,7 +136,7 @@ private:
   //                LowerCall except for the frame object for restoring $gp.
   std::pair<int, int> InArgFIRange, OutArgFIRange;
 
-  int GPFI; // Index of the frame object for restoring $gp
+  int GPFI;               // Index of the frame object for restoring $gp
   mutable int DynAllocFI; // Frame index of dynamically allocated stack area.
   bool EmitNOAT;
   unsigned MaxCallFrameSize;
@@ -150,4 +146,3 @@ private:
 } // end of namespace llvm
 
 #endif // CPU0_MACHINE_FUNCTION_INFO_H
-

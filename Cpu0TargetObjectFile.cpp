@@ -21,12 +21,12 @@
 #include "llvm/Target/TargetMachine.h"
 using namespace llvm;
 
-static cl::opt<unsigned>
-SSThreshold("cpu0-ssection-threshold", cl::Hidden,
-            cl::desc("Small data and bss section threshold size (default=8)"),
-            cl::init(8));
+static cl::opt<unsigned> SSThreshold(
+    "cpu0-ssection-threshold", cl::Hidden,
+    cl::desc("Small data and bss section threshold size (default=8)"),
+    cl::init(8));
 
-void Cpu0TargetObjectFile::Initialize(MCContext &Ctx, const TargetMachine &TM){
+void Cpu0TargetObjectFile::Initialize(MCContext &Ctx, const TargetMachine &TM) {
   TargetLoweringObjectFileELF::Initialize(Ctx, TM);
   InitializeELF(TM.Options.UseInitArray);
 
@@ -58,9 +58,9 @@ bool Cpu0TargetObjectFile::IsGlobalInSmallSection(
 
 /// IsGlobalInSmallSection - Return true if this global address should be
 /// placed into small data/bss section.
-bool Cpu0TargetObjectFile::
-IsGlobalInSmallSection(const GlobalObject *GO, const TargetMachine &TM,
-                       SectionKind Kind) const {
+bool Cpu0TargetObjectFile::IsGlobalInSmallSection(const GlobalObject *GO,
+                                                  const TargetMachine &TM,
+                                                  SectionKind Kind) const {
   return IsGlobalInSmallSectionImpl(GO, TM) &&
          (Kind.isData() || Kind.isBSS() || Kind.isCommon() ||
           Kind.isReadOnly());
@@ -69,9 +69,8 @@ IsGlobalInSmallSection(const GlobalObject *GO, const TargetMachine &TM,
 /// Return true if this global address should be placed into small data/bss
 /// section. This method does all the work, except for checking the section
 /// kind.
-bool Cpu0TargetObjectFile::
-IsGlobalInSmallSectionImpl(const GlobalObject *GV,
-                           const TargetMachine &TM) const {
+bool Cpu0TargetObjectFile::IsGlobalInSmallSectionImpl(
+    const GlobalObject *GV, const TargetMachine &TM) const {
   const Cpu0Subtarget &Subtarget =
       *static_cast<const Cpu0TargetMachine &>(TM).getSubtargetImpl();
 
@@ -89,8 +88,7 @@ IsGlobalInSmallSectionImpl(const GlobalObject *GV,
       GV->getParent()->getDataLayout().getTypeAllocSize(Ty));
 }
 
-MCSection *
-Cpu0TargetObjectFile::SelectSectionForGlobal(
+MCSection *Cpu0TargetObjectFile::SelectSectionForGlobal(
     const GlobalObject *GO, SectionKind Kind, const TargetMachine &TM) const {
   // TODO: Could also support "weak" symbols as well with ".gnu.linkonce.s.*"
   // sections?
@@ -106,4 +104,3 @@ Cpu0TargetObjectFile::SelectSectionForGlobal(
   // Otherwise, we work the same as ELF.
   return TargetLoweringObjectFileELF::SelectSectionForGlobal(GO, Kind, TM);
 }
-

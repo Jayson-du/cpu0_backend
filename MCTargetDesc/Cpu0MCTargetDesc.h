@@ -44,13 +44,13 @@ MCCodeEmitter *createCpu0MCCodeEmitterEL(const MCInstrInfo &MCII,
                                          const MCRegisterInfo &MRI,
                                          MCContext &Ctx);
 
-MCAsmBackend *createCpu0AsmBackend(const Target &T,
-                                   const MCSubtargetInfo &STI,
+MCAsmBackend *createCpu0AsmBackend(const Target &T, const MCSubtargetInfo &STI,
                                    const MCRegisterInfo &MRI,
                                    const MCTargetOptions &Options);
 
-std::unique_ptr<MCObjectTargetWriter> createCpu0ELFObjectWriter(const Triple &TT);
-} // End llvm namespace
+std::unique_ptr<MCObjectTargetWriter>
+createCpu0ELFObjectWriter(const Triple &TT);
+} // namespace llvm
 
 // Defines symbolic names for Cpu0 registers.  This defines a mapping from
 // register name to register number.
@@ -65,4 +65,3 @@ std::unique_ptr<MCObjectTargetWriter> createCpu0ELFObjectWriter(const Triple &TT
 #include "Cpu0GenSubtargetInfo.inc"
 
 #endif
-

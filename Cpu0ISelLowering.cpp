@@ -41,7 +41,8 @@
  * setIndexedLoadAction:  Indexed load(索引加载)
  * setIndexedStoreAction: Indexed store(索引存储)
  * setConvertAction:      Type conversion(类型转换)
- * setCondCodeAction:     Support for a given condition code(对给定条件代码的支持)
+ * setCondCodeAction:     Support for a given condition
+ * code(对给定条件代码的支持)
  */
 
 using namespace llvm;
@@ -136,7 +137,8 @@ Cpu0TargetLowering::Cpu0TargetLowering(const Cpu0TargetMachine &TM,
   AddPromotedToType(ISD::SETCC, MVT::i1, MVT::i32);
 
   // Cpu0 Custom Operations
-  // setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);可以告诉llc, Cpu0后端已经实现了全局变量的自定义实现
+  // setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);可以告诉llc,
+  // Cpu0后端已经实现了全局变量的自定义实现
   setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
   setOperationAction(ISD::GlobalTLSAddress, MVT::i32, Custom);
   setOperationAction(ISD::BlockAddress, MVT::i32, Custom);
@@ -1708,7 +1710,8 @@ bool Cpu0TargetLowering::CanLowerReturn(
     const SmallVectorImpl<ISD::OutputArg> &Outs, LLVMContext &Context) const {
   SmallVector<CCValAssign, 16> RVLocs;
   CCState CCInfo(CallConv, IsVarArg, MF, RVLocs, Context);
-  // 检查当前函数的返回值是否可以被降级, CheckReturn返回true可以被降级, false不能被降级
+  // 检查当前函数的返回值是否可以被降级, CheckReturn返回true可以被降级,
+  // false不能被降级
   return CCInfo.CheckReturn(Outs, RetCC_Cpu0);
 }
 

@@ -14,16 +14,16 @@
 
 #include "Cpu0AsmPrinter.h"
 
-#include "InstPrinter/Cpu0InstPrinter.h"
-#include "MCTargetDesc/Cpu0BaseInfo.h"
 #include "Cpu0.h"
 #include "Cpu0InstrInfo.h"
+#include "InstPrinter/Cpu0InstPrinter.h"
+#include "MCTargetDesc/Cpu0BaseInfo.h"
 #include "llvm/ADT/SmallString.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/ADT/Twine.h"
 #include "llvm/CodeGen/MachineConstantPool.h"
-#include "llvm/CodeGen/MachineFunctionPass.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
+#include "llvm/CodeGen/MachineFunctionPass.h"
 #include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineMemOperand.h"
 #include "llvm/IR/BasicBlock.h"
@@ -33,8 +33,8 @@
 #include "llvm/MC/MCInst.h"
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/MC/MCSymbol.h"
-#include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/TargetRegistry.h"
+#include "llvm/Support/raw_ostream.h"
 #include "llvm/Target/TargetLoweringObjectFile.h"
 #include "llvm/Target/TargetOptions.h"
 
@@ -72,7 +72,7 @@ bool Cpu0AsmPrinter::lowerOperand(const MachineOperand &MO, MCOperand &MCOp) {
 
 #ifdef ENABLE_GPRESTORE
 void Cpu0AsmPrinter::emitPseudoCPRestore(MCStreamer &OutStreamer,
-                                              const MachineInstr *MI) {
+                                         const MachineInstr *MI) {
   SmallVector<MCInst, 4> MCInsts;
   const MachineOperand &MO = MI->getOperand(0);
   assert(MO.isImm() && "CPRESTORE's operand must be an immediate.");
@@ -103,7 +103,7 @@ void Cpu0AsmPrinter::emitPseudoCPRestore(MCStreamer &OutStreamer,
 //@EmitInstruction {
 //- emitInstruction() must exists or will have run time error.
 void Cpu0AsmPrinter::emitInstruction(const MachineInstr *MI) {
-//@EmitInstruction body {
+  //@EmitInstruction body {
   if (MI->isDebugValue()) {
     SmallString<128> Str;
     raw_svector_ostream OS(Str);
@@ -203,7 +203,8 @@ void Cpu0AsmPrinter::printSavedRegsBitmask(raw_ostream &O) {
   CPUTopSavedRegOff = CPUBitmask ? -CPURegSize : 0;
 
   // Print CPUBitmask
-  O << "\t.mask \t"; printHex32(CPUBitmask, O);
+  O << "\t.mask \t";
+  printHex32(CPUBitmask, O);
   O << ',' << CPUTopSavedRegOff << '\n';
 }
 
@@ -211,7 +212,7 @@ void Cpu0AsmPrinter::printSavedRegsBitmask(raw_ostream &O) {
 void Cpu0AsmPrinter::printHex32(unsigned Value, raw_ostream &O) {
   O << "0x";
   for (int i = 7; i >= 0; i--)
-    O.write_hex((Value & (0xF << (i*4))) >> (i*4));
+    O.write_hex((Value & (0xF << (i * 4))) >> (i * 4));
 }
 
 //===----------------------------------------------------------------------===//
@@ -225,23 +226,27 @@ void Cpu0AsmPrinter::printHex32(unsigned Value, raw_ostream &O) {
 void Cpu0AsmPrinter::emitFrameDirective() {
   const TargetRegisterInfo &RI = *MF->getSubtarget().getRegisterInfo();
 
-  unsigned stackReg  = RI.getFrameRegister(*MF);
+  unsigned stackReg = RI.getFrameRegister(*MF);
   unsigned returnReg = RI.getRARegister();
   unsigned stackSize = MF->getFrameInfo().getStackSize();
 
   if (OutStreamer->hasRawTextSupport())
-    OutStreamer->emitRawText("\t.frame\t$" +
-           StringRef(Cpu0InstPrinter::getRegisterName(stackReg)).lower() +
-           "," + Twine(stackSize) + ",$" +
-           StringRef(Cpu0InstPrinter::getRegisterName(returnReg)).lower());
+    OutStreamer->emitRawText(
+        "\t.frame\t$" +
+        StringRef(Cpu0InstPrinter::getRegisterName(stackReg)).lower() + "," +
+        Twine(stackSize) + ",$" +
+        StringRef(Cpu0InstPrinter::getRegisterName(returnReg)).lower());
 }
 
 /// Emit Set directives.
 const char *Cpu0AsmPrinter::getCurrentABIString() const {
   switch (static_cast<Cpu0TargetMachine &>(TM).getABI().GetEnumValue()) {
-  case Cpu0ABIInfo::ABI::O32:  return "abiO32";
-  case Cpu0ABIInfo::ABI::S32:  return "abiS32";
-  default: llvm_unreachable("Unknown Cpu0 ABI");
+  case Cpu0ABIInfo::ABI::O32:
+    return "abiO32";
+  case Cpu0ABIInfo::ABI::S32:
+    return "abiS32";
+  default:
+    llvm_unreachable("Unknown Cpu0 ABI");
   }
 }
 
@@ -265,8 +270,7 @@ void Cpu0AsmPrinter::emitFunctionBodyStart() {
 
   emitFrameDirective();
   bool EmitCPLoad = (MF->getTarget().getRelocationModel() == Reloc::PIC_) &&
-    Cpu0FI->globalBaseRegSet() &&
-    Cpu0FI->globalBaseRegFixed();
+                    Cpu0FI->globalBaseRegSet() && Cpu0FI->globalBaseRegFixed();
   if (Cpu0NoCpload)
     EmitCPLoad = false;
 
@@ -286,7 +290,7 @@ void Cpu0AsmPrinter::emitFunctionBodyStart() {
     SmallVector<MCInst, 4> MCInsts;
     MCInstLowering.LowerCPLOAD(MCInsts);
     for (SmallVector<MCInst, 4>::iterator I = MCInsts.begin();
-       I != MCInsts.end(); ++I)
+         I != MCInsts.end(); ++I)
       OutStreamer->emitInstruction(*I, getSubtargetInfo());
   }
 }
@@ -317,7 +321,7 @@ void Cpu0AsmPrinter::emitStartOfAsmFile(Module &M) {
   // Tell the assembler which ABI we are using
   if (OutStreamer->hasRawTextSupport())
     OutStreamer->emitRawText("\t.section .mdebug." +
-                            Twine(getCurrentABIString()));
+                             Twine(getCurrentABIString()));
 
   // return to previous section
   if (OutStreamer->hasRawTextSupport())
@@ -329,13 +333,14 @@ bool Cpu0AsmPrinter::PrintAsmOperand(const MachineInstr *MI, unsigned OpNum,
                                      const char *ExtraCode, raw_ostream &O) {
   // Does this asm operand have a single letter operand modifier?
   if (ExtraCode && ExtraCode[0]) {
-    if (ExtraCode[1] != 0) return true; // Unknown modifier.
+    if (ExtraCode[1] != 0)
+      return true; // Unknown modifier.
 
     const MachineOperand &MO = MI->getOperand(OpNum);
     switch (ExtraCode[0]) {
     default:
       // See if this is a generic print operand
-      return AsmPrinter::PrintAsmOperand(MI,OpNum, ExtraCode,O);
+      return AsmPrinter::PrintAsmOperand(MI, OpNum, ExtraCode, O);
     case 'X': // hex const int
       if ((MO.getType()) != MachineOperand::MO_Immediate)
         return true;
@@ -399,72 +404,86 @@ void Cpu0AsmPrinter::printOperand(const MachineInstr *MI, int opNum,
   if (MO.getTargetFlags())
     closeP = true;
 
-  switch(MO.getTargetFlags()) {
-  case Cpu0II::MO_GPREL:    O << "%gp_rel("; break;
-  case Cpu0II::MO_GOT_CALL: O << "%call16("; break;
-  case Cpu0II::MO_GOT:      O << "%got(";    break;
-  case Cpu0II::MO_ABS_HI:   O << "%hi(";     break;
-  case Cpu0II::MO_ABS_LO:   O << "%lo(";     break;
-  case Cpu0II::MO_GOT_HI16: O << "%got_hi16("; break;
-  case Cpu0II::MO_GOT_LO16: O << "%got_lo16("; break;
+  switch (MO.getTargetFlags()) {
+  case Cpu0II::MO_GPREL:
+    O << "%gp_rel(";
+    break;
+  case Cpu0II::MO_GOT_CALL:
+    O << "%call16(";
+    break;
+  case Cpu0II::MO_GOT:
+    O << "%got(";
+    break;
+  case Cpu0II::MO_ABS_HI:
+    O << "%hi(";
+    break;
+  case Cpu0II::MO_ABS_LO:
+    O << "%lo(";
+    break;
+  case Cpu0II::MO_GOT_HI16:
+    O << "%got_hi16(";
+    break;
+  case Cpu0II::MO_GOT_LO16:
+    O << "%got_lo16(";
+    break;
   }
 
   switch (MO.getType()) {
-    case MachineOperand::MO_Register:
-      O << '$'
-        << StringRef(Cpu0InstPrinter::getRegisterName(MO.getReg())).lower();
-      break;
+  case MachineOperand::MO_Register:
+    O << '$'
+      << StringRef(Cpu0InstPrinter::getRegisterName(MO.getReg())).lower();
+    break;
 
-    case MachineOperand::MO_Immediate:
-      O << MO.getImm();
-      break;
+  case MachineOperand::MO_Immediate:
+    O << MO.getImm();
+    break;
 
-    case MachineOperand::MO_MachineBasicBlock:
-      O << *MO.getMBB()->getSymbol();
-      return;
+  case MachineOperand::MO_MachineBasicBlock:
+    O << *MO.getMBB()->getSymbol();
+    return;
 
-    case MachineOperand::MO_GlobalAddress:
-      O << *getSymbol(MO.getGlobal());
-      break;
+  case MachineOperand::MO_GlobalAddress:
+    O << *getSymbol(MO.getGlobal());
+    break;
 
-    case MachineOperand::MO_BlockAddress: {
-      MCSymbol *BA = GetBlockAddressSymbol(MO.getBlockAddress());
-      O << BA->getName();
-      break;
-    }
-
-    case MachineOperand::MO_ExternalSymbol:
-      O << *GetExternalSymbolSymbol(MO.getSymbolName());
-      break;
-
-    case MachineOperand::MO_JumpTableIndex:
-      O << MAI->getPrivateGlobalPrefix() << "JTI" << getFunctionNumber()
-        << '_' << MO.getIndex();
-      break;
-
-    case MachineOperand::MO_ConstantPoolIndex:
-      O << MAI->getPrivateGlobalPrefix() << "CPI"
-        << getFunctionNumber() << "_" << MO.getIndex();
-      if (MO.getOffset())
-        O << "+" << MO.getOffset();
-      break;
-
-    default:
-      llvm_unreachable("<unknown operand type>");
+  case MachineOperand::MO_BlockAddress: {
+    MCSymbol *BA = GetBlockAddressSymbol(MO.getBlockAddress());
+    O << BA->getName();
+    break;
   }
 
-  if (closeP) O << ")";
+  case MachineOperand::MO_ExternalSymbol:
+    O << *GetExternalSymbolSymbol(MO.getSymbolName());
+    break;
+
+  case MachineOperand::MO_JumpTableIndex:
+    O << MAI->getPrivateGlobalPrefix() << "JTI" << getFunctionNumber() << '_'
+      << MO.getIndex();
+    break;
+
+  case MachineOperand::MO_ConstantPoolIndex:
+    O << MAI->getPrivateGlobalPrefix() << "CPI" << getFunctionNumber() << "_"
+      << MO.getIndex();
+    if (MO.getOffset())
+      O << "+" << MO.getOffset();
+    break;
+
+  default:
+    llvm_unreachable("<unknown operand type>");
+  }
+
+  if (closeP)
+    O << ")";
 }
 
 void Cpu0AsmPrinter::PrintDebugValueComment(const MachineInstr *MI,
-                                           raw_ostream &OS) {
+                                            raw_ostream &OS) {
   // TODO: implement
   OS << "PrintDebugValueComment()";
 }
 
 bool Cpu0AsmPrinter::isLongBranchPseudo(int Opcode) const {
-  return (Opcode == Cpu0::LONG_BRANCH_LUi
-          || Opcode == Cpu0::LONG_BRANCH_ADDiu);
+  return (Opcode == Cpu0::LONG_BRANCH_LUi || Opcode == Cpu0::LONG_BRANCH_ADDiu);
 }
 
 // Force static initialization.
@@ -472,4 +491,3 @@ extern "C" void LLVMInitializeCpu0AsmPrinter() {
   RegisterAsmPrinter<Cpu0AsmPrinter> X(TheCpu0Target);
   RegisterAsmPrinter<Cpu0AsmPrinter> Y(TheCpu0elTarget);
 }
-

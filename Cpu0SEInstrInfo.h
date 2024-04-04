@@ -17,8 +17,8 @@
 #include "Cpu0Config.h"
 
 #include "Cpu0InstrInfo.h"
-#include "Cpu0SERegisterInfo.h"
 #include "Cpu0MachineFunction.h"
+#include "Cpu0SERegisterInfo.h"
 
 namespace llvm {
 
@@ -45,21 +45,19 @@ public:
                    const DebugLoc &DL, MCRegister DestReg, MCRegister SrcReg,
                    bool KillSrc) const override;
 
-  void storeRegToStack(MachineBasicBlock &MBB,
-                       MachineBasicBlock::iterator MI,
+  void storeRegToStack(MachineBasicBlock &MBB, MachineBasicBlock::iterator MI,
                        Register SrcReg, bool isKill, int FrameIndex,
                        const TargetRegisterClass *RC,
                        const TargetRegisterInfo *TRI,
                        int64_t Offset) const override;
 
-  void loadRegFromStack(MachineBasicBlock &MBB,
-                        MachineBasicBlock::iterator MI,
+  void loadRegFromStack(MachineBasicBlock &MBB, MachineBasicBlock::iterator MI,
                         Register DestReg, int FrameIndex,
                         const TargetRegisterClass *RC,
                         const TargetRegisterInfo *TRI,
                         int64_t Offset) const override;
 
-//@expandPostRAPseudo
+  //@expandPostRAPseudo
   /**
    * @brief 重写TargetInstrInfo::expandPostRAPseudo,伪指令对寄存器分配有帮助,
    *        在寄存器分配之后,仍然会存在一些伪指令,这个函数的作用就是将伪指令转为真实指令
@@ -80,6 +78,7 @@ public:
   unsigned loadImmediate(int64_t Imm, MachineBasicBlock &MBB,
                          MachineBasicBlock::iterator II, const DebugLoc &DL,
                          unsigned *NewImm) const;
+
 private:
   void expandRetLR(MachineBasicBlock &MBB, MachineBasicBlock::iterator I) const;
 
@@ -89,7 +88,6 @@ private:
                       MachineBasicBlock::iterator I) const;
 };
 
-}
+} // namespace llvm
 
 #endif
-

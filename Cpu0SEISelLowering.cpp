@@ -10,8 +10,8 @@
 // Subclass of Cpu0TargetLowering specialized for cpu032.
 //
 //===----------------------------------------------------------------------===//
-#include "Cpu0MachineFunction.h"
 #include "Cpu0SEISelLowering.h"
+#include "Cpu0MachineFunction.h"
 
 #include "Cpu0RegisterInfo.h"
 #include "Cpu0TargetMachine.h"
@@ -27,23 +27,23 @@ using namespace llvm;
 
 #define DEBUG_TYPE "cpu0-isel"
 
-static cl::opt<bool>
-EnableCpu0TailCalls("enable-cpu0-tail-calls", cl::Hidden,
-                    cl::desc("CPU0: Enable tail calls."), cl::init(false));
+static cl::opt<bool> EnableCpu0TailCalls("enable-cpu0-tail-calls", cl::Hidden,
+                                         cl::desc("CPU0: Enable tail calls."),
+                                         cl::init(false));
 
 //@Cpu0SETargetLowering {
 Cpu0SETargetLowering::Cpu0SETargetLowering(const Cpu0TargetMachine &TM,
                                            const Cpu0Subtarget &STI)
     : Cpu0TargetLowering(TM, STI) {
-//@Cpu0SETargetLowering body {
+  //@Cpu0SETargetLowering body {
   // Set up the register classes
   // 调用该方法表示哪些本地支持哪些类型
   addRegisterClass(MVT::i32, &Cpu0::CPURegsRegClass);
 
-  setOperationAction(ISD::ATOMIC_FENCE,       MVT::Other, Custom);
+  setOperationAction(ISD::ATOMIC_FENCE, MVT::Other, Custom);
 
-// must, computeRegisterProperties - Once all of the register classes are
-//  added, this allows us to compute derived properties we expose.
+  // must, computeRegisterProperties - Once all of the register classes are
+  //  added, this allows us to compute derived properties we expose.
   computeRegisterProperties(Subtarget.getRegisterInfo());
 }
 
@@ -59,10 +59,9 @@ llvm::createCpu0SETargetLowering(const Cpu0TargetMachine &TM,
   return new Cpu0SETargetLowering(TM, STI);
 }
 
-bool Cpu0SETargetLowering::
-isEligibleForTailCallOptimization(const Cpu0CC &Cpu0CCInfo,
-                                  unsigned NextStackOffset,
-                                  const Cpu0FunctionInfo& FI) const {
+bool Cpu0SETargetLowering::isEligibleForTailCallOptimization(
+    const Cpu0CC &Cpu0CCInfo, unsigned NextStackOffset,
+    const Cpu0FunctionInfo &FI) const {
   if (!EnableCpu0TailCalls)
     return false;
 
@@ -74,4 +73,3 @@ isEligibleForTailCallOptimization(const Cpu0CC &Cpu0CCInfo,
   // caller's.
   return NextStackOffset <= FI.getIncomingArgSize();
 }
-

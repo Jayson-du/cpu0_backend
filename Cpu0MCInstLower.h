@@ -18,28 +18,29 @@
 #include "llvm/Support/Compiler.h"
 
 namespace llvm {
-  class MCContext;
-  class MCInst;
-  class MCOperand;
-  class MachineInstr;
-  class MachineFunction;
-  class Cpu0AsmPrinter;
+class MCContext;
+class MCInst;
+class MCOperand;
+class MachineInstr;
+class MachineFunction;
+class Cpu0AsmPrinter;
 
 //@1 {
 /// This class is used to lower an MachineInstr into an MCInst.
 class LLVM_LIBRARY_VISIBILITY Cpu0MCInstLower {
-//@2
+  //@2
   typedef MachineOperand::MachineOperandType MachineOperandType;
   MCContext *Ctx;
   Cpu0AsmPrinter &AsmPrinter;
+
 public:
   Cpu0MCInstLower(Cpu0AsmPrinter &asmprinter);
-  void Initialize(MCContext* C);
+  void Initialize(MCContext *C);
   void Lower(const MachineInstr *MI, MCInst &OutMI) const;
-  MCOperand LowerOperand(const MachineOperand& MO, unsigned offset = 0) const;
-  void LowerCPLOAD(SmallVector<MCInst, 4>& MCInsts);
+  MCOperand LowerOperand(const MachineOperand &MO, unsigned offset = 0) const;
+  void LowerCPLOAD(SmallVector<MCInst, 4> &MCInsts);
 #ifdef ENABLE_GPRESTORE
-  void LowerCPRESTORE(int64_t Offset, SmallVector<MCInst, 4>& MCInsts);
+  void LowerCPRESTORE(int64_t Offset, SmallVector<MCInst, 4> &MCInsts);
 #endif
 private:
   MCOperand LowerSymbolOperand(const MachineOperand &MO,
@@ -47,12 +48,10 @@ private:
   MCOperand createSub(MachineBasicBlock *BB1, MachineBasicBlock *BB2,
                       Cpu0MCExpr::Cpu0ExprKind Kind) const;
   void lowerLongBranchLUi(const MachineInstr *MI, MCInst &OutMI) const;
-  void lowerLongBranchADDiu(const MachineInstr *MI, MCInst &OutMI,
-                            int Opcode,
+  void lowerLongBranchADDiu(const MachineInstr *MI, MCInst &OutMI, int Opcode,
                             Cpu0MCExpr::Cpu0ExprKind Kind) const;
   bool lowerLongBranch(const MachineInstr *MI, MCInst &OutMI) const;
 };
-}
+} // namespace llvm
 
 #endif
-

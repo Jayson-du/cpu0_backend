@@ -25,9 +25,9 @@
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/PseudoSourceValue.h"
 #include "llvm/CodeGen/TargetInstrInfo.h"
+#include "llvm/CodeGen/TargetRegisterInfo.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Target/TargetMachine.h"
-#include "llvm/CodeGen/TargetRegisterInfo.h"
 
 using namespace llvm;
 
@@ -36,31 +36,28 @@ using namespace llvm;
 STATISTIC(FilledSlots, "Number of delay slots filled");
 
 namespace {
-  typedef MachineBasicBlock::iterator Iter;
-  typedef MachineBasicBlock::reverse_iterator ReverseIter;
+typedef MachineBasicBlock::iterator Iter;
+typedef MachineBasicBlock::reverse_iterator ReverseIter;
 
-  class Filler : public MachineFunctionPass {
-  public:
-    Filler(TargetMachine &tm)
-      : MachineFunctionPass(ID) { }
+class Filler : public MachineFunctionPass {
+public:
+  Filler(TargetMachine &tm) : MachineFunctionPass(ID) {}
 
-    StringRef getPassName() const override {
-      return "Cpu0 Delay Slot Filler";
-    }
+  StringRef getPassName() const override { return "Cpu0 Delay Slot Filler"; }
 
-    bool runOnMachineFunction(MachineFunction &F) override {
-      bool Changed = false;
-      for (MachineFunction::iterator FI = F.begin(), FE = F.end();
-           FI != FE; ++FI)
-        Changed |= runOnMachineBasicBlock(*FI);
-      return Changed;
-    }
-  private:
-    bool runOnMachineBasicBlock(MachineBasicBlock &MBB);
+  bool runOnMachineFunction(MachineFunction &F) override {
+    bool Changed = false;
+    for (MachineFunction::iterator FI = F.begin(), FE = F.end(); FI != FE; ++FI)
+      Changed |= runOnMachineBasicBlock(*FI);
+    return Changed;
+  }
 
-    static char ID;
-  };
-  char Filler::ID = 0;
+private:
+  bool runOnMachineBasicBlock(MachineBasicBlock &MBB);
+
+  static char ID;
+};
+char Filler::ID = 0;
 } // end of anonymous namespace
 
 static bool hasUnoccupiedSlot(const MachineInstr *MI) {
@@ -94,4 +91,3 @@ bool Filler::runOnMachineBasicBlock(MachineBasicBlock &MBB) {
 FunctionPass *llvm::createCpu0DelaySlotFillerPass(Cpu0TargetMachine &tm) {
   return new Filler(tm);
 }
-

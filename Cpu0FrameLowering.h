@@ -23,7 +23,7 @@
  *
  */
 namespace llvm {
-  class Cpu0Subtarget;
+class Cpu0Subtarget;
 
 class Cpu0FrameLowering : public TargetFrameLowering {
 protected:
@@ -31,9 +31,9 @@ protected:
 
 public:
   explicit Cpu0FrameLowering(const Cpu0Subtarget &sti, unsigned Alignment)
-    : TargetFrameLowering(StackGrowsDown, Align(Alignment), 0, Align(Alignment)),
-      STI(sti) {
-  }
+      : TargetFrameLowering(StackGrowsDown, Align(Alignment), 0,
+                            Align(Alignment)),
+        STI(sti) {}
 
   static const Cpu0FrameLowering *create(const Cpu0Subtarget &ST);
 
@@ -46,15 +46,13 @@ public:
    * brief: 调用该函数消除调用帧setup或者伪指令
    */
   MachineBasicBlock::iterator
-  eliminateCallFramePseudoInstr(MachineFunction &MF,
-                                  MachineBasicBlock &MBB,
-                                  MachineBasicBlock::iterator I) const override;
+  eliminateCallFramePseudoInstr(MachineFunction &MF, MachineBasicBlock &MBB,
+                                MachineBasicBlock::iterator I) const override;
 };
 
 /// Create Cpu0FrameLowering objects.
 const Cpu0FrameLowering *createCpu0SEFrameLowering(const Cpu0Subtarget &ST);
 
-} // End llvm namespace
+} // namespace llvm
 
 #endif
-

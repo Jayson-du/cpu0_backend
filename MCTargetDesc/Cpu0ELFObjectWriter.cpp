@@ -23,22 +23,23 @@
 using namespace llvm;
 
 namespace {
-  class Cpu0ELFObjectWriter : public MCELFObjectTargetWriter {
-  public:
-    Cpu0ELFObjectWriter(uint8_t OSABI, bool HasRelocationAddend, bool Is64);
+class Cpu0ELFObjectWriter : public MCELFObjectTargetWriter {
+public:
+  Cpu0ELFObjectWriter(uint8_t OSABI, bool HasRelocationAddend, bool Is64);
 
-	~Cpu0ELFObjectWriter() = default;
+  ~Cpu0ELFObjectWriter() = default;
 
-    unsigned getRelocType(MCContext &Ctx, const MCValue &Target,
+  unsigned getRelocType(MCContext &Ctx, const MCValue &Target,
                         const MCFixup &Fixup, bool IsPCRel) const override;
-    bool needsRelocateWithSymbol(const MCSymbol &Sym,
-                                 unsigned Type) const override;
-  };
-}
+  bool needsRelocateWithSymbol(const MCSymbol &Sym,
+                               unsigned Type) const override;
+};
+} // namespace
 
 Cpu0ELFObjectWriter::Cpu0ELFObjectWriter(uint8_t OSABI,
                                          bool HasRelocationAddend, bool Is64)
-    : MCELFObjectTargetWriter(/*Is64Bit_=false*/ Is64, OSABI, ELF::EM_CPU0,
+    : MCELFObjectTargetWriter(
+          /*Is64Bit_=false*/ Is64, OSABI, ELF::EM_CPU0,
           /*HasRelocationAddend_ = false*/ HasRelocationAddend) {}
 
 //@GetRelocType {
@@ -116,9 +117,8 @@ unsigned Cpu0ELFObjectWriter::getRelocType(MCContext &Ctx,
 }
 //@GetRelocType }
 
-bool
-Cpu0ELFObjectWriter::needsRelocateWithSymbol(const MCSymbol &Sym,
-                                             unsigned Type) const {
+bool Cpu0ELFObjectWriter::needsRelocateWithSymbol(const MCSymbol &Sym,
+                                                  unsigned Type) const {
   // FIXME: This is extremelly conservative. This really needs to use a
   // whitelist with a clear explanation for why each realocation needs to
   // point to the symbol, not to the section.
@@ -127,8 +127,8 @@ Cpu0ELFObjectWriter::needsRelocateWithSymbol(const MCSymbol &Sym,
     return true;
 
   case ELF::R_CPU0_GOT16:
-  // For Cpu0 pic mode, I think it's OK to return true but I didn't confirm.
-  //  llvm_unreachable("Should have been handled already");
+    // For Cpu0 pic mode, I think it's OK to return true but I didn't confirm.
+    //  llvm_unreachable("Should have been handled already");
     return true;
 
   // These relocations might be paired with another relocation. The pairing is
@@ -138,7 +138,7 @@ Cpu0ELFObjectWriter::needsRelocateWithSymbol(const MCSymbol &Sym,
   // points to a symbol.
   case ELF::R_CPU0_HI16:
   case ELF::R_CPU0_LO16:
-  // R_CPU0_32 should be a relocation record, I don't know why Mips set it to 
+  // R_CPU0_32 should be a relocation record, I don't know why Mips set it to
   // false.
   case ELF::R_CPU0_32:
     return true;
@@ -148,7 +148,7 @@ Cpu0ELFObjectWriter::needsRelocateWithSymbol(const MCSymbol &Sym,
   }
 }
 
-std::unique_ptr<MCObjectTargetWriter> 
+std::unique_ptr<MCObjectTargetWriter>
 llvm::createCpu0ELFObjectWriter(const Triple &TT) {
   uint8_t OSABI = MCELFObjectTargetWriter::getOSABI(TT.getOS());
   bool IsN64 = false;
@@ -156,4 +156,3 @@ llvm::createCpu0ELFObjectWriter(const Triple &TT) {
   return std::make_unique<Cpu0ELFObjectWriter>(OSABI, HasRelocationAddend,
                                                IsN64);
 }
-

@@ -42,8 +42,9 @@ public:
    */
   const MCPhysReg *getCalleeSavedRegs(const MachineFunction *MF) const override;
 
-  const uint32_t *getCallPreservedMask(const MachineFunction &MF,getReservedRegs 
-                                       CallingConv::ID) const override;
+  const uint32_t *
+  getCallPreservedMask(const MachineFunction &MF,
+                       getReservedRegs CallingConv::ID) const override;
   /*
    * brief: 返回一个由物理寄存器号索引的bitset，指示某个特定的寄存器是否不可用。
    */
@@ -57,8 +58,8 @@ public:
   /*
    * brief: 从可能使用抽象帧索引的指令中消除它们
    */
-  void eliminateFrameIndex(MachineBasicBlock::iterator II,
-                           int SPAdj, unsigned FIOperandNum,
+  void eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
+                           unsigned FIOperandNum,
                            RegScavenger *RS = nullptr) const override;
 
   /// Debug information queries.
@@ -71,4 +72,3 @@ public:
 } // end namespace llvm
 
 #endif
-

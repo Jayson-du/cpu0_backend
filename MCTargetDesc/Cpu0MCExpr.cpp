@@ -26,8 +26,9 @@ const Cpu0MCExpr *Cpu0MCExpr::create(Cpu0MCExpr::Cpu0ExprKind Kind,
   return new (Ctx) Cpu0MCExpr(Kind, Expr);
 }
 
-const Cpu0MCExpr *Cpu0MCExpr::create(const MCSymbol *Symbol, Cpu0MCExpr::Cpu0ExprKind Kind,
-                         MCContext &Ctx) {
+const Cpu0MCExpr *Cpu0MCExpr::create(const MCSymbol *Symbol,
+                                     Cpu0MCExpr::Cpu0ExprKind Kind,
+                                     MCContext &Ctx) {
   const MCSymbolRefExpr *MCSym =
       MCSymbolRefExpr::create(Symbol, MCSymbolRefExpr::VK_None, Ctx);
   return new (Ctx) Cpu0MCExpr(Kind, MCSym);
@@ -107,10 +108,9 @@ void Cpu0MCExpr::printImpl(raw_ostream &OS, const MCAsmInfo *MAI) const {
   OS << ')';
 }
 
-bool
-Cpu0MCExpr::evaluateAsRelocatableImpl(MCValue &Res,
-                                      const MCAsmLayout *Layout,
-                                      const MCFixup *Fixup) const {
+bool Cpu0MCExpr::evaluateAsRelocatableImpl(MCValue &Res,
+                                           const MCAsmLayout *Layout,
+                                           const MCFixup *Fixup) const {
   return getSubExpr()->evaluateAsRelocatable(Res, Layout, Fixup);
 }
 
@@ -141,4 +141,3 @@ bool Cpu0MCExpr::isGpOff(Cpu0ExprKind &Kind) const {
   }
   return false;
 }
-
